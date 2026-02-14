@@ -1,0 +1,41 @@
+﻿@model ProductVM
+
+<section class="py-5 bg-blackbg-body-tertiary">
+	<div class="container px-4 px-lg-5 my-5">
+		<div class="row g-4 g-lg-5 aling-items-center">
+
+			<div class="col-md-6">
+				<img class="card-img-top rounded mb-5" src="~/images/@Model.ImageName" alt="@Model.Name" loading="lazy" />
+			</div>
+			<div class="col-md-6">
+				<h1 class="display-5 fw-bold mb-3">@Model.Name</h1>
+				<div class="fs-5 mb-4">
+					<span class="text-primary fw-semibold ms-2">@Model.Price.ToString("C2")</span>
+				</div>
+				@Html.Raw(Model.Description)
+
+				<form action="/Home/AddItemToCart" method="post">
+				<div class="d-flex aling-items-center gap-3">
+					<input hidden name="productId" asp-for="@Model.ProductId" />
+					<input class="form-control text-center py-2" 
+					name="quantity" type="number" value="1" min="1" style="max-width:5rem"/>
+					<button class="btn btn-dark flex-xl-shrink-0 px-4 type=submit" >
+						<i class="fa-solid fa-cart-shopping"></i>
+						Añadir al carrito
+					</button>
+					<a class="btn btn-warning flex-md-shrink-0 px-4" href="/Home/Index">Volver</a>
+				</div>
+				</form>
+
+				@if(ViewBag.message != null)
+				{
+					<div class="alert alert-success mt-4" role="alert">
+						@ViewBag.message
+					</div>
+				}
+
+
+			</div>
+		</div>
+	</div>
+</section>

@@ -1,0 +1,85 @@
+﻿@model MyStoreLaZeta.Models.ProductVM
+
+@{
+	var title = Model.ProductId == 0 ? "Nuevo Producto" : "Editar Producto";
+	var btnAction = Model.ProductId == 0 ? "Agregar" : "Guardar";
+}
+
+<div class="container">
+	<div class="row">
+		<h2>@title</h2>
+		<hr />
+
+		@if (ViewBag.message != null)
+		{
+			<div class="alert alert-success alert-dismissible fade show" role="alert">
+				@ViewBag.message
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+		}
+
+		<div class="col-md-6">
+			<form asp-action="AddEdit" method="post" enctype="multipart/form-data">
+				<input type="hidden" asp-for="ProductId" />
+
+				<div class="mb-3">
+					<label class="form-label">Categoría</label>
+					<select class="form-select" asp-for="Category.CategoryId" asp-items="Model.Categories">
+						<option selected disabled>--select--</option>
+					</select>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label">Nombre</label>
+					<input type="text" class="form-control" asp-for="Name" autocomplete="off">
+					<span asp-validation-for="Name" class="text-danger"></span>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label">Descripción</label>
+					<input type="text" class="form-control" asp-for="Description" autocomplete="off">
+					<span asp-validation-for="Description" class="text-danger"></span>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label">Precio</label>
+					<input type="number" class="form-control" asp-for="Price" autocomplete="off">
+					<span asp-validation-for="Price" class="text-danger"></span>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label">Stock</label>
+					<input type="number" class="form-control" asp-for="Stock" autocomplete="off">
+					<span asp-validation-for="Stock" class="text-danger"></span>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label">Subir Imagen</label>
+					<input type="file" class="form-control" asp-for="ImageFile">
+				</div>
+
+				<div class="d-grid gap-2 d-md-block mt-4 mb-3">
+					<button class="btn btn-primary" type="submit">@btnAction</button>
+					<a asp-action="Index" class="btn btn-warning">Volver</a>
+				</div>
+			</form>
+		</div> <div class="col-md-6 d-flex justify-content-center align-items-start pt-4">
+			@if (!string.IsNullOrEmpty(Model.ImageName))
+			{
+				<div class="card shadow-sm">
+					<div class="card-body">
+						<p class="text-center text-muted mb-2">Imagen actual</p>
+						<img src="~/images/@Model.ImageName" class="img-fluid rounded" style="max-height: 400px;" alt="@Model.Name" />
+					</div>
+				</div>
+			}
+			else
+			{
+				<div class="alert alert-secondary w-75 text-center mt-5">
+					Sin imagen cargada
+				</div>
+			}
+		</div>
+
+	</div>
+</div>

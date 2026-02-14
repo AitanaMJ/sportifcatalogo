@@ -1,0 +1,64 @@
+﻿@model List<CartItemVM>
+
+@if (Model.Count() != 0)
+{
+
+
+
+
+	<div class="row justify-content-between mt-4">
+		<div class="col-4">
+			<h4>Carrito</h4>
+		</div>
+		<div class="col-4 text-end">
+			<button href="/Category/AddEdit" class="btn btn-success">Iniciar Compra</button>
+		</div>
+	</div>
+	<hr />
+
+
+
+	<table class="table table-striped">
+		<thead>
+			<tr>
+
+				<th style="width:120px">Acciones</th>
+				<th>Nombre</th>
+				<th>Precio</th>
+				<th>Cantidad</th>
+				<th>Total</th>
+				<th style="width:120px">Acciones</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var item in Model)
+			{
+				<tr class="align-middle">
+					<td style="width:120px">
+						<img class="card-img-top rounded" src="~/images/@item.ImageName" alt="Product Image" loading="lazy" style="width:100px" />
+
+					<td>@item.Name</td>
+					<td>@item.Price.ToString("C2")</td>
+					<td>@item.Quantity</td>
+					<td>@((item.Price * item.Quantity).ToString("C2"))</td>
+					<td style="width:120px">
+						<a href="/Home/RemoveItemToCart?productId=@item.ProductId" 
+						class="btn btn-sm"><i class="fa-solid fa-xmark text-danger"></i></a>
+					</td>
+				</tr>
+			}
+
+
+		</tbody>
+	</table>
+
+}
+else
+{
+
+	<div class="alert alert-warning mt-4" role="alert">
+		No hay productos en el carrito.
+	</div>
+
+
+}

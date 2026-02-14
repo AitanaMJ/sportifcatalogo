@@ -1,0 +1,20 @@
+﻿@using MyStoreLaZeta.Utilities;
+
+@{
+	int cartCount = 0;
+	if (Context.Session.Get<List<CartItemVM>>("Cart") != null)
+	{
+		var cart = Context.Session.Get<List<CartItemVM>>("Cart");
+		cartCount = cart.Count();
+	}
+}
+
+<li class="nav-item ms-auto">
+	<a class="btn btn-outline-dark" href="/Home/ViewCart">
+		<i class="fa-solid fa-cart-shopping"></i>
+		Carrito
+		<span class="badge bg-dark text-white ms-1 rounded-pill">@cartCount</span>
+
+	</a>
+
+</li>

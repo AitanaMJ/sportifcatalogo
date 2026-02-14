@@ -1,0 +1,80 @@
+﻿@model List<ProductVM>
+
+<div class="row justify-content-between mt-4">
+	<div class="col-4">
+		<h4>Productos</h4>
+	</div>
+	<div class="col-4 text-end">
+		<a href="/Product/AddEdit" class="btn btn-success"><i class="fa-solid fa-plus"></i>Crear Producto</a>
+	</div>
+</div>
+<hr />
+
+@if (TempData["message"] != null)
+{
+	<div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+		@TempData["message"]
+		<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+	</div>
+}
+
+
+<table class="table table-striped">
+	<thead>
+		<tr>
+
+			<th>Nombre</th>
+			<th>Categoria</th>
+			<th>Precio</th>
+			<th>Stock</th>
+			<th style="width:120px">Acciones</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model)
+		{
+			<tr>
+				<td>@item.Name</td>
+				<td>@item.Category.Name</td>
+				<td>@item.Price</td>
+				<td>@item.Stock</td>
+				
+				<td style="width:120px">
+					<a asp-controller="Product"
+					   asp-action="AddEdit"
+					   asp-route-id="@item.ProductId"
+					   class="btn btn-sm btn-primary">
+						<i class="fa-solid fa-pen-to-square"></i>
+					</a>
+					<button class="btn btn-sm btn-danger" onclick="deleteItem(@item.ProductId)"><i class="fa-solid fa-trash"></i></button>
+				</td>
+			</tr>
+		}
+
+
+	</tbody>
+</table>
+
+@section Scripts {
+	<script>
+				function deleteItem(id){
+
+			Swal.fire({
+			  title: "Estas seguro?",
+			/*  text: "You won't be able to revert this!",*/
+			  icon: "warning",
+			  showCancelButton: true,
+			  confirmButtonColor: "#3085d6",
+			  cancelButtonColor: "#d33",
+			  confirmButtonText: "Si, Eliminar!",
+			  cancelButtonText: "No, Volver"
+			  }).then((result) => {
+					 if (result.isConfirmed) {
+									  window.location.href = '@Url.Action("Delete", "Product")' + '?id=' + id;
+
+					   }
+
+			});
+		}
+	</script>
+}
