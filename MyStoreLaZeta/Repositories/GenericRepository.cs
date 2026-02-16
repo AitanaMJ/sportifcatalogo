@@ -50,5 +50,21 @@ namespace MyStoreLaZeta.Repositories
             _dbContext.Set<TEntity>().Remove(entity);
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<TEntity?> GetByFilter(
+           Expression<Func<TEntity, bool>>[]? conditions 
+          
+        )
+        {
+            IQueryable<TEntity> query = _dbContext.Set<TEntity>();
+
+            if (conditions is not null)
+                foreach (var condition in conditions) query = query.Where(condition);
+            return await query.FirstOrDefaultAsync();
+        }
+
+
+
+
     }
 }

@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MyStoreLaZeta.Models;
 using MyStoreLaZeta.Services;
 
 namespace MyStoreLaZeta.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class ProductController(ProductService _productService, CategoryService _categoryService) : Controller
     {
         public async Task<IActionResult> Index()

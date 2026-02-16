@@ -1,0 +1,107 @@
+﻿@model MyStoreLaZeta.Models.CheckoutVM
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <h2 class="fw-bold">Finalizar Compra</h2>
+        </div>
+    </div>
+
+    <form asp-action="ProcessOrder" method="post">
+        <div class="row g-5">
+            <div class="col-md-7 col-lg-8">
+
+                <h4 class="mb-3">1. Tus Datos</h4>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Nombre Completo</label>
+                        <input asp-for="Name" class="form-control" placeholder="Tu nombre y apellido" required />
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Teléfono (WhatsApp)</label>
+                        <input asp-for="Phone" class="form-control" placeholder="Ej: 381 123 4567" required />
+                        <small class="text-muted">Lo usaremos para coordinar el envío.</small>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Email</label>
+                        <input asp-for="Email" type="email" class="form-control" placeholder="tu@email.com" required />
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <h4 class="mb-3">2. Método de Entrega</h4>
+                <div class="my-3">
+                    <div class="form-check">
+                        <input asp-for="ShippingMethod" value="Retiro" id="retiro" type="radio" class="form-check-input" checked required>
+                        <label class="form-check-label" for="retiro">
+                            Retiro en el Local (Gratis)
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input asp-for="ShippingMethod" value="EnvioDomicilio" id="envio" type="radio" class="form-check-input" required>
+                        <label class="form-check-label" for="envio">
+                            Envío a Domicilio (A coordinar)
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-12 mt-3">
+                    <label class="form-label">Dirección (Si elegiste envío)</label>
+                    <input asp-for="Address" class="form-control" placeholder="Calle, Altura, Barrio..." />
+                </div>
+
+                <hr class="my-4">
+
+                <h4 class="mb-3">3. Forma de Pago</h4>
+                <div class="my-3">
+                    <div class="form-check p-3 border rounded mb-2">
+                        <input asp-for="PaymentMethod" value="Efectivo" id="pagoEfec" type="radio" class="form-check-input" checked required>
+                        <label class="form-check-label w-100" for="pagoEfec">
+                            <strong>Efectivo / Transferencia</strong>
+                            <div class="text-muted small">Coordinamos por WhatsApp. (10% OFF)</div>
+                        </label>
+                    </div>
+                    <div class="form-check p-3 border rounded">
+                        <input asp-for="PaymentMethod" value="MercadoPago" id="pagoMP" type="radio" class="form-check-input" required>
+                        <label class="form-check-label w-100" for="pagoMP">
+                            <strong>Mercado Pago</strong>
+                            <div class="text-muted small">Tarjetas de crédito, débito.</div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-5 col-lg-4">
+                <div class="card bg-light p-3 position-sticky" style="top: 2rem;">
+                    <h4 class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-primary">Tu Pedido</span>
+                        <span class="badge bg-primary rounded-pill">@Model.CartItems.Count</span>
+                    </h4>
+                    <ul class="list-group mb-3">
+                        @foreach (var item in Model.CartItems)
+                        {
+                            <li class="list-group-item d-flex justify-content-between lh-sm">
+                                <div>
+                                    <h6 class="my-0">@item.Name</h6>
+                                    <small class="text-muted">x @item.Quantity</small>
+                                </div>
+                                <span class="text-muted">@((item.Price * item.Quantity).ToString("C2"))</span>
+                            </li>
+                        }
+
+                        <li class="list-group-item d-flex justify-content-between bg-white mt-2">
+                            <span>Total (ARS)</span>
+                            <strong>@Model.Total.ToString("C2")</strong>
+                        </li>
+                    </ul>
+
+                    <button class="w-100 btn btn-success btn-lg" type="submit">Confirmar Compra</button>
+                    <a asp-action="ViewCart" class="w-100 btn btn-link mt-2">Volver al carrito</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

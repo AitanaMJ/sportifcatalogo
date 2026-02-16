@@ -1,9 +1,11 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using MyStoreLaZeta.Entities;
 using MyStoreLaZeta.Models;
 using MyStoreLaZeta.Services;
 using MyStoreLaZeta.Utilities;
+using MyStoreLaZeta.Context;
 
 namespace MyStoreLaZeta.Controllers
 {
@@ -94,6 +96,109 @@ namespace MyStoreLaZeta.Controllers
 
             return View("ViewCart",cart);
         }
+
+        // ==========================================
+        //  MÉTODOS NUEVOS PARA EL CHECKOUT (CORREGIDOS)
+        // ==========================================
+
+        // 1. GET: Muestra la pantalla de Checkout
+        public IActionResult Checkout()
+        {
+            // Recuperamos el carrito de la sesión
+            var cart = HttpContext.Session.Get<List<CartItemVM>>("Cart") ?? new List<CartItemVM>();
+
+            // Si el carrito está vacío, lo mandamos al inicio
+            if (cart.Count == 0) return RedirectToAction("Index");
+
+            var model = new CheckoutVM
+            {
+                CartItems = cart,
+                Total = cart.Sum(x => x.Quantity * x.Price),
+                ShippingMethod = "Retiro",
+                PaymentMethod = "Efectivo"
+            };
+
+            return View(model);
+        }
+
+        // 2. POST: Procesa la compra (Guarda en BD y manda a WhatsApp)
+        [HttpPost]
+        public async Task<IActionResult> ProcessOrder(CheckoutVM model, [FromServices] AppDbContext _context)
+        {
+            // Recuperar carrito otra vez
+            var cart = HttpContext.Session.Get<List<CartItemVM>>("Cart");
+
+            if (cart == null || cart.Count == 0)
+            {
+                return RedirectToAction("Index");
+            }
+
+            // --- A. GUARDAR LA ORDEN EN LA BASE DE DATOS ---
+            var order = new Order
+            {
+                OrderDate = DateTime.Now,
+                ClientName = model.Name,
+                Email = model.Email,
+                Phone = model.Phone,
+                // Si elige Retiro, guardamos "Retiro en Local", si no, la dirección que escribió
+                Address = model.ShippingMethod == "EnvioDomicilio" ? model.Address : "Retiro en Local",
+                ShippingMethod = model.ShippingMethod,
+                PaymentMethod = model.PaymentMethod,
+                Status = "Pendiente",
+                TotalAmount = cart.Sum(x => x.Price * x.Quantity),
+
+                // Mapeamos los items del carrito a la base de datos
+                OrderItems = cart.Select(i => new OrderItem
+                {
+                    ProductId = i.ProductId,
+                    ProductName = i.Name, // <--- ¡AQUÍ ESTABA EL ERROR! (Corregido a .Name)
+                    Price = i.Price,
+                    Quantity = i.Quantity
+                }).ToList()
+            };
+
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync(); // Se genera el ID de la orden
+
+            // --- B. LIMPIAR EL CARRITO ---
+            HttpContext.Session.Remove("Cart");
+
+            // --- C. REDIRECCIÓN A WHATSAPP ---
+
+            // ¡IMPORTANTE! CAMBIA ESTO POR TU NÚMERO REAL
+            // Formato: 549 + CodArea + Numero (Ej: 5493815555555)
+            string miTelefono = "5493810000000";
+
+            // Armamos el mensaje
+            // Usamos i.Name aquí también
+            string productosTexto = string.Join(", ", cart.Select(x => $"{x.Quantity}x {x.Name}"));
+
+            string mensaje =
+                $"Hola LaZeta" +
+                $" Hice un nuevo pedido #{order.OrderId}.\n\n" +
+                $" Cliente: {order.ClientName}\n" +
+                $" Pedido: {productosTexto}\n" +
+                $" Total: ${order.TotalAmount:N2}\n" +
+                $" Entrega: {order.ShippingMethod}\n" +
+                $" Pago: {order.PaymentMethod}\n";
+
+            if (order.ShippingMethod == "EnvioDomicilio")
+            {
+                mensaje += $" Dirección: {order.Address}\n";
+            }
+
+            if (model.PaymentMethod == "MercadoPago")
+            {
+                mensaje += "\n Espero el link de pago o Alias.";
+            }
+
+            // Generamos el link
+            string urlWhatsApp = $"https://wa.me/{miTelefono}?text={Uri.EscapeDataString(mensaje)}";
+
+            return Redirect(urlWhatsApp);
+        }
+
+
 
 
         public IActionResult Privacy()

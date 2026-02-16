@@ -1,20 +1,19 @@
 ﻿using System.ComponentModel.DataAnnotations;
-
-namespace MyStoreLaZeta.Entities
+namespace MyStoreLaZeta.Models
 {
-    public class User
+    public class UserVM
     {
         public int UserId { get; set; }
         [Required]
         public string FullName { get; set; }
         [Required]
-        public string Email{ get; set; }
+        public string Email { get; set; }
         [Required]
         public string Password { get; set; }
         [Required]
         public string Type { get; set; }
-        public ICollection<Order> Orders{ get; set; }
-
-   
+        [Required]
+        public string RepeatPassword { get; set; }
+        
     }
 }

@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims;
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -8,8 +9,9 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MyStoreLaZeta.styles.css" asp-append-version="true" />
-	<link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
-	<link href="~/lib/font-awesome/css/all.min.css" rel="stylesheet" />
+
+    <link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <link href="~/lib/font-awesome/css/all.min.css" rel="stylesheet" />
 </head>
 <body>
     <header>
@@ -20,23 +22,67 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Categoria</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Productos</a>
-                        </li>
-						@await Html.PartialAsync("_CartButton")
+
+                        @if (User.Identity!.IsAuthenticated && User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Category" asp-action="Index">Categorías</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Product" asp-action="Index">Productos</a>
+                            </li>
+                        }
                     </ul>
+
+                    <ul class="navbar-nav ms-auto align-items-center">
+
+                        @if (!User.IsInRole("Admin"))
+                        {
+                            @await Html.PartialAsync("_CartButton")
+                        }
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            // --- USUARIO LOGUEADO ---
+                            <li class="nav-item dropdown ms-3">
+                                <a class="nav-link dropdown-toggle text-dark fw-bold" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-user-circle"></i> Hola, @User.Identity.Name
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            // --- USUARIO NO LOGUEADO (Visitante) ---
+                            <li class="nav-item ms-3">
+                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Iniciar Sesión</a>
+                            </li>
+                            <li class="nav-item ms-2">
+                                <a class="btn btn-primary btn-sm text-white" asp-controller="Account" asp-action="Register">Registrarse</a>
+                            </li>
+                        }
+                    </ul>
+
                 </div>
             </div>
         </nav>
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -45,14 +91,17 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - LaZeta - <a asp-area="" asp-controller="Inicio" asp-action="Privacy">Privacidad</a>
+            &copy; 2026 - LaZeta - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacidad</a>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-	<script src="~/lib/font-awesome/js/all.min.js"></script>
-	<script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+
+    <script src="~/lib/font-awesome/js/all.min.js"></script>
+    <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -1,0 +1,64 @@
+﻿@model LoginVM
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <title>@ViewData["Title"] - MyStoreLaZeta</title>
+</head>
+<body class="bg-body-secondary">
+    <div class="container">
+        <div class="row justify-content-center align-items-center vh-100">
+            <div class="col-md-6 col-lg-4">
+                <div class="card show">
+                    <div class="card-body p-4">
+                        <h2 class="card-title text-center mb-4">Login</h2>
+                        <form action="/Account/Login" method="post">
+
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input class="form-control" type="email" asp-for="Email" placeholder="tu@email.com" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                <input class="form-control" type="password" asp-for="Password" placeholder="Contraseña" />
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+
+                            @if (ViewBag.message != null)
+                            {
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    @ViewBag.message
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            }
+
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" type="submit">Login</button>
+                                <a href="/Account/Register" class="btn btn-outline-secondary">Registrar</a>
+                            </div>
+
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>
