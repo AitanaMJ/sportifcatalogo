@@ -10,6 +10,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <title>@ViewData["Title"] - MyStoreLaZeta</title>
 </head>
 <body class="bg-body-secondary">
@@ -28,9 +29,20 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Password</label>
-                                <input class="form-control" type="password" asp-for="Password" placeholder="Contraseña" />
-                                <span asp-validation-for="Password" class="text-danger"></span>
+                                <label class="form-label fw-bold">Contraseña</label>
+                                <div class="input-group">
+                                    <input asp-for="Password" id="loginPass" class="form-control" type="password" placeholder="Contraseña" />
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('loginPass', 'eyeLogin')">
+                                        <i id="eyeLogin" class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="Password" class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-3 text-end">
+                                <a asp-action="ForgotPassword" class="text-decoration-none text-muted">
+                                    ¿Olvidaste tu contraseña?
+                                </a>
                             </div>
 
                             @if (ViewBag.message != null)
@@ -60,5 +72,22 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+    <script>
+        function togglePassword(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(iconId);
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeIcon.classList.remove("fa-eye");
+                eyeIcon.classList.add("fa-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                eyeIcon.classList.remove("fa-eye-slash");
+                eyeIcon.classList.add("fa-eye");
+            }
+        }
+    </script>
 </body>
 </html>

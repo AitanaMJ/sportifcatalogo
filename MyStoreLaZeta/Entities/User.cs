@@ -15,6 +15,11 @@ namespace MyStoreLaZeta.Entities
         public string Type { get; set; }
         public ICollection<Order> Orders{ get; set; }
 
-   
+        // Token para recuperar contraseña
+        public string? ResetToken { get; set; }
+
+        // Fecha de expiración del token
+        public DateTime? ResetTokenExpires { get; set; }
+
     }
 }

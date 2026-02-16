@@ -19,6 +19,7 @@ builder.Services.AddScoped(typeof(GenericRepository<>));
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<MyStoreLaZeta.Services.EmailService>();
 
 builder.Services.AddSession(options => { options.IdleTimeout = TimeSpan.FromMinutes(30); });
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(

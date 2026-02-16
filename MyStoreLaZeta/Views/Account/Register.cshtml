@@ -10,6 +10,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <title>@ViewData["Title"] - MyStoreLaZeta</title>
 </head>
 <body class="bg-body-secondary">
@@ -33,14 +34,24 @@
                             </div>
                           
                             <div class="mb-3">
-                                <label class="form-label">Password</label>
-                                <input class="form-control" type="password" asp-for="Password" placeholder="Contraseña" />
-                                <span asp-validation-for="Password" class="text-danger"></span>
+                                <label class="form-label fw-bold">Contraseña</label>
+                                <div class="input-group">
+                                    <input asp-for="Password" id="regPass" class="form-control" type="password" placeholder="Mínimo 6 caracteres" />
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('regPass', 'eyeReg')">
+                                        <i id="eyeReg" class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="Password" class="text-danger small"></span>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Repetir Contraseña</label>
-                                <input class="form-control" type="password" asp-for="RepeatPassword"  />
-                                <span asp-validation-for="RepeatPassword" class="text-danger"></span>
+                                <label class="form-label fw-bold">Repetir Contraseña</label>
+                                <div class="input-group">
+                                    <input asp-for="RepeatPassword" id="regPassRepeat" class="form-control" type="password" />
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('regPassRepeat', 'eyeRegRepeat')">
+                                        <i id="eyeRegRepeat" class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="RepeatPassword" class="text-danger small"></span>
                             </div>
                             <input type="hidden" asp-for="Type" value="Client" />
                             @if (ViewBag.message != null)
@@ -70,5 +81,23 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+
+    <script>
+        function togglePassword(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(iconId);
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeIcon.classList.remove("fa-eye");
+                eyeIcon.classList.add("fa-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                eyeIcon.classList.remove("fa-eye-slash");
+                eyeIcon.classList.add("fa-eye");
+            }
+        }
+    </script>
 </body>
 </html>
