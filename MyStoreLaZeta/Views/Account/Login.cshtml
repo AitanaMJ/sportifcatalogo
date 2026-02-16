@@ -1,70 +1,112 @@
 ﻿@model LoginVM
-
 @{
     Layout = null;
+    ViewData["Title"] = "Iniciar Sesión";
 }
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - La Zeta</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" />
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    <title>@ViewData["Title"] - MyStoreLaZeta</title>
+
+    <link rel="stylesheet" href="~/css/site.css" />
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fbfb; /* Fondo suave de tu paleta */
+        }
+
+        .vh-100 {
+            height: 100vh;
+        }
+    </style>
 </head>
-<body class="bg-body-secondary">
+<body>
+
     <div class="container">
         <div class="row justify-content-center align-items-center vh-100">
             <div class="col-md-6 col-lg-4">
-                <div class="card show">
-                    <div class="card-body p-4">
-                        <h2 class="card-title text-center mb-4">Login</h2>
+
+                <div class="card card-zeta shadow-lg border-0 p-3">
+                    <div class="card-body">
+
+                        <div class="text-center mb-4">
+                            <img src="~/images/logo_lazeta.png" alt="La Zeta Logo" style="height: 70px;" class="mb-3">
+                            <h3 class="fw-bold text-zeta-dark">¡Hola de nuevo!</h3>
+                            <p class="text-muted small">Ingresa tus datos para continuar.</p>
+                        </div>
+
                         <form action="/Account/Login" method="post">
 
                             <div class="mb-3">
-                                <label class="form-label">Email</label>
-                                <input class="form-control" type="email" asp-for="Email" placeholder="tu@email.com" />
-                                <span asp-validation-for="Email" class="text-danger"></span>
+                                <label class="form-label fw-bold text-zeta-dark">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fa-solid fa-envelope text-muted"></i>
+                                    </span>
+                                    <input class="form-control border-start-0 ps-0 shadow-none"
+                                           type="email" asp-for="Email" placeholder="tu@email.com" />
+                                </div>
+                                <span asp-validation-for="Email" class="text-danger small fw-bold"></span>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Contraseña</label>
-                                <div class="input-group">
-                                    <input asp-for="Password" id="loginPass" class="form-control" type="password" placeholder="Contraseña" />
-                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('loginPass', 'eyeLogin')">
+                            <div class="mb-2">
+                                <label class="form-label fw-bold text-zeta-dark">Contraseña</label>
+                                <div class="input-group shadow-sm rounded">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fa-solid fa-lock text-muted"></i>
+                                    </span>
+                                    <input asp-for="Password" id="loginPass"
+                                           class="form-control border-start-0 border-end-0 ps-0 shadow-none"
+                                           type="password" placeholder="Tu clave secreta" />
+                                    <button class="btn btn-light border-start-0 text-muted" type="button"
+                                            onclick="togglePassword('loginPass', 'eyeLogin')">
                                         <i id="eyeLogin" class="fa-solid fa-eye"></i>
                                     </button>
                                 </div>
-                                <span asp-validation-for="Password" class="text-danger small"></span>
+                                <span asp-validation-for="Password" class="text-danger small fw-bold"></span>
                             </div>
 
-                            <div class="mb-3 text-end">
-                                <a asp-action="ForgotPassword" class="text-decoration-none text-muted">
+                            <div class="mb-4 text-end">
+                                <a asp-action="ForgotPassword" class="text-decoration-none small fw-bold" style="color: var(--zeta-cyan);">
                                     ¿Olvidaste tu contraseña?
                                 </a>
                             </div>
 
                             @if (ViewBag.message != null)
                             {
-                                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                    @ViewBag.message
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+                                    <small><i class="fa-solid fa-circle-check me-2"></i> @ViewBag.message</small>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                                 </div>
                             }
 
                             <div class="d-grid gap-2">
-                                <button class="btn btn-primary" type="submit">Login</button>
-                                <a href="/Account/Register" class="btn btn-outline-secondary">Registrar</a>
+                                <button class="btn btn-zeta-cyan py-2 shadow-sm fw-bold" type="submit">
+                                    INICIAR SESIÓN
+                                </button>
+                                <a href="/Account/Register" class="btn btn-outline-secondary py-2 fw-bold">
+                                    CREAR CUENTA
+                                </a>
                             </div>
 
                         </form>
-
                     </div>
                 </div>
 
-            </div>
+                <div class="text-center mt-4 text-muted x-small">
+                    <p>&copy; 2026 La Zeta Merchandising - Tucumán</p>
+                </div>
 
+            </div>
         </div>
     </div>
 

@@ -1,65 +1,70 @@
 ﻿@using System.Security.Claims;
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - MyStoreLaZeta</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - La Zeta Merchandising</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MyStoreLaZeta.styles.css" asp-append-version="true" />
-   
+
     <link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
-    <link href="~/lib/font-awesome/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">LaZeta</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-zeta sticky-top mb-3">
+            <div class="container-fluid px-4">
+
+                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/logo_lazeta.png" alt="LaZeta" style="height: 45px;" class="me-2">
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
                         </li>
 
                         @if (User.Identity!.IsAuthenticated && User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Category" asp-action="Index">Categorías</a>
+                                <a class="nav-link text-uppercase fw-bold" asp-controller="Category" asp-action="Index">Categorías</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Product" asp-action="Index">Productos</a>
+                                <a class="nav-link text-uppercase fw-bold" asp-controller="Product" asp-action="Index">Productos</a>
                             </li>
                         }
                     </ul>
 
                     <ul class="navbar-nav ms-auto align-items-center">
-
                         @if (!User.IsInRole("Admin"))
                         {
-                            @await Html.PartialAsync("_CartButton")
+                            <li class="nav-item me-3">
+                                @await Html.PartialAsync("_CartButton")
+                            </li>
                         }
 
                         @if (User.Identity.IsAuthenticated)
                         {
-                            // --- USUARIO LOGUEADO ---
-                            <li class="nav-item dropdown ms-3">
-                                <a class="nav-link dropdown-toggle text-dark fw-bold" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fa-solid fa-user-circle"></i> Hola, @User.Identity.Name
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center fw-bold" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                    <div class="user-avatar me-2">
+                                        <i class="fa-solid fa-circle-user fa-xl" style="color: var(--zeta-cyan);"></i>
+                                    </div>
+                                    Hola, @User.Identity.Name
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm" aria-labelledby="userDropdown">
                                     <li>
                                         <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
-                                            <button type="submit" class="dropdown-item text-danger">
-                                                <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+                                            <button type="submit" class="dropdown-item text-danger py-2">
+                                                <i class="fa-solid fa-right-from-bracket me-2"></i> Cerrar Sesión
                                             </button>
                                         </form>
                                     </li>
@@ -68,38 +73,92 @@
                         }
                         else
                         {
-                            // --- USUARIO NO LOGUEADO (Visitante) ---
-                            <li class="nav-item ms-3">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Iniciar Sesión</a>
+                            <li class="nav-item me-2">
+                                <a class="nav-link fw-bold" asp-controller="Account" asp-action="Login">Iniciar Sesión</a>
                             </li>
-                            <li class="nav-item ms-2">
-                                <a class="btn btn-primary btn-sm text-white" asp-controller="Account" asp-action="Register">Registrarse</a>
+                            <li class="nav-item">
+                                <a class="btn btn-zeta-orange px-4 shadow-sm" asp-controller="Account" asp-action="Register">
+                                    Registrarse
+                                </a>
                             </li>
                         }
                     </ul>
-
                 </div>
             </div>
         </nav>
     </header>
 
-    <div class="container">
-        <main role="main" class="pb-3">
+    <div class="container mt-4">
+        <main role="main" class="pb-5">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="footer-zeta">
         <div class="container">
-            &copy; 2026 - LaZeta - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacidad</a>
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                    <img src="~/images/logo_lazeta.png" alt="La Zeta" style="height: 50px;" class="mb-3">
+                    <p class="small text-muted">
+                        Calidad y diseño en cada producto. Somos especialistas en merchandising personalizado en Tucumán.
+                    </p>
+                    <div class="mt-3">
+                        <div class="social-icon-box"><i class="fa-brands fa-facebook-f"></i></div>
+                        <div class="social-icon-box"><i class="fa-brands fa-instagram"></i></div>
+                        <div class="social-icon-box"><i class="fa-brands fa-whatsapp"></i></div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="footer-title">Navegación</h6>
+                    <a class="footer-link" asp-controller="Home" asp-action="Index">Inicio</a>
+                    <a class="footer-link" href="#">Productos</a>
+                    <a class="footer-link" asp-controller="Home" asp-action="Privacy">Privacidad</a>
+                    <a class="footer-link" href="#">Términos y Condiciones</a>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="footer-title">Medios de Pago</h6>
+                    <div class="d-flex flex-wrap mb-2">
+                        <i class="fa-solid fa-money-bill-transfer payment-icon" title="Efectivo / Transferencia"></i>
+                        <i class="fa-solid fa-building-columns payment-icon" title="Banco"></i>
+                        <i class="fa-brands fa-cc-mastercard payment-icon" title="MasterCard"></i>
+                    </div>
+                    <p class="x-small text-muted mt-2">
+                        <span class="badge bg-orange-soft text-orange" style="background-color: #fff3eb; color: var(--zeta-orange);">10% OFF</span> pagando con efectivo o transferencia.
+                    </p>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="footer-title">Contacto</h6>
+                    <div class="d-flex mb-3">
+                        <i class="fa-solid fa-location-dot mt-1 me-3 text-zeta-cyan"></i>
+                        <span class="small text-muted">San Miguel de Tucumán, Argentina.</span>
+                    </div>
+                    <div class="d-flex mb-3">
+                        <i class="fa-solid fa-envelope mt-1 me-3 text-zeta-cyan"></i>
+                        <span class="small text-muted">contacto@lazeta.com.ar</span>
+                    </div>
+                    <div class="d-flex mb-3">
+                        <i class="fa-solid fa-phone mt-1 me-3 text-zeta-cyan"></i>
+                        <span class="small text-muted">+54 381 000 0000</span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="mt-5 mb-4 opacity-10">
+
+            <div class="text-center">
+                <p class="x-small text-muted mb-0">
+                    &copy; 2026 - <span class="fw-bold">LA ZETA Merchandising</span>. Todos los derechos reservados.
+                </p>
+            </div>
         </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
-    <script src="~/lib/font-awesome/js/all.min.js"></script>
     <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)

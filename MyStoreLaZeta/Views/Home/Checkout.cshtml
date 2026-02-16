@@ -1,9 +1,13 @@
 ﻿@model MyStoreLaZeta.Models.CheckoutVM
 
 <div class="container py-5">
-    <div class="row">
-        <div class="col-12 mb-4">
-            <h2 class="fw-bold">Finalizar Compra</h2>
+    <div class="row mb-5">
+        <div class="col-12 text-center text-md-start">
+            <h2 class="fw-bold text-zeta-dark">
+                <i class="fa-solid fa-bag-shopping me-2" style="color: var(--zeta-cyan);"></i>
+                Finalizar Compra
+            </h2>
+            <p class="text-muted">Estás a un paso de tener tus productos de La Zeta.</p>
         </div>
     </div>
 
@@ -11,95 +15,129 @@
         <div class="row g-5">
             <div class="col-md-7 col-lg-8">
 
-                <h4 class="mb-3">1. Tus Datos</h4>
-                <div class="row g-3">
-                    <div class="col-12">
-                        <label class="form-label">Nombre Completo</label>
-                        <input asp-for="Name" class="form-control" placeholder="Tu nombre y apellido" required />
-                    </div>
+                <div class="card card-zeta p-4 mb-4 border-0">
+                    <h4 class="mb-4 fw-bold" style="color: var(--zeta-cyan);">
+                        <span class="badge rounded-circle me-2" style="background-color: var(--zeta-cyan);">1</span>
+                        Tus Datos Personales
+                    </h4>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Nombre Completo</label>
+                            <input asp-for="Name" class="form-control shadow-sm" placeholder="Como figura en tu DNI" required />
+                        </div>
 
-                    <div class="col-12">
-                        <label class="form-label">Teléfono (WhatsApp)</label>
-                        <input asp-for="Phone" class="form-control" placeholder="Ej: 381 123 4567" required />
-                        <small class="text-muted">Lo usaremos para coordinar el envío.</small>
-                    </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">WhatsApp</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fa-brands fa-whatsapp text-success"></i></span>
+                                <input asp-for="Phone" class="form-control shadow-sm" placeholder="Ej: 381 123 4567" required />
+                            </div>
+                            <small class="text-muted">Indispensable para coordinar la entrega.</small>
+                        </div>
 
-                    <div class="col-12">
-                        <label class="form-label">Email</label>
-                        <input asp-for="Email" type="email" class="form-control" placeholder="tu@email.com" required />
-                    </div>
-                </div>
-
-                <hr class="my-4">
-
-                <h4 class="mb-3">2. Método de Entrega</h4>
-                <div class="my-3">
-                    <div class="form-check">
-                        <input asp-for="ShippingMethod" value="Retiro" id="retiro" type="radio" class="form-check-input" checked required>
-                        <label class="form-check-label" for="retiro">
-                            Retiro en el Local (Gratis)
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input asp-for="ShippingMethod" value="EnvioDomicilio" id="envio" type="radio" class="form-check-input" required>
-                        <label class="form-check-label" for="envio">
-                            Envío a Domicilio (A coordinar)
-                        </label>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Email</label>
+                            <input asp-for="Email" type="email" class="form-control shadow-sm" placeholder="tu@email.com" required />
+                        </div>
                     </div>
                 </div>
 
-                <div class="col-12 mt-3">
-                    <label class="form-label">Dirección (Si elegiste envío)</label>
-                    <input asp-for="Address" class="form-control" placeholder="Calle, Altura, Barrio..." />
+                <div class="card card-zeta p-4 mb-4 border-0">
+                    <h4 class="mb-4 fw-bold" style="color: var(--zeta-cyan);">
+                        <span class="badge rounded-circle me-2" style="background-color: var(--zeta-cyan);">2</span>
+                        Método de Entrega
+                    </h4>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-check p-3 border rounded shadow-sm custom-radio-card">
+                                <input asp-for="ShippingMethod" value="Retiro" id="retiro" type="radio" class="form-check-input" checked required>
+                                <label class="form-check-label w-100" for="retiro">
+                                    <i class="fa-solid fa-shop me-2"></i><strong>Retiro en Local</strong>
+                                    <div class="text-muted small">San Miguel de Tucumán (Gratis)</div>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check p-3 border rounded shadow-sm custom-radio-card">
+                                <input asp-for="ShippingMethod" value="EnvioDomicilio" id="envio" type="radio" class="form-check-input" required>
+                                <label class="form-check-label w-100" for="envio">
+                                    <i class="fa-solid fa-truck-fast me-2"></i><strong>Envío a Domicilio</strong>
+                                    <div class="text-muted small">A coordinar según zona.</div>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-3">
+                            <label class="form-label fw-bold">Dirección de Envío</label>
+                            <input asp-for="Address" class="form-control shadow-sm" placeholder="Calle, Altura, Barrio, Piso/Depto..." />
+                        </div>
+                    </div>
                 </div>
 
-                <hr class="my-4">
-
-                <h4 class="mb-3">3. Forma de Pago</h4>
-                <div class="my-3">
-                    <div class="form-check p-3 border rounded mb-2">
-                        <input asp-for="PaymentMethod" value="Efectivo" id="pagoEfec" type="radio" class="form-check-input" checked required>
-                        <label class="form-check-label w-100" for="pagoEfec">
-                            <strong>Efectivo / Transferencia</strong>
-                            <div class="text-muted small">Coordinamos por WhatsApp. (10% OFF)</div>
-                        </label>
-                    </div>
-                    <div class="form-check p-3 border rounded">
-                        <input asp-for="PaymentMethod" value="MercadoPago" id="pagoMP" type="radio" class="form-check-input" required>
-                        <label class="form-check-label w-100" for="pagoMP">
-                            <strong>Mercado Pago</strong>
-                            <div class="text-muted small">Tarjetas de crédito, débito.</div>
-                        </label>
+                <div class="card card-zeta p-4 mb-4 border-0">
+                    <h4 class="mb-4 fw-bold" style="color: var(--zeta-cyan);">
+                        <span class="badge rounded-circle me-2" style="background-color: var(--zeta-cyan);">3</span>
+                        Forma de Pago
+                    </h4>
+                    <div class="my-3">
+                        <div class="form-check p-3 border rounded shadow-sm mb-3 custom-radio-card">
+                            <input asp-for="PaymentMethod" value="Efectivo" id="pagoEfec" type="radio" class="form-check-input" checked required>
+                            <label class="form-check-label w-100" for="pagoEfec">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span><i class="fa-solid fa-money-bill-transfer me-2"></i><strong>Efectivo / Transferencia</strong></span>
+                                    <span class="badge bg-orange-soft text-orange fw-bold" style="background-color: #fff3eb; color: var(--zeta-orange);">10% OFF</span>
+                                </div>
+                                <div class="text-muted small">Te enviamos los datos de la cuenta por WhatsApp.</div>
+                            </label>
+                        </div>
+                        <div class="form-check p-3 border rounded shadow-sm custom-radio-card">
+                            <input asp-for="PaymentMethod" value="MercadoPago" id="pagoMP" type="radio" class="form-check-input" required>
+                            <label class="form-check-label w-100" for="pagoMP">
+                                <span><i class="fa-solid fa-credit-card me-2"></i><strong>Mercado Pago</strong></span>
+                                <div class="text-muted small">Tarjetas de crédito, débito y dinero en cuenta.</div>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-5 col-lg-4">
-                <div class="card bg-light p-3 position-sticky" style="top: 2rem;">
-                    <h4 class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="text-primary">Tu Pedido</span>
-                        <span class="badge bg-primary rounded-pill">@Model.CartItems.Count</span>
+                <div class="card card-zeta p-4 position-sticky shadow" style="top: 100px; border-top: 5px solid var(--zeta-orange) !important;">
+                    <h4 class="d-flex justify-content-between align-items-center mb-4">
+                        <span style="color: var(--zeta-dark);">Tu Pedido</span>
+                        <span class="badge rounded-pill" style="background-color: var(--zeta-orange);">@Model.CartItems.Count</span>
                     </h4>
-                    <ul class="list-group mb-3">
+
+                    <ul class="list-group list-group-flush mb-4">
                         @foreach (var item in Model.CartItems)
                         {
-                            <li class="list-group-item d-flex justify-content-between lh-sm">
-                                <div>
-                                    <h6 class="my-0">@item.Name</h6>
-                                    <small class="text-muted">x @item.Quantity</small>
+                            <li class="list-group-item d-flex justify-content-between align-items-start px-0 bg-transparent">
+                                <div class="me-auto">
+                                    <h6 class="my-0 fw-bold">@item.Name</h6>
+                                    <small class="text-muted">Cantidad: @item.Quantity</small>
                                 </div>
-                                <span class="text-muted">@((item.Price * item.Quantity).ToString("C2"))</span>
+                                <span class="text-muted fw-bold">@((item.Price * item.Quantity).ToString("C2"))</span>
                             </li>
                         }
 
-                        <li class="list-group-item d-flex justify-content-between bg-white mt-2">
-                            <span>Total (ARS)</span>
-                            <strong>@Model.Total.ToString("C2")</strong>
+                        <li class="list-group-item d-flex justify-content-between px-0 mt-3 border-top-0">
+                            <span class="fs-5 fw-bold">Total (ARS)</span>
+                            <strong class="fs-4" style="color: var(--zeta-cyan);">@Model.Total.ToString("C2")</strong>
                         </li>
                     </ul>
 
-                    <button class="w-100 btn btn-success btn-lg" type="submit">Confirmar Compra</button>
-                    <a asp-action="ViewCart" class="w-100 btn btn-link mt-2">Volver al carrito</a>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-zeta-orange btn-lg py-3 fw-bold shadow-sm text-uppercase" type="submit">
+                            Confirmar y Pagar
+                        </button>
+                        <a asp-action="ViewCart" class="btn btn-link text-muted text-decoration-none small">
+                            <i class="fa-solid fa-arrow-left me-1"></i> Editar mi carrito
+                        </a>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <i class="fa-solid fa-shield-halved text-muted me-1"></i>
+                        <small class="text-muted">Compra protegida por La Zeta Merchandising</small>
+                    </div>
                 </div>
             </div>
         </div>

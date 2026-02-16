@@ -42,12 +42,18 @@ namespace MyStoreLaZeta.Services
 
         public async Task<ProductVM> GetByIdAsync(int id)
         {
-            var product = await _productRepository.GetByIdAsync(id);
+            // Usamos GetAllAsync con un filtro por ID para poder usar el "includes"
+            var products = await _productRepository.GetAllAsync(
+                conditions: new Expression<Func<Product, bool>>[] { x => x.ProductId == id },
+                includes: new Expression<Func<Product, object>>[] { x => x.Category! }
+            );
+
+            var product = products.FirstOrDefault();
             var categories = await _categoryRepository.GetAllAsync();
 
             var productVM = new ProductVM();
 
-            if(product != null)
+            if (product != null)
             {
                 productVM = new ProductVM
                 {
@@ -153,44 +159,51 @@ namespace MyStoreLaZeta.Services
 
         public async Task DeleteAsync(int id)
         {
-            /*falta eliminar la iamgen*/
             var product = await _productRepository.GetByIdAsync(id);
-            await _productRepository.DeleteAsync(product);
+
+            if (product != null)
+            {
+                // 1. Borrar el archivo físico de la carpeta images
+                if (!string.IsNullOrEmpty(product.ImageName))
+                {
+                    string imagePath = Path.Combine(_webHostEnvironment.WebRootPath, "images", product.ImageName);
+                    if (File.Exists(imagePath)) File.Delete(imagePath);
+                }
+
+                // 2. Borrar el registro de la base de datos
+                await _productRepository.DeleteAsync(product);
+            }
         }
 
         public async Task<IEnumerable<ProductVM>> GetCatalogAsync(int categoryId = 0, string search = "")
         {
-            var conditions = new List<Expression<Func<Product, bool>>>
-            {
-               x => x.Stock > 0
-            };
+            var conditions = new List<Expression<Func<Product, bool>>> { x => x.Stock > 0 };
 
             if (categoryId != 0) conditions.Add(x => x.CategoryId == categoryId);
+            if (!string.IsNullOrEmpty(search)) conditions.Add(x => x.Name.Contains(search));
 
-            // --- CORRECCIÓN AQUÍ ---
-            // Agregamos el signo '!' antes de string.IsNullOrEmpty
-            if (!string.IsNullOrEmpty(search))
-            {
-                // Esto busca si el nombre contiene el texto buscado
-                conditions.Add(x => x.Name.Contains(search));
-
-                // TIP PRO: Si quisieras buscar también en la descripción, podrías usar esto en su lugar:
-                // conditions.Add(x => x.Name.Contains(search) || x.Description.Contains(search));
-            }
-
+            // PASO 1: Agregar 'includes' para que EF traiga la tabla Category de la base de datos
             var products = await _productRepository.GetAllAsync(
-                conditions: conditions.ToArray()
+                conditions: conditions.ToArray(),
+                includes: new Expression<Func<Product, object>>[] { x => x.Category! }
             );
 
-            var productsVM = products.Select(item =>
-            new ProductVM
+            var productsVM = products.Select(item => new ProductVM
             {
                 ProductId = item.ProductId,
                 Name = item.Name,
                 Description = item.Description,
                 Price = item.Price,
                 Stock = item.Stock,
-                ImageName = item.ImageName
+                ImageName = item.ImageName,
+
+                // PASO 2: ¡MUY IMPORTANTE! Mapear la categoría al ViewModel
+                // Si no haces esto, 'Category' en el ProductVM seguirá siendo null
+                Category = new CategoryVM
+                {
+                    CategoryId = item.Category!.CategoryId,
+                    Name = item.Category!.Name
+                }
             }).ToList();
 
             return productsVM;

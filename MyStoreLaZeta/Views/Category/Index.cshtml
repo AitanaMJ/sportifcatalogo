@@ -1,75 +1,87 @@
 ﻿@model List<CategoryVM>
 
-<div class="row justify-content-between mt-4">
-	<div class="col-4">
-		<h4>Categorias</h4>
-	</div>
-	<div class="col-4 text-end">
-		<a href="/Category/AddEdit" class="btn btn-success"><i class="fa-solid fa-plus"></i>Crear Categoria</a>
-	</div>
+<div class="container mt-4">
+    <div class="card card-zeta p-4 shadow-sm">
+
+        <div class="row align-items-center mb-4">
+            <div class="col-md-6">
+                <h2 class="fw-bold m-0 text-zeta-dark">
+                    <i class="fa-solid fa-tags me-2" style="color: var(--zeta-cyan);"></i>
+                    Categorías
+                </h2>
+            </div>
+            <div class="col-md-6 text-end">
+                <a href="/Category/AddEdit" class="btn btn-zeta-orange shadow-sm px-4">
+                    <i class="fa-solid fa-plus me-2"></i>Crear Categoría
+                </a>
+            </div>
+        </div>
+
+        @if (TempData["message"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show mb-4 border-0 shadow-sm" role="alert" style="border-left: 5px solid #28a745 !important;">
+                <i class="fa-solid fa-check-circle me-2"></i> @TempData["message"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <div class="table-responsive">
+            <table class="table table-zeta align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 70%">Nombre de la Categoría</th>
+                        <th class="text-end" style="width: 140px">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold text-zeta-dark">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px;">
+                                        <i class="fa-solid fa-folder-open" style="color: var(--zeta-cyan); font-size: 0.9rem;"></i>
+                                    </div>
+                                    @item.Name
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <a asp-controller="Category"
+                                   asp-action="AddEdit"
+                                   asp-route-id="@item.CategoryId"
+                                   class="btn btn-sm btn-zeta-cyan text-white shadow-sm me-1">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                                <button class="btn btn-sm btn-outline-danger shadow-sm" onclick="deleteItem(@item.CategoryId)">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
-<hr />
 
-@if (TempData["message"] != null)
-{
-	<div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
-		@TempData["message"]
-		<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-	</div>
+@section Scripts {
+    <script>
+        function deleteItem(id) {
+            Swal.fire({
+                title: "¿Estás seguro?",
+                text: "Se eliminarán los productos asociados a esta categoría.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#EB5D0B", // Tu Naranja Corporativo
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: "Sí, eliminar",
+                cancelButtonText: "No, volver",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '@Url.Action("Delete", "Category")' + '?id=' + id;
+                }
+            });
+        }
+    </script>
 }
-
-
-<table class="table table-striped">
-	<thead>
-		<tr>
-			
-			<th>Nombre</th>
-			<th style="width:120px">Acciones</th>
-		</tr>
-	</thead>
-	<tbody>
-		@foreach(var item in Model)
-		{
-			<tr>
-				<td>@item.Name</td>
-				<td style="width:120px">
-					<a asp-controller="Category"
-					   asp-action="AddEdit"
-					   asp-route-id="@item.CategoryId"
-					   class="btn btn-sm btn-primary">
-						<i class="fa-solid fa-pen-to-square"></i>
-					</a>
-					<button class="btn btn-sm btn-danger" onclick="deleteItem(@item.CategoryId)"><i class="fa-solid fa-trash"></i></button>
-				</td>
-			</tr>
-		}
-
-
-	</tbody>
-</table>
-
-@section Scripts{
-	<script>
-		function deleteItem(id){
-
-	Swal.fire({
-	  title: "Estas seguro?",
-	/*  text: "You won't be able to revert this!",*/
-	  icon: "warning",
-	  showCancelButton: true,
-	  confirmButtonColor: "#3085d6",
-	  cancelButtonColor: "#d33",
-	  confirmButtonText: "Si, Eliminar!",
-      cancelButtonText: "No, Volver"
-	  }).then((result) => {
-	  	     if (result.isConfirmed) {
-							  window.location.href = '@Url.Action("Delete", "Category")' + '?id=' + id;
-			   
-			   }
-			  
-	});
-}
-	</script>
-}
-
-

@@ -1,31 +1,185 @@
-html {
-  font-size: 14px;
-}
+/* Importamos la fuente Poppins para un look moderno */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+:root {
+    /* TUS COLORES CORPORATIVOS */
+    --zeta-cyan: #17A09C;
+    --zeta-orange: #EB5D0B;
+    --zeta-dark: #2c3e50;
+    --zeta-light: #f8fbfb;
+    --fuente-principal: 'Poppins', sans-serif;
 }
 
 body {
-  margin-bottom: 60px;
+    font-family: var(--fuente-principal);
+    background-color: var(--zeta-light);
+    color: var(--zeta-dark);
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* --- NAVBAR PROFESIONAL --- */
+.navbar-zeta {
+    background-color: white !important;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+    padding: 10px 0;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.nav-link {
+    font-weight: 500;
+    color: var(--zeta-dark) !important;
+    transition: color 0.3s;
 }
+
+    .nav-link:hover {
+        color: var(--zeta-cyan) !important;
+    }
+
+/* --- BOTONES PERSONALIZADOS --- */
+.btn-zeta-cyan {
+    background-color: var(--zeta-cyan);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+    .btn-zeta-cyan:hover {
+        background-color: #138581;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(23, 160, 156, 0.3);
+    }
+
+.btn-zeta-orange {
+    background-color: var(--zeta-orange);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+    .btn-zeta-orange:hover {
+        background-color: #d1520a;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(235, 93, 11, 0.3);
+    }
+
+/* --- TARJETAS Y FORMULARIOS --- */
+.card-zeta {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    background: white;
+}
+
+.form-control {
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+}
+
+    .form-control:focus {
+        border-color: var(--zeta-cyan);
+        box-shadow: 0 0 0 0.25rem rgba(23, 160, 156, 0.1);
+    }
+
+
+/* Estilo para las tablas administrativas */
+.table-zeta {
+    border-collapse: separate;
+    border-spacing: 0 8px; /* Crea un efecto de 'filas flotantes' */
+}
+
+    .table-zeta thead th {
+        background-color: var(--zeta-dark);
+        color: white;
+        border: none;
+        padding: 15px;
+        font-weight: 600;
+    }
+
+        .table-zeta thead th:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+
+        .table-zeta thead th:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+
+    .table-zeta tbody tr {
+        background-color: white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        transition: all 0.2s;
+    }
+
+        .table-zeta tbody tr:hover {
+            transform: scale(1.01);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+    .table-zeta td {
+        padding: 15px;
+        vertical-align: middle;
+        border: none;
+    }
+
+/* --- FOOTER ZETA PROFESIONAL --- */
+.footer-zeta {
+    background-color: #f8fbfb; /* Fondo muy claro para resaltar el texto dark */
+    color: var(--zeta-dark);
+    padding: 60px 0 30px;
+    border-top: 4px solid var(--zeta-cyan);
+}
+
+.footer-title {
+    font-weight: 700;
+    text-uppercase: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    margin-bottom: 25px;
+    color: var(--zeta-dark);
+}
+
+.footer-link {
+    color: #6c757d;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+    display: block;
+    margin-bottom: 10px;
+}
+
+    .footer-link:hover {
+        color: var(--zeta-cyan);
+        padding-left: 5px;
+    }
+
+.payment-icon {
+    font-size: 1.8rem;
+    color: var(--zeta-cyan);
+    margin-right: 15px;
+    opacity: 0.8;
+}
+
+.social-icon-box {
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    margin-right: 10px;
+    transition: transform 0.3s;
+    color: var(--zeta-dark);
+}
+
+    .social-icon-box:hover {
+        transform: translateY(-5px);
+        background-color: var(--zeta-orange);
+        color: white;
+    }

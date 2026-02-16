@@ -1,37 +1,67 @@
 ﻿@model CategoryVM
 
 @{
-	var title = Model.CategoryId == 0 ? "Nueva Categoria" : "Editar Categoria";
-	var btnAction = Model.CategoryId == 0 ? "Agregar" : "Guardar";
+    var title = Model.CategoryId == 0 ? "Nueva Categoría" : "Editar Categoría";
+    var btnAction = Model.CategoryId == 0 ? "Agregar Categoría" : "Guardar Cambios";
+    var icon = Model.CategoryId == 0 ? "fa-plus-circle" : "fa-pen-to-square";
 }
 
-<div class="row">
-	<div class="col-6">
-		<h2>@title</h2>
-		<hr />
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card card-zeta shadow-sm border-0">
+                <div class="card-body p-5">
 
-		<form asp-action="AddEdit" method="post">
-			<input type="hidden" asp-for="CategoryId" />
+                    <div class="text-center mb-4">
+                        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <i class="fa-solid @icon fa-2x" style="color: var(--zeta-cyan);"></i>
+                        </div>
+                        <h2 class="fw-bold text-zeta-dark">@title</h2>
+                        <p class="text-muted small">Completa la información para organizar tus productos.</p>
+                    </div>
 
-			<div class="mb-3">
-				<label asp-for="Name" class="form-label"></label>
-				<input type="text" class="form-control" asp-for="Name" autocomplete="off" />
-				<span asp-validation-for="Name" class="text-danger"></span>
-			</div>
+                    <form asp-action="AddEdit" method="post">
+                        <input type="hidden" asp-for="CategoryId" />
 
-			@if (ViewBag.message != null)
-			{
-				<div class="alert alert-success alert-dismissible fade show" role="alert">
-					@ViewBag.message
-					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-				</div>
-			}
+                        <div class="mb-4">
+                            <label asp-for="Name" class="form-label fw-bold text-zeta-dark">Nombre de la Categoría</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fa-solid fa-tag text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0 ps-0"
+                                       asp-for="Name" placeholder="Ej: Remeras, Tazas, Gorras..."
+                                       autocomplete="off" />
+                            </div>
+                            <span asp-validation-for="Name" class="text-danger small fw-bold"></span>
+                        </div>
 
+                        @if (ViewBag.message != null)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-left: 5px solid #28a745 !important;">
+                                <i class="fa-solid fa-check-circle me-2"></i> @ViewBag.message
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
 
-			<div class="d-grid gap-2 d-md-block mt-4">
-				<button class="btn btn-primary" type="submit">@btnAction</button>
-				<a asp-action="Index" class="btn btn-warning">Volver</a>
-			</div>
-		</form>
-	</div>
+                        <div class="d-grid gap-2 mt-5">
+                            <button class="btn btn-zeta-cyan py-2 shadow-sm" type="submit">
+                                <i class="fa-solid fa-save me-2"></i> @btnAction
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary py-2">
+                                <i class="fa-solid fa-arrow-left me-2"></i> Volver al listado
+                            </a>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
