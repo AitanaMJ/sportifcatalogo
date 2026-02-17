@@ -81,7 +81,8 @@
                         <div class="mb-4">
                             <label class="form-label fw-bold">Actualizar Imagen</label>
                             <div class="input-group">
-                                <input type="file" class="form-control" asp-for="ImageFile" id="inputGroupFile02">
+                                <input type="file" class="form-control" asp-for="ImageFile" id="subidaArchivo"
+                                       onchange="mostrarVistaPrevia(this)">
                                 <label class="input-group-text bg-light" for="inputGroupFile02"><i class="fa-solid fa-upload"></i></label>
                             </div>
                             <small class="text-muted">Formatos aceptados: JPG, PNG. Máximo 2MB.</small>
@@ -100,20 +101,18 @@
                     <div class="col-lg-5 mt-4 mt-lg-0 border-start ps-lg-5 d-flex flex-column align-items-center justify-content-start">
                         <h6 class="text-uppercase fw-bold text-muted small mb-3">Vista Previa de Imagen</h6>
 
-                        @if (!string.IsNullOrEmpty(Model.ImageName))
-                        {
-                            <div class="image-container shadow-sm p-2 bg-white rounded border">
-                                <img src="~/images/@Model.ImageName" class="img-fluid rounded" style="max-height: 350px; object-fit: contain;" alt="@Model.Name" />
-                            </div>
-                            <p class="mt-2 text-muted x-small italic">Archivo actual: @Model.ImageName</p>
-                        }
-                        else
-                        {
-                            <div class="d-flex flex-column align-items-center justify-content-center border rounded bg-light w-100" style="height: 300px; border-style: dashed !important;">
-                                <i class="fa-solid fa-image fa-3x text-muted mb-3"></i>
-                                <p class="text-muted">Sin imagen cargada</p>
-                            </div>
-                        }
+                        <div class="text-center border p-3 rounded bg-light">
+                            <img id="imgPreview"
+                                 src="@(string.IsNullOrEmpty(Model.ImageName) ? "/images/sin-imagen.png" : "/images/productos/" + Model.ImageName)"
+                                 alt="Vista Previa"
+                                 style="max-width: 260px; max-height: 500px; @(string.IsNullOrEmpty(Model.ImageName) ? "display:none;" : "display:block;") mx-auto"
+                                 class="img-fluid rounded shadow-sm" />
+
+                            <p id="textoNoImagen" class="text-muted mt-2" style="@(string.IsNullOrEmpty(Model.ImageName) ? "display:block;" : "display:none;")">
+                                <i class="fa-regular fa-image fa-2x"></i><br>
+                                Sin imagen seleccionada
+                            </p>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -125,4 +124,26 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        function mostrarVistaPrevia(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    // 1. Asignamos la imagen seleccionada al src de la etiqueta img
+                    var imagen = document.getElementById('imgPreview');
+                    imagen.src = e.target.result;
+                    imagen.style.display = 'block'; // Aseguramos que se vea
+
+                    // 2. Ocultamos el texto de "Sin imagen" si existe
+                    var texto = document.getElementById('textoNoImagen');
+                    if (texto) texto.style.display = 'none';
+                }
+
+                reader.readAsDataURL(input.files[0]); // Leemos el archivo
+            }
+        }
+    </script>
+   
 }

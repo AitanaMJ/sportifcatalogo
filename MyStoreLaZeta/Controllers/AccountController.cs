@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyStoreLaZeta.Context;
+using MyStoreLaZeta.Entities;
 using MyStoreLaZeta.Models;
 using MyStoreLaZeta.Services;
 
@@ -24,6 +25,33 @@ namespace MyStoreLaZeta.Controllers
             _emailService = emailService; // <--- NUEVO: Conectamos el servicio
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordVM model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var user = _context.Users.FirstOrDefault(u => u.ResetToken == model.Token && u.ResetTokenExpires > DateTime.Now);
+
+            if (user == null)
+            {
+                return Content("Error: Token inválido o expirado.");
+            }
+
+            // --- ¡ZETIFICACIÓN DE SEGURIDAD! ---
+            // Encriptamos la nueva contraseña antes de guardarla
+            user.Password = PasswordHasher.HashPassword(model.NewPassword);
+
+            user.ResetToken = null;
+            user.ResetTokenExpires = null;
+
+            await _context.SaveChangesAsync();
+
+            ViewBag.Message = "Contraseña actualizada correctamente. ¡Ya puedes volver a entrar!";
+            return View("Login");
+        }
+
+
+
         // ==========================================
         // LOGIN
         // ==========================================
@@ -32,6 +60,7 @@ namespace MyStoreLaZeta.Controllers
             var viewModel = new LoginVM();
             return View(viewModel);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginVM viewmodel)
@@ -64,6 +93,8 @@ namespace MyStoreLaZeta.Controllers
                 return RedirectToAction("Index", "Home");
             }
         }
+
+        
 
         // ==========================================
         // REGISTRO
@@ -167,26 +198,5 @@ namespace MyStoreLaZeta.Controllers
             return View(model);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> ResetPassword(ResetPasswordVM model)
-        {
-            if (!ModelState.IsValid) return View(model);
-
-            var user = _context.Users.FirstOrDefault(u => u.ResetToken == model.Token && u.ResetTokenExpires > DateTime.Now);
-
-            if (user == null)
-            {
-                return Content("Error: Token inválido.");
-            }
-
-            user.Password = model.NewPassword;
-            user.ResetToken = null;
-            user.ResetTokenExpires = null;
-
-            await _context.SaveChangesAsync();
-
-            ViewBag.Message = "Contraseña actualizada correctamente. Ya puedes iniciar sesión.";
-            return View("Login");
-        }
     }
 }

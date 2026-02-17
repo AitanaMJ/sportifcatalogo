@@ -2,49 +2,22 @@
 
 @{
     int cartCount = 0;
-    if (Context.Session.Get<List<CartItemVM>>("Cart") != null)
+
+    var cart = Context.Session.Get<List<CartItemVM>>("Cart");
+    if (cart != null)
     {
-        var cart = Context.Session.Get<List<CartItemVM>>("Cart");
         cartCount = cart.Sum(x => x.Quantity);
     }
 }
 
-<li class="nav-item ms-lg-2">
-    <a class="btn btn-outline-zeta-cyan d-flex align-items-center px-3 py-2 shadow-sm"
-       href="/Home/ViewCart"
-       style="border-color: var(--zeta-cyan); color: var(--zeta-cyan); border-width: 2px; border-radius: 50px; transition: all 0.3s ease;">
+    <a class="cart-link d-flex align-items-center"
+       asp-controller="Home"
+       asp-action="ViewCart">
 
-        <i class="fa-solid fa-cart-shopping fs-5"></i>
+        <i class="fa-solid fa-cart-shopping"></i>
 
-        @if (cartCount > 0)
-        {
-            <span class="badge rounded-pill ms-2 shadow-sm"
-                  style="background-color: var(--zeta-orange); color: white; font-size: 0.8rem; min-width: 22px;">
-                @cartCount
-            </span>
-        }
-        else
-        {
-            <span class="badge rounded-pill bg-light text-muted border ms-2"
-                  style="font-size: 0.8rem; min-width: 22px;">
-                0
-            </span>
-        }
-    </a>
-</li>
+        <span class="cart-badge @(cartCount == 0 ? "empty" : "")">
+            @cartCount
+        </span>
 
-<style>
-    /* Efecto hover refinado */
-    .btn-outline-zeta-cyan:hover {
-        background-color: var(--zeta-cyan) !important;
-        color: white !important;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(23, 160, 156, 0.25) !important;
-    }
-
-        .btn-outline-zeta-cyan:hover .badge.bg-light {
-            background-color: rgba(255,255,255,0.2) !important;
-            color: white !important;
-            border-color: transparent !important;
-        }
-</style>
+        </a>

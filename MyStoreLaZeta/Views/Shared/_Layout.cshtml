@@ -1,4 +1,4 @@
-﻿@using System.Security.Claims;
+﻿@using System.Security.Claims
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -15,35 +15,63 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-zeta sticky-top mb-3">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
             <div class="container-fluid px-4">
 
-                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/images/logo_lazeta.png" alt="LaZeta" style="height: 45px;" class="me-2">
+                <!-- LOGO -->
+                <a class="navbar-brand d-flex align-items-center"
+                   asp-controller="Home"
+                   asp-action="Index">
+                    <img src="~/images/logo_lazeta.png"
+                         alt="La Zeta"
+                         style="height: 54px;">
                 </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                <!-- BOTÓN RESPONSIVE -->
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mainNavbar">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <!-- CONTENIDO NAVBAR -->
+                <div class="collapse navbar-collapse" id="mainNavbar">
+
+                    <!-- MENÚ IZQUIERDA -->
+                    <ul class="navbar-nav me-auto align-items-center">
+
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
+                            <a class="nav-link nav-link-zeta @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
+                               asp-controller="Home"
+                               asp-action="Index">
+                                Inicio
+                            </a>
                         </li>
 
                         @if (User.Identity!.IsAuthenticated && User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-uppercase fw-bold" asp-controller="Category" asp-action="Index">Categorías</a>
+                                <a class="nav-link fw-bold text-uppercase"
+                                   asp-controller="Category"
+                                   asp-action="Index">
+                                    Categorías
+                                </a>
                             </li>
+
                             <li class="nav-item">
-                                <a class="nav-link text-uppercase fw-bold" asp-controller="Product" asp-action="Index">Productos</a>
+                                <a class="nav-link fw-bold text-uppercase"
+                                   asp-controller="Product"
+                                   asp-action="Index">
+                                    Productos
+                                </a>
                             </li>
                         }
                     </ul>
 
+                    <!-- BLOQUE DERECHO (E-COMMERCE) -->
                     <ul class="navbar-nav ms-auto align-items-center">
+
                         @if (!User.IsInRole("Admin"))
                         {
                             <li class="nav-item me-3">
@@ -54,35 +82,49 @@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle d-flex align-items-center fw-bold" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                                    <div class="user-avatar me-2">
-                                        <i class="fa-solid fa-circle-user fa-xl" style="color: var(--zeta-cyan);"></i>
-                                    </div>
-                                    Hola, @User.Identity.Name
+                                <a class="nav-link dropdown-toggle d-flex align-items-center fw-semibold"
+                                   href="#"
+                                   id="userDropdown"
+                                   role="button"
+                                   data-bs-toggle="dropdown">
+
+                                    <i class="fa-solid fa-circle-user fa-lg me-2"
+                                       style="color: var(--zeta-cyan);"></i>
+
+                                    <span class="d-none d-md-inline">
+                                        Hola, @User.Identity.Name
+                                    </span>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm" aria-labelledby="userDropdown">
+
+                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm">
                                     <li>
-                                        <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
-                                            <button type="submit" class="dropdown-item text-danger py-2">
-                                                <i class="fa-solid fa-right-from-bracket me-2"></i> Cerrar Sesión
+                                        <form asp-controller="Account"
+                                              asp-action="Logout"
+                                              method="post"
+                                              class="m-0">
+                                            <button type="submit"
+                                                    class="dropdown-item text-danger py-2">
+                                                <i class="fa-solid fa-right-from-bracket me-2"></i>
+                                                Cerrar Sesión
                                             </button>
                                         </form>
                                     </li>
                                 </ul>
                             </li>
                         }
+                       
                         else
-                        {
-                            <li class="nav-item me-2">
-                                <a class="nav-link fw-bold" asp-controller="Account" asp-action="Login">Iniciar Sesión</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="btn btn-zeta-orange px-4 shadow-sm" asp-controller="Account" asp-action="Register">
-                                    Registrarse
-                                </a>
-                            </li>
-                        }
+                           {
+                               <li class="nav-item">
+                              <a class="btn btn-zeta-cyan btn-mobile-full" asp-controller="Account" asp-action="Login">Iniciar Sesión</a>
+                             </li>
+                              <li class="nav-item">
+                               <a class="btn btn-zeta-orange btn-mobile-full" asp-controller="Account" asp-action="Register">Registrarse</a>
+                             </li>
+
+                           }
                     </ul>
+
                 </div>
             </div>
         </nav>
@@ -94,14 +136,22 @@
         </main>
     </div>
 
+    <!-- FOOTER -->
     <footer class="footer-zeta">
         <div class="container">
             <div class="row g-4">
+
                 <div class="col-lg-3 col-md-6">
-                    <img src="~/images/logo_lazeta.png" alt="La Zeta" style="height: 50px;" class="mb-3">
+                    <img src="~/images/logo_lazeta.png"
+                         alt="La Zeta"
+                         style="height: 50px;"
+                         class="mb-3">
+
                     <p class="small text-muted">
-                        Calidad y diseño en cada producto. Somos especialistas en merchandising personalizado en Tucumán.
+                        Calidad y diseño en cada producto.
+                        Somos especialistas en merchandising personalizado en Tucumán.
                     </p>
+
                     <div class="mt-3">
                         <div class="social-icon-box"><i class="fa-brands fa-facebook-f"></i></div>
                         <div class="social-icon-box"><i class="fa-brands fa-instagram"></i></div>
@@ -120,37 +170,53 @@
                 <div class="col-lg-3 col-md-6">
                     <h6 class="footer-title">Medios de Pago</h6>
                     <div class="d-flex flex-wrap mb-2">
-                        <i class="fa-solid fa-money-bill-transfer payment-icon" title="Efectivo / Transferencia"></i>
-                        <i class="fa-solid fa-building-columns payment-icon" title="Banco"></i>
-                        <i class="fa-brands fa-cc-mastercard payment-icon" title="MasterCard"></i>
+                        <i class="fa-solid fa-money-bill-transfer payment-icon"></i>
+                        <i class="fa-solid fa-building-columns payment-icon"></i>
+                        <i class="fa-brands fa-cc-mastercard payment-icon"></i>
                     </div>
-                    <p class="x-small text-muted mt-2">
-                        <span class="badge bg-orange-soft text-orange" style="background-color: #fff3eb; color: var(--zeta-orange);">10% OFF</span> pagando con efectivo o transferencia.
+                    <p class="small text-muted mt-2">
+                        <span class="badge"
+                              style="background-color:#fff3eb;color:var(--zeta-orange);">
+                            10% OFF
+                        </span>
+                        pagando con efectivo o transferencia.
                     </p>
                 </div>
 
                 <div class="col-lg-3 col-md-6">
                     <h6 class="footer-title">Contacto</h6>
-                    <div class="d-flex mb-3">
-                        <i class="fa-solid fa-location-dot mt-1 me-3 text-zeta-cyan"></i>
-                        <span class="small text-muted">San Miguel de Tucumán, Argentina.</span>
+
+                    <div class="d-flex mb-2">
+                        <i class="fa-solid fa-location-dot me-3 text-zeta-cyan"></i>
+                        <span class="small text-muted">
+                            San Miguel de Tucumán, Argentina
+                        </span>
                     </div>
-                    <div class="d-flex mb-3">
-                        <i class="fa-solid fa-envelope mt-1 me-3 text-zeta-cyan"></i>
-                        <span class="small text-muted">contacto@lazeta.com.ar</span>
+
+                    <div class="d-flex mb-2">
+                        <i class="fa-solid fa-envelope me-3 text-zeta-cyan"></i>
+                        <span class="small text-muted">
+                            contacto@lazeta.com.ar
+                        </span>
                     </div>
-                    <div class="d-flex mb-3">
-                        <i class="fa-solid fa-phone mt-1 me-3 text-zeta-cyan"></i>
-                        <span class="small text-muted">+54 381 000 0000</span>
+
+                    <div class="d-flex">
+                        <i class="fa-solid fa-phone me-3 text-zeta-cyan"></i>
+                        <span class="small text-muted">
+                            +54 381 000 0000
+                        </span>
                     </div>
                 </div>
+
             </div>
 
-            <hr class="mt-5 mb-4 opacity-10">
+            <hr class="mt-5 mb-4 opacity-25">
 
             <div class="text-center">
-                <p class="x-small text-muted mb-0">
-                    &copy; 2026 - <span class="fw-bold">LA ZETA Merchandising</span>. Todos los derechos reservados.
+                <p class="small text-muted mb-0">
+                    &copy; 2026 -
+                    <span class="fw-bold">LA ZETA Merchandising</span>.
+                    Todos los derechos reservados.
                 </p>
             </div>
         </div>
@@ -162,5 +228,6 @@
     <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

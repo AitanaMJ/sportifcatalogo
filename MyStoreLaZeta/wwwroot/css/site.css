@@ -1,8 +1,7 @@
 /* Importamos la fuente Poppins para un look moderno */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 :root {
-    /* TUS COLORES CORPORATIVOS */
     --zeta-cyan: #17A09C;
     --zeta-orange: #EB5D0B;
     --zeta-dark: #2c3e50;
@@ -16,67 +15,172 @@ body {
     color: var(--zeta-dark);
 }
 
-/* --- NAVBAR PROFESIONAL --- */
-.navbar-zeta {
-    background-color: white !important;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
-    padding: 10px 0;
+/* =========================
+   NAVBAR E-COMMERCE
+========================= */
+/* Ajuste altura navbar */
+.navbar {
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
 }
 
-.nav-link {
-    font-weight: 500;
+.nav-link-zeta {
     color: var(--zeta-dark) !important;
-    transition: color 0.3s;
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: 0.6px;
+    padding: 3px 6px;
+    /* ESTA LÍNEA ES LA CLAVE PARA LA SUAVIDAD */
+    transition: color 0.3s ease-in-out;
 }
 
-    .nav-link:hover {
-        color: var(--zeta-cyan) !important;
+/* 2. Estado "Estoy en esta página" (se queda azul) */
+    .nav-link-zeta:hover {
+        color: var(--zeta-cyan) !important; /* Tu color azul/cian */
+        cursor: pointer; /* Asegura que aparezca la manito */
     }
 
-/* --- BOTONES PERSONALIZADOS --- */
-.btn-zeta-cyan {
-    background-color: var(--zeta-cyan);
+/* Evita que el fondo activo rompa en mobile */
+@media (max-width: 991.98px) {
+    .navbar-nav .nav-link.active {
+        background-color: transparent;
+        border-radius: 0;
+        font-weight: 600;
+    }
+
+    .navbar-nav .nav-link {
+        padding: 10px 0;
+    }
+}
+
+
+/* =========================
+   CARRITO ESTILO E-COMMERCE
+========================= */
+
+.cart-link {
+    position: relative;
+    font-size: 1.3rem;
+    color: var(--zeta-dark);
+    transition: all 0.2s ease;
+    display: inline-flex;
+   
+    align-items: center;
+}
+
+    .cart-link:hover {
+        color: var(--zeta-cyan);
+        transform: scale(1.08);
+    }
+
+.cart-badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    background-color: var(--zeta-orange);
+    color: white;
+    font-size: 0.65rem;
+    padding: 3px 6px;
+    border-radius: 50%;
+    font-weight: 600;
+    min-width: 18px;
+    text-align: center;
+}
+
+    .cart-badge.empty {
+        background-color: #e9ecef;
+        color: #6c757d;
+    }
+
+/* Ajuste mobile */
+@media (max-width: 991.98px) {
+    .cart-link {
+        margin-top: 10px;
+
+        margin-bottom: 15px; /* Para separarlo de los botones que quedan abajo */
+        margin-right: 0;
+    }
+}
+
+/* =========================
+   BOTONES
+========================= */
+/* ESTILOS BASE */
+.btn-zeta-cyan, .btn-zeta-orange {
     color: white;
     border: none;
-    border-radius: 8px;
-    padding: 10px 25px;
+    border-radius: 30px;
+    padding: 6px 20px;
     font-weight: 600;
+    text-decoration: none;
     transition: all 0.3s ease;
+    display: inline-block; /* Cambiamos de block a inline-block por defecto */
+    text-align: center;
 }
 
-    .btn-zeta-cyan:hover {
-        background-color: #138581;
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(23, 160, 156, 0.3);
-    }
+.btn-zeta-cyan {
+    background-color: var(--zeta-cyan);
+}
 
 .btn-zeta-orange {
     background-color: var(--zeta-orange);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.3s ease;
 }
 
-    .btn-zeta-orange:hover {
-        background-color: #d1520a;
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(235, 93, 11, 0.3);
-    }
+/* HOVERS */
+.btn-zeta-cyan:hover {
+    background-color: #138581;
+    transform: translateY(-2px);
+    color: white;
+}
 
-/* --- TARJETAS Y FORMULARIOS --- */
+.btn-zeta-orange:hover {
+    background-color: #d1520a;
+    transform: translateY(-2px);
+    color: white;
+}
+
+/* COMPORTAMIENTO PARA CELULAR (Mobile) */
+@media (max-width: 991.98px) {
+    /* Solo los botones que queramos que ocupen todo el ancho */
+    .btn-mobile-full {
+        display: block !important;
+        width: 100% !important;
+        margin-bottom: 10px;
+    }
+}
+
+/* AJUSTES ESPECÍFICOS PARA EL NAVBAR EN PC */
+@media (min-width: 992px) {
+    /* Solo aplicamos los márgenes a los botones que están dentro del navbar */
+    .navbar-nav .btn-zeta-cyan {
+        margin-left: 20px;
+        margin-right: 15px;
+    }
+}
+
+
+/* =========================
+   TARJETAS
+========================= */
+
 .card-zeta {
     border: none;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    border-radius: 18px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06);
     background: white;
+    transition: transform 0.2s ease;
 }
 
+    .card-zeta:hover {
+        transform: translateY(-4px);
+    }
+
+/* =========================
+   FORMULARIOS
+========================= */
+
 .form-control {
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 12px;
     border: 1px solid #e0e0e0;
 }
@@ -86,11 +190,13 @@ body {
         box-shadow: 0 0 0 0.25rem rgba(23, 160, 156, 0.1);
     }
 
+/* =========================
+   TABLAS ADMIN
+========================= */
 
-/* Estilo para las tablas administrativas */
 .table-zeta {
     border-collapse: separate;
-    border-spacing: 0 8px; /* Crea un efecto de 'filas flotantes' */
+    border-spacing: 0 8px;
 }
 
     .table-zeta thead th {
@@ -100,14 +206,6 @@ body {
         padding: 15px;
         font-weight: 600;
     }
-
-        .table-zeta thead th:first-child {
-            border-radius: 10px 0 0 10px;
-        }
-
-        .table-zeta thead th:last-child {
-            border-radius: 0 10px 10px 0;
-        }
 
     .table-zeta tbody tr {
         background-color: white;
@@ -126,21 +224,23 @@ body {
         border: none;
     }
 
-/* --- FOOTER ZETA PROFESIONAL --- */
+/* =========================
+   FOOTER
+========================= */
+
 .footer-zeta {
-    background-color: #f8fbfb; /* Fondo muy claro para resaltar el texto dark */
+    background-color: #f8fbfb;
     color: var(--zeta-dark);
     padding: 60px 0 30px;
-    border-top: 4px solid var(--zeta-cyan);
+    border-top: 3px solid var(--zeta-cyan);
 }
 
 .footer-title {
     font-weight: 700;
-    text-uppercase: uppercase;
-    font-size: 0.9rem;
+    text-transform: uppercase;
+    font-size: 0.85rem;
     letter-spacing: 1px;
-    margin-bottom: 25px;
-    color: var(--zeta-dark);
+    margin-bottom: 20px;
 }
 
 .footer-link {
@@ -149,7 +249,7 @@ body {
     transition: all 0.3s;
     font-size: 0.9rem;
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
     .footer-link:hover {
@@ -174,7 +274,7 @@ body {
     border-radius: 50%;
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     margin-right: 10px;
-    transition: transform 0.3s;
+    transition: all 0.3s;
     color: var(--zeta-dark);
 }
 
