@@ -96,7 +96,7 @@
 
 <div class="container">
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 py-4">
-        @foreach (var p in Model.Products)
+        @foreach (var p in Model.Products.Take(8))
         {
             <div class="col">
                 <div class="card h-100 card-zeta border-0 shadow-sm overflow-hidden">
@@ -126,6 +126,33 @@
         }
     </div>
 </div>
+
+@if (Model.Products.Count() > 8)
+{
+    <div class="row mt-5 mb-3">
+        <div class="col-12 text-center">
+            <a asp-controller="Home" asp-action="Catalogo"
+               class="btn btn-outline-dark rounded-pill px-5 py-2 fw-bold shadow-sm btn-ver-mas">
+                Ver todo el catálogo <i class="fa-solid fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+
+    <style>
+        .btn-ver-mas {
+            transition: all 0.3s ease;
+            border-width: 2px;
+        }
+
+            .btn-ver-mas:hover {
+                background-color: var(--zeta-cyan);
+                color: white;
+                border-color: var(--zeta-cyan);
+                transform: scale(1.05);
+            }
+    </style>
+}
+
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

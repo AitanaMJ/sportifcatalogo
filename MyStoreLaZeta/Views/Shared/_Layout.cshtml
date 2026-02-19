@@ -49,6 +49,14 @@
                             </a>
                         </li>
 
+                        <li class="nav-item">
+                        <a class="nav-link nav-link-zeta @(ViewContext.RouteData.Values["Action"]?.ToString() == "Catalogo" ? "active" : "")"
+                        asp-controller="Home"
+                        asp-action="Catalogo">
+                        Catálogo
+                        </a>
+                       </li>
+
                         @if (User.Identity!.IsAuthenticated && User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
@@ -65,6 +73,18 @@
                                    asp-action="Index">
                                     Productos
                                 </a>
+                            </li>
+
+                            <li class="nav-item">
+                              <a class="nav-link text-uppercase fw-bold" 
+                              asp-controller="Orders" 
+                              asp-action="ManageOrders">
+                              Pedidos</a>
+                            </li>
+                            <li class="nav-item">
+                            <a class="nav-link text-uppercase fw-bold" 
+                            asp-controller="Reports"
+                            asp-action="Index">Reportes</a>
                             </li>
                         }
                     </ul>

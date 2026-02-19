@@ -283,3 +283,19 @@ body {
         background-color: var(--zeta-orange);
         color: white;
     }
+
+/* ESTO SOLO APLICA AL IMPRIMIR O GUARDAR COMO PDF */
+@media print {
+    header, footer, .btn, .no-print {
+        display: none !important;
+    }
+
+    body {
+        background-color: white;
+    }
+
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+}

@@ -25,8 +25,65 @@
             </div>
         }
 
+
+        <style>
+            /* Caja de Búsqueda redondeada */
+            .dataTables_filter input {
+                border-radius: 50px !important;
+                border: 1px solid #ced4da !important;
+                padding: 6px 20px !important;
+                margin-left: 10px !important;
+                transition: all 0.3s ease;
+            }
+
+                .dataTables_filter input:focus {
+                    border-color: var(--zeta-cyan) !important;
+                    box-shadow: 0 0 0 0.25rem rgba(23, 160, 156, 0.25) !important;
+                    outline: none !important;
+                }
+
+            /* Selector de cantidad */
+            .dataTables_length select {
+                border-radius: 10px !important;
+                padding: 4px 30px 4px 10px !important;
+                border: 1px solid #ced4da !important;
+            }
+
+            /* Diseño de la Paginación (Estilo pastilla) */
+            .dataTables_wrapper .pagination {
+                margin-top: 20px !important;
+            }
+
+            .dataTables_wrapper .page-item.active .page-link {
+                background-color: var(--zeta-cyan) !important;
+                border-color: var(--zeta-cyan) !important;
+                color: white !important;
+                border-radius: 50px !important;
+                box-shadow: 0 4px 10px rgba(23, 160, 156, 0.3) !important;
+            }
+
+            .dataTables_wrapper .page-item .page-link {
+                border: none !important;
+                color: #555;
+                font-weight: 600;
+                border-radius: 50px !important;
+                margin: 0 3px;
+                padding: 8px 16px;
+                background-color: transparent;
+            }
+
+            .dataTables_wrapper .page-item:not(.active) .page-link:hover {
+                background-color: #f8f9fa !important;
+                color: var(--zeta-cyan) !important;
+            }
+        </style>
+
+
+
+
+
         <div class="table-responsive">
-            <table class="table table-zeta align-middle">
+            <table id="tablaProductos" class="table table-zeta align-middle">
                 <thead>
                     <tr>
                         <th>Nombre</th>
@@ -93,4 +150,38 @@
             });
         }
     </script>
+
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#tablaProductos').DataTable({
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ productos",
+                    "zeroRecords": "No se encontraron productos",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ productos",
+                    "infoEmpty": "No hay productos disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ totales)",
+                    "search": "Buscar:",
+                    "paginate": {
+                        "next": "Siguiente <i class='fa-solid fa-chevron-right ms-1'></i>",
+                        "previous": "<i class='fa-solid fa-chevron-left me-1'></i> Anterior"
+                    }
+                },
+                "pageLength": 5,
+                "lengthMenu": [5, 10, 25, 50],
+                "ordering": false,
+                "columnDefs": [
+                    { "orderable": false, "targets": -1 }
+                ]
+            });
+        });
+    </script>
+
+
+
 }
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+

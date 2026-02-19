@@ -26,6 +26,64 @@ namespace MyStoreLaZeta.Controllers
             return View(catalog);
         }
 
+        // GET: /Home/Catalogo
+        // Agregamos el parámetro "page" con valor por defecto 1
+        public async Task<IActionResult> Catalogo(string search = null, int? categoryId = null, string categoryName = null, int page = 1)
+        {
+            var categories = await _categoryService.GetAllCategoriesAsync();
+            IEnumerable<ProductVM> products;
+            string filtroActivo = null;
+
+            // 1. Traemos los productos según los filtros (igual que antes)
+            if (categoryId.HasValue)
+            {
+                products = await _productService.GetCatalogAsync(categoryId: categoryId.Value);
+                filtroActivo = !string.IsNullOrEmpty(categoryName) ? $"Viendo: {categoryName}" : "Categoría seleccionada";
+            }
+            else if (!string.IsNullOrEmpty(search))
+            {
+                products = await _productService.GetCatalogAsync(search: search);
+                filtroActivo = $"Resultados para: {search}";
+            }
+            else
+            {
+                products = await _productService.GetCatalogAsync();
+            }
+
+            // ==========================================
+            // LÓGICA DE PAGINACIÓN
+            // ==========================================
+            int cantidadPorPagina = 6; // ¿Cuántos quieres ver por página? Puedes poner 6, 8, 9...
+            int totalProductos = products.Count();
+
+            // Calculamos el total de páginas (ej: 13 productos / 6 = 3 páginas)
+            int totalPaginas = (int)Math.Ceiling((double)totalProductos / cantidadPorPagina);
+
+            // Cortamos la lista mágica: Saltamos los anteriores y tomamos los de esta página
+            var productosPaginados = products
+                .Skip((page - 1) * cantidadPorPagina)
+                .Take(cantidadPorPagina)
+                .ToList();
+
+            // Guardamos los datos de navegación en ViewBag para que la vista los use
+            ViewBag.PaginaActual = page;
+            ViewBag.TotalPaginas = totalPaginas;
+            ViewBag.Search = search;
+            ViewBag.CategoryId = categoryId;
+            ViewBag.CategoryName = categoryName;
+
+            // 3. Empaquetamos y enviamos
+            var model = new CatalogVM
+            {
+                Categories = categories,
+                Products = productosPaginados, // ¡OJO AQUÍ! Mandamos solo la porción paginada
+                filterBy = filtroActivo
+            };
+
+            return View(model);
+        }
+
+
         public async Task<IActionResult>FilterByCategory(int id, string name)
         {
             var categories = await _categoryService.GetAllCategoriesAsync();

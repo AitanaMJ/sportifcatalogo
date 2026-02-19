@@ -1,0 +1,224 @@
+﻿@model MyStoreLaZeta.Models.CatalogVM
+
+<div class="container mt-4">
+
+    <div class="text-center mb-5">
+        <h2 class="text-zeta-dark fw-bold">Nuestro Catálogo Completo</h2>
+        <p class="text-muted">Encuentra el merchandising perfecto para ti.</p>
+    </div>
+
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-10">
+            <div class="d-flex gap-2">
+
+                <button type="button" class="btn btn-zeta-cyan px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#categoriesModal">
+                    <i class="fa-solid fa-layer-group me-2"></i> Categorías
+                </button>
+
+                <form asp-controller="Home" asp-action="Catalogo" method="get" class="d-flex flex-grow-1">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                        </span>
+                        <input type="text" name="search" class="form-control border-start-0 ps-0"
+                               placeholder="Buscar tazas, remeras, gorras..."
+                               value="@(Model.filterBy?.Replace("Resultados para: ", ""))">
+                        <button class="btn btn-zeta-orange px-4 fw-bold" type="submit">BUSCAR</button>
+                    </div>
+                </form>
+
+            </div>
+
+           @if (!string.IsNullOrEmpty(Model.filterBy))
+             {
+             <div class="mt-4 d-flex justify-content-start">
+              <div class="shadow-sm bg-white rounded-pill px-4 py-2 border d-flex align-items-center gap-2">
+              <i class="fa-solid fa-filter text-zeta-cyan"></i>
+             <span class="fw-bold text-dark">@Model.filterBy</span>
+            
+             <a asp-action="Catalogo" class="text-danger ms-2" title="Quitar filtro">
+                <i class="fa-solid fa-circle-xmark fa-lg hover-scale"></i>
+               </a>
+             </div>
+             </div>
+    
+    <style>
+        .hover-scale { transition: transform 0.2s; }
+        .hover-scale:hover { transform: scale(1.2); }
+    </style>
+}
+        </div>
+    </div>
+
+    @if (!Model.Products.Any())
+    {
+        <div class="text-center py-5">
+            <i class="fa-solid fa-box-open fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">No encontramos productos con esa búsqueda.</h4>
+            <a asp-action="Catalogo" class="btn btn-outline-dark mt-3">Ver todos los productos</a>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var item in Model.Products)
+            {
+                <div class="col">
+                    <div class="card h-100 card-zeta border-0 shadow-sm">
+                        <img src="~/images/@item.ImageName" class="card-img-top p-3" alt="@item.Name"
+                             style="height: 250px; object-fit: contain;">
+
+                        <div class="card-body text-center">
+                            <h5 class="card-title fw-bold text-dark">@item.Name</h5>
+                            <p class="card-text text-muted small">@item.Description</p>
+                            <h4 class="text-zeta-cyan fw-bold my-3">$@item.Price.ToString("N0")</h4>
+
+                            <a asp-action="ProductDetail" asp-route-id="@item.ProductId" class="btn btn-zeta-orange w-100 rounded-pill">
+                                <i class="fa-solid fa-eye me-2"></i> Ver Detalle
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@if (ViewBag.TotalPaginas > 1)
+    {
+        <nav aria-label="Navegación del catálogo" class="mt-5 mb-5">
+            <ul class="pagination pagination-zeta justify-content-center align-items-center gap-2">
+                
+                <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
+                    <a class="page-link shadow-sm" 
+                       asp-action="Catalogo" 
+                       asp-route-page="@(ViewBag.PaginaActual - 1)"
+                       asp-route-search="@ViewBag.Search"
+                       asp-route-categoryId="@ViewBag.CategoryId"
+                       asp-route-categoryName="@ViewBag.CategoryName">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </a>
+                </li>
+
+                @for (int i = 1; i <= ViewBag.TotalPaginas; i++)
+                {
+                    <li class="page-item @(i == ViewBag.PaginaActual ? "active" : "")">
+                        <a class="page-link shadow-sm" 
+                           asp-action="Catalogo" 
+                           asp-route-page="@i"
+                           asp-route-search="@ViewBag.Search"
+                           asp-route-categoryId="@ViewBag.CategoryId"
+                           asp-route-categoryName="@ViewBag.CategoryName">
+                            @i
+                        </a>
+                    </li>
+                }
+
+                <li class="page-item @(ViewBag.PaginaActual == ViewBag.TotalPaginas ? "disabled" : "")">
+                    <a class="page-link shadow-sm" 
+                       asp-action="Catalogo" 
+                       asp-route-page="@(ViewBag.PaginaActual + 1)"
+                       asp-route-search="@ViewBag.Search"
+                       asp-route-categoryId="@ViewBag.CategoryId"
+                       asp-route-categoryName="@ViewBag.CategoryName">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                </li>
+                
+            </ul>
+        </nav>
+
+        <style>
+            /* Hacemos los botones separados y redondos */
+            .pagination-zeta .page-link {
+                border-radius: 50px !important; 
+                border: none;
+                color: #555;
+                font-weight: 600;
+                padding: 8px 18px;
+                background-color: white;
+                transition: all 0.3s ease;
+            }
+            
+            /* Color de la página activa (Usamos tu Cyan para balancear el Naranja de los productos) */
+            .pagination-zeta .page-item.active .page-link {
+                background-color: var(--zeta-cyan) !important; 
+                color: white !important;
+                box-shadow: 0 4px 10px rgba(23, 160, 156, 0.4);
+            }
+            
+            /* Efecto al pasar el mouse por encima */
+            .pagination-zeta .page-item:not(.active) .page-link:hover {
+                background-color: #f8f9fa;
+                color: var(--zeta-cyan);
+                transform: translateY(-2px);
+            }
+            
+            /* Estilo cuando no se puede retroceder/avanzar más */
+            .pagination-zeta .page-item.disabled .page-link {
+                background-color: transparent !important;
+                color: #ccc !important;
+                box-shadow: none !important;
+            }
+        </style>
+    }
+
+
+
+
+
+<div class="modal fade" id="categoriesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold ms-2">Categorías</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-4 col-6">
+                        <a asp-action="Catalogo" class="card card-zeta text-center p-3 text-decoration-none h-100 hover-effect">
+                            <i class="fa-solid fa-border-all fa-2x text-zeta-cyan mb-2"></i>
+                            <h6 class="text-dark fw-bold mb-0">Todas</h6>
+                        </a>
+                    </div>
+
+                    @if (Model.Categories != null)
+                    {
+                        @foreach (var cat in Model.Categories)
+                        {
+                            /* Verificamos que la categoría individual no sea nula */
+                            if (cat != null)
+                            {
+                                <div class="col-md-4 col-6">
+                                    <a asp-action="Catalogo" asp-route-categoryId="@cat.CategoryId" asp-route-categoryName="@cat.Name"
+                                       class="card card-zeta text-center p-3 text-decoration-none h-100 hover-effect">
+                                        <i class="fa-solid fa-tag fa-lg text-muted mb-2"></i>
+                                        <h6 class="text-dark fw-bold mb-0">@cat.Name</h6>
+                                    </a>
+                                </div>
+                            }
+                        }
+                    }
+                  
+                </div>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Efecto hover suave para las tarjetas del modal */
+    .hover-effect {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .hover-effect:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 1px solid var(--zeta-cyan);
+        }
+</style>

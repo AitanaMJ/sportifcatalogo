@@ -1,0 +1,105 @@
+﻿@model MyStoreLaZeta.Entities.Order
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fa-solid fa-receipt text-muted me-2"></i>Pedido #@Model.OrderId</h2>
+        <a asp-action="ManageOrders" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-arrow-left"></i> Volver a la lista
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card card-zeta mb-4 shadow-sm">
+                <div class="card-header bg-light fw-bold">
+                    Productos del Pedido
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Producto</th>
+                                <th class="text-center">Cant.</th>
+                                <th class="text-end">Precio Unit.</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OrderItems)
+                            {
+                                <tr>
+                                    <td>@item.ProductName</td>
+                                    <td class="text-center">@item.Quantity</td>
+                                    <td class="text-end">$@item.Price.ToString("N0")</td>
+                                    <td class="text-end fw-bold">$@((item.Price * item.Quantity).ToString("N0"))</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-light">
+                                <td colspan="3" class="text-end fw-bold text-muted text-uppercase">Total a Pagar:</td>
+                                <td class="text-end fs-4 fw-bold text-zeta-cyan">$@Model.TotalAmount.ToString("N0")</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="card border-warning mb-4 shadow">
+                    <div class="card-header bg-warning text-dark fw-bold">
+                        <i class="fa-solid fa-user-shield me-1"></i> Gestión de Estado
+                    </div>
+                    <div class="card-body bg-light">
+                        <p class="mb-2">
+                            Estado actual:
+                            <span class="badge bg-dark">@Model.Status</span>
+                        </p>
+
+                        <form asp-action="UpdateStatus" method="post">
+                            <input type="hidden" name="id" value="@Model.OrderId" />
+
+                            <label class="form-label small text-muted">Cambiar a:</label>
+                            <div class="input-group">
+                                <select name="status" class="form-select">
+                                    <option value="Pendiente" selected="@(Model.Status == "Pendiente")">Pendiente</option>
+                                    <option value="En Preparación" selected="@(Model.Status == "En Preparación")">En Preparación</option>
+                                    <option value="Enviado" selected="@(Model.Status == "Enviado")">Enviado</option>
+                                    <option value="Entregado" selected="@(Model.Status == "Entregado")">Entregado</option>
+                                    <option value="Cancelado" selected="@(Model.Status == "Cancelado")">Cancelado</option>
+                                </select>
+                                <button type="submit" class="btn btn-dark">Guardar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            }
+
+            <div class="card card-zeta mb-3">
+                <div class="card-body">
+                    <h5 class="card-title text-zeta-cyan mb-3">Datos del Cliente</h5>
+
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fa-solid fa-user me-2 text-muted"></i> @Model.ClientName</li>
+                        <li class="mb-2"><i class="fa-solid fa-envelope me-2 text-muted"></i> @Model.Email</li>
+                        <li class="mb-2"><i class="fa-solid fa-phone me-2 text-muted"></i> @Model.Phone</li>
+                    </ul>
+
+                    <hr class="text-muted opacity-25">
+
+                    <h6 class="text-muted mt-3">Detalles de Entrega</h6>
+                    <p class="mb-1"><strong class="text-dark">Método:</strong> @Model.ShippingMethod</p>
+                    <p class="mb-1"><strong class="text-dark">Pago:</strong> @Model.PaymentMethod</p>
+                    <div class="alert alert-secondary mt-2 py-2 px-3 small">
+                        <i class="fa-solid fa-location-dot me-1"></i> @Model.Address
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

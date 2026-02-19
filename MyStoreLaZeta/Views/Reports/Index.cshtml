@@ -1,0 +1,95 @@
+﻿@{
+    ViewData["Title"] = "Reporte de Ventas";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <h2 class="mb-0 text-zeta-dark">Tablero de Control</h2>
+        <a asp-action="ExportarExcel" class="btn btn-success shadow-sm">
+            <i class="fa-solid fa-file-excel me-2"></i> Descargar Excel
+        </a>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card text-white bg-success mb-3 shadow" style="border-radius: 15px;">
+                <div class="card-body text-center">
+                    <h5 class="card-title opacity-75">Ingresos Totales</h5>
+                    <h1 class="display-4 fw-bold">$@ViewBag.TotalIngresos?.ToString("N0")</h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-white bg-info mb-3 shadow" style="border-radius: 15px;">
+                <div class="card-body text-center">
+                    <h5 class="card-title opacity-75">Pedidos Totales</h5>
+                    <h1 class="display-4 fw-bold">@ViewBag.CantidadPedidos</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm p-4 border-0" style="border-radius: 15px;">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+            <h4 class="text-zeta-dark mb-0">@ViewBag.TituloGrafico</h4>
+
+            <div class="btn-group shadow-sm" role="group">
+                <a asp-action="Index" asp-route-tipo="diario"
+                   class="btn @(ViewBag.TipoActivo == "diario" ? "btn-zeta-cyan text-white" : "btn-outline-secondary")">
+                    Diario
+                </a>
+                <a asp-action="Index" asp-route-tipo="semanal"
+                   class="btn @(ViewBag.TipoActivo == "semanal" ? "btn-zeta-cyan text-white" : "btn-outline-secondary")">
+                    Semanal
+                </a>
+                <a asp-action="Index" asp-route-tipo="mensual"
+                   class="btn @(ViewBag.TipoActivo == "mensual" ? "btn-zeta-cyan text-white" : "btn-outline-secondary")">
+                    Mensual
+                </a>
+            </div>
+        </div>
+
+        <canvas id="graficoVentas" height="100"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var ctx = document.getElementById('graficoVentas').getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            // CAMBIO IMPORTANTE: Usamos 'Etiquetas' en vez de 'Fechas' para que sirva para meses también
+            labels: @Html.Raw(Json.Serialize(ViewBag.Etiquetas)),
+            datasets: [{
+                label: 'Ventas ($)',
+                // CAMBIO IMPORTANTE: Usamos 'Valores' en vez de 'Montos'
+                data: @Html.Raw(Json.Serialize(ViewBag.Valores)),
+                borderColor: '#17A09C',
+                backgroundColor: 'rgba(23, 160, 156, 0.1)',
+                borderWidth: 3,
+                pointBackgroundColor: '#ffffff',
+                pointBorderColor: '#17A09C',
+                pointRadius: 5,
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false } // Ocultamos la leyenda para que se vea más limpio
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { borderDash: [5, 5] } // Líneas punteadas elegantes
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+</script>
