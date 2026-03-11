@@ -1,0 +1,50 @@
+﻿@{
+    ViewData["Title"] = "¡Pedido Confirmado!";
+}
+
+<div class="container mt-5 mb-5 text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg p-5 border-0" style="border-radius: 15px;">
+
+                @if (ViewBag.Status == "pending")
+                {
+                    <div>
+                        <i class="fa-solid fa-clock text-warning" style="font-size: 6rem;"></i>
+                    </div>
+                    <h1 class="mt-4 fw-bold" style="color: #FF6E00;">¡Pedido Recibido!</h1>
+                    <p class="lead mt-3">Tu pedido <strong>#@ViewBag.OrderId</strong> ha sido registrado.</p>
+
+                    <div class="alert alert-warning mt-4 text-start border-0 shadow-sm">
+                        <h6 class="fw-bold"><i class="fa-solid fa-receipt me-2"></i> Instrucciones de Pago:</h6>
+                        <p class="small mb-2">Como elegiste pagar en efectivo:</p>
+                        <ul class="small mb-0">
+                            <li>Revisá tu <strong>correo electrónico</strong> (Gmail); Mercado Pago te envió el cupón de pago.</li>
+                            <li>Acercate a cualquier sucursal de <strong>Pago Fácil o Rapipago</strong> con ese código.</li>
+                            <li>Una vez que abones, el sistema nos avisará y prepararemos tu pedido.</li>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <div>
+                        <i class="fa-solid fa-circle-check text-success" style="font-size: 6rem;"></i>
+                    </div>
+                    <h1 class="mt-4 fw-bold" style="color: #FF6E00;">¡Gracias por tu compra!</h1>
+                    <p class="lead mt-3">Tu pedido <strong>#@ViewBag.OrderId</strong> ha sido confirmado con éxito.</p>
+
+                    <div class="alert alert-success mt-4 text-start border-0 shadow-sm">
+                        <i class="fa-solid fa-check-double me-2"></i>
+                        <strong>¡Pago acreditado!</strong> Ya recibimos tu pago y estamos preparando el despacho de tus productos.
+                    </div>
+                }
+
+                <div class="mt-5">
+                    <a href="/Home/Index" class="btn btn-zeta-cyan btn-lg px-5 text-white fw-bold" style="border-radius: 30px; background-color: var(--zeta-cyan);">
+                        Volver al catálogo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

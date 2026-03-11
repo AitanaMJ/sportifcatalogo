@@ -13,12 +13,12 @@ namespace MyStoreLaZeta.Entities
         public int ProductId { get; set; }
         public Product? Product { get; set; }
 
-        // Agregamos esto para guardar el nombre en el momento de la compra
+        
         public string ProductName { get; set; } = string.Empty;
 
         public int Quantity { get; set; }
 
-        [Column(TypeName = "decimal(18,2)")] // Recomendado para precios
+        [Column(TypeName = "decimal(18,2)")] 
         public decimal Price { get; set; }
     }
 }

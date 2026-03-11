@@ -58,6 +58,43 @@
                             <span asp-validation-for="Description" class="text-danger small"></span>
                         </div>
 
+
+                      
+                        <div class="card mb-4 border-0 shadow-sm bg-light">
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold small text-uppercase">Precio de Costo (ARS)</label>
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-white"><i class="fa-solid fa-hand-holding-dollar text-muted"></i></span>
+                                            <input type="number" id="costPrice" asp-for="CostPrice" class="form-control" placeholder="0.00" step="0.01" oninput="calcularRentabilidad()">
+                                        </div>
+                                        <small class="text-muted" style="font-size: 0.7rem;">Lo que pagaste por el producto.</small>
+                                    </div>
+
+                                    <div class="col-md-4 border-start">
+                                        <label class="form-label fw-bold small text-uppercase text-orange">Descuento (%)</label>
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-white"><i class="fa-solid fa-tag text-orange"></i></span>
+                                            <input type="number" id="discountPercent" asp-for="Discount" class="form-control" placeholder="0" min="0" max="100" oninput="calcularRentabilidad()">
+                                        </div>
+                                        <small class="text-muted" style="font-size: 0.7rem;">Porcentaje de rebaja para el cliente.</small>
+                                    </div>
+
+                                    <div class="col-md-4 border-start d-flex flex-column justify-content-center align-items-center">
+                                        <label class="form-label fw-bold small text-uppercase mb-0">Ganancia Real</label>
+                                        <div id="gananciaDisplay" class="fs-4 fw-bold text-success">$ 0</div>
+                                        <small id="margenDisplay" class="badge bg-success" style="font-size: 0.65rem;">0% de margen</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Precio (ARS)</label>
@@ -69,12 +106,76 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Stock Disponible</label>
+                                <label class="form-label fw-bold">Stock General</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light"><i class="fa-solid fa-layer-group text-muted"></i></span>
                                     <input type="number" class="form-control" asp-for="Stock" autocomplete="off">
                                 </div>
                                 <span asp-validation-for="Stock" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="card mb-4 shadow-sm border-0 bg-light">
+                            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center rounded-top">
+                                <h6 class="mb-0 small text-uppercase fw-bold"><i class="fa-solid fa-layer-group me-2"></i>Variaciones (Talle/Color)</h6>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-light py-0 px-2 shadow-sm me-2" type="button" data-bs-toggle="collapse" data-bs-target="#generadorVariaciones">
+                                        <i class="fa-solid fa-wand-magic-sparkles small"></i> Generador
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-zeta-cyan py-0 px-2 shadow-sm" onclick="addVariation()">
+                                        <i class="fa-solid fa-plus small"></i> Agregar Fila
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="collapse" id="generadorVariaciones">
+                                <div class="card-body bg-white border-bottom border-secondary">
+                                    <p class="text-muted small mb-2"><i class="fa-solid fa-info-circle me-1"></i>Escribe los valores separados por coma (,) y el sistema creará todas las combinaciones.</p>
+                                    <div class="row g-2">
+                                        <div class="col-md-5">
+                                            <input type="text" id="genColors" class="form-control form-control-sm" placeholder="Colores (Ej: Negro, Blanco)">
+                                        </div>
+                                        <div class="col-md-5">
+                                            <input type="text" id="genSizes" class="form-control form-control-sm" placeholder="Talles (Ej: S, M, L)">
+                                        </div>
+                                        <div class="col-md-2 d-grid">
+                                            <button type="button" class="btn btn-sm btn-primary" onclick="generateVariations()">Generar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-body border rounded-bottom p-3">
+                                <div id="variations-container">
+                                    @if (Model.Variations != null && Model.Variations.Any())
+                                    {
+                                        for (int i = 0; i < Model.Variations.Count; i++)
+                                        {
+                                            <div class="row g-2 mb-2 variation-row align-items-center">
+                                                <input type="hidden" name="Variations.Index" value="@i" />
+                                                <input type="hidden" name="Variations[@i].Id" value="@Model.Variations.ElementAt(i).Id" />
+
+                                                <div class="col-md-4">
+                                                    <input name="Variations[@i].Color" value="@Model.Variations.ElementAt(i).Color" class="form-control form-control-sm" placeholder="Color" required />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <input name="Variations[@i].Size" value="@Model.Variations.ElementAt(i).Size" class="form-control form-control-sm" placeholder="Talle" required />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <input name="Variations[@i].Stock" value="@Model.Variations.ElementAt(i).Stock" type="number" class="form-control form-control-sm" placeholder="Stock" required />
+                                                </div>
+                                                <div class="col-md-2 text-end">
+                                                    <button type="button" class="btn btn-outline-danger btn-sm rounded-circle border-0" onclick="removeRow(this)">
+                                                        <i class="fa-solid fa-trash-can"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                                <div id="no-variations-msg" class="@(Model.Variations != null && Model.Variations.Any() ? "d-none" : "") text-center py-2">
+                                    <small class="text-muted italic">Usa el generador o haz clic en Agregar Fila para sumar opciones.</small>
+                                </div>
                             </div>
                         </div>
 
@@ -131,19 +232,115 @@
                 var reader = new FileReader();
 
                 reader.onload = function (e) {
-                    // 1. Asignamos la imagen seleccionada al src de la etiqueta img
                     var imagen = document.getElementById('imgPreview');
                     imagen.src = e.target.result;
-                    imagen.style.display = 'block'; // Aseguramos que se vea
+                    imagen.style.display = 'block';
 
-                    // 2. Ocultamos el texto de "Sin imagen" si existe
                     var texto = document.getElementById('textoNoImagen');
                     if (texto) texto.style.display = 'none';
                 }
 
-                reader.readAsDataURL(input.files[0]); // Leemos el archivo
+                reader.readAsDataURL(input.files[0]);
             }
         }
+
+        function addVariation(color = '', size = '') {
+            document.getElementById('no-variations-msg').classList.add('d-none');
+            let container = document.getElementById('variations-container');
+
+            
+            let uniqueId = 'var_' + Date.now() + Math.floor(Math.random() * 1000);
+
+            let html = `
+                <div class="row g-2 mb-2 variation-row animate__animated animate__fadeIn">
+                    <input type="hidden" name="Variations.Index" value="${uniqueId}" />
+
+                    <div class="col-md-4">
+                        <input name="Variations[${uniqueId}].Color" value="${color}" class="form-control form-control-sm" placeholder="Color" required />
+                    </div>
+                    <div class="col-md-3">
+                        <input name="Variations[${uniqueId}].Size" value="${size}" class="form-control form-control-sm" placeholder="Talle" required />
+                    </div>
+                    <div class="col-md-3">
+                        <input name="Variations[${uniqueId}].Stock" type="number" value="0" class="form-control form-control-sm" placeholder="Stock" required />
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <button type="button" class="btn btn-outline-danger btn-sm rounded-circle border-0" onclick="removeRow(this)">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>`;
+
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        function removeRow(btn) {
+            btn.closest('.row').remove();
+            if (document.querySelectorAll('.variation-row').length === 0) {
+                document.getElementById('no-variations-msg').classList.remove('d-none');
+            }
+        }
+
+       
+        function generateVariations() {
+            let colorsInput = document.getElementById('genColors').value;
+            let sizesInput = document.getElementById('genSizes').value;
+
+            if (!colorsInput || !sizesInput) {
+                alert("Por favor, ingresa al menos un color y un talle para generar.");
+                return;
+            }
+
+            let colors = colorsInput.split(',').map(c => c.trim()).filter(c => c !== '');
+            let sizes = sizesInput.split(',').map(s => s.trim()).filter(s => s !== '');
+
+            colors.forEach(color => {
+                sizes.forEach(size => {
+                    addVariation(color, size);
+                });
+            });
+
+            document.getElementById('genColors').value = '';
+            document.getElementById('genSizes').value = '';
+
+            var generadorCollapse = document.getElementById('generadorVariaciones');
+            var bsCollapse = new bootstrap.Collapse(generadorCollapse, { toggle: false });
+            bsCollapse.hide();
+        }
+
+                function calcularRentabilidad() {
+            //tTomamos los valores de los inputs (asegurándonos que sean números)
+            const costo = parseFloat(document.getElementById('costPrice').value) || 0;
+            const precioVentaOriginal = parseFloat(document.querySelector('[name="Price"]').value) || 0;
+            const descuento = parseFloat(document.getElementById('discountPercent').value) || 0;
+
+            // calculo el precio final que paga el cliente
+            const precioConDescuento = precioVentaOriginal - (precioVentaOriginal * (descuento / 100));
+
+            // l ganancia es: Lo que paga el cliente - Lo que me costo a mí
+            const ganancia = precioConDescuento - costo;
+
+            // calculo el margen sobre el costo
+            const margen = costo > 0 ? (ganancia / costo) * 100 : 0;
+
+            // actualizamos la pantalla
+            const displayGanancia = document.getElementById('gananciaDisplay');
+            const displayMargen = document.getElementById('margenDisplay');
+
+            displayGanancia.innerText = `$ ${ganancia.toLocaleString('es-AR', {minimumFractionDigits: 0})}`;
+            displayMargen.innerText = `${margen.toFixed(1)}% de margen`;
+
+            // avisa si la ganancia es menor
+            if (ganancia < 0) {
+                displayGanancia.className = "fs-4 fw-bold text-danger animate__animated animate__shakeX";
+                displayMargen.className = "badge bg-danger";
+            } else {
+                displayGanancia.className = "fs-4 fw-bold text-success";
+                displayMargen.className = "badge bg-success";
+            }
+        }
+
+        // Vinculamos también el input de "Price" que ya tenías para que recalcule
+        document.querySelector('[name="Price"]').addEventListener('input', calcularRentabilidad);
     </script>
-   
 }

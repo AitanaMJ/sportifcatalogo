@@ -15,21 +15,21 @@ namespace MyStoreLaZeta.Controllers
             _context = context;
         }
 
-        // 1. VISTA USUARIO: Mis Pedidos
+        
         public async Task<IActionResult> MyOrders()
         {
-            var userEmail = User.Identity.Name; // Usamos el email porque en tu base de datos vi que UserId está como NULL a veces
+            var userEmail = User.Identity.Name; 
 
             var pedidos = await _context.Orders
-                .Include(o => o.OrderItems) // Traemos los items del pedido
-                .Where(o => o.Email == userEmail) // Filtramos por el email del usuario logueado
+                .Include(o => o.OrderItems) 
+                .Where(o => o.Email == userEmail) 
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 
             return View(pedidos);
         }
 
-        // 2. VISTA ADMIN: Gestionar Todos
+        
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ManageOrders()
         {
@@ -41,7 +41,7 @@ namespace MyStoreLaZeta.Controllers
             return View(pedidos);
         }
 
-        // 3. DETALLE DE UN PEDIDO (Para ver qué productos compró)
+       
         public async Task<IActionResult> Details(int id)
         {
             var pedido = await _context.Orders
@@ -50,7 +50,7 @@ namespace MyStoreLaZeta.Controllers
 
             if (pedido == null) return NotFound();
 
-            // Seguridad: Si no es Admin y el pedido no es suyo, no dejar ver
+           
             if (!User.IsInRole("Admin") && pedido.Email != User.Identity.Name)
             {
                 return Forbid();
@@ -59,7 +59,7 @@ namespace MyStoreLaZeta.Controllers
             return View(pedido);
         }
 
-        // --- AGREGAR ESTO EN OrdersController.cs ---
+        
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
@@ -68,10 +68,10 @@ namespace MyStoreLaZeta.Controllers
             var pedido = await _context.Orders.FindAsync(id);
             if (pedido == null) return NotFound();
 
-            pedido.Status = status; // Actualizamos el texto del estado
-            await _context.SaveChangesAsync(); // Guardamos en la base de datos
+            pedido.Status = status; 
+            await _context.SaveChangesAsync(); 
 
-            return RedirectToAction("Details", new { id = id }); // Recargamos la página
+            return RedirectToAction("Details", new { id = id }); 
         }
     }
 }

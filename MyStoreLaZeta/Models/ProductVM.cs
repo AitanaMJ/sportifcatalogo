@@ -22,6 +22,15 @@ namespace MyStoreLaZeta.Models
         public string ImageName { get; set; } = null;
 
         public IFormFile? ImageFile { get; set; }
+
+        public decimal CostPrice { get; set; }
+
+        public int? Discount { get; set; }
+
+        public List<ProductVariation> Variations { get; set; } = new List<ProductVariation>();
+
+        
+        public bool HasVariations { get; set; } = false;
     }
 
 }

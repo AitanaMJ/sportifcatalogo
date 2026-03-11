@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyStoreLaZeta.Context;
 
@@ -11,9 +12,11 @@ using MyStoreLaZeta.Context;
 namespace MyStoreLaZeta.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260219191319_AddVariationsToProducts")]
+    partial class AddVariationsToProducts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -147,15 +150,9 @@ namespace MyStoreLaZeta.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("CostPrice")
-                        .HasColumnType("decimal(10,2)");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Discount")
-                        .HasColumnType("int");
 
                     b.Property<bool>("HasVariations")
                         .HasColumnType("bit");

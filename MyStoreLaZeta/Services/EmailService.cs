@@ -7,14 +7,14 @@ namespace MyStoreLaZeta.Services
     {
         public void SendEmail(string destino, string token)
         {
-            // 1. TUS DATOS DE GMAIL (Necesitas la clave de aplicación de 16 letras)
-            string remitente = "molinajuarezaitana@gmail.com"; // <--- CAMBIA ESTO POR TU GMAIL
-            string password = "cbmr lqdy lrfa xdlb"; // <--- CAMBIA ESTO POR TU CLAVE DE 16 LETRAS
+            //  TUS DATOS DE GMAIL (Necesitas la clave de aplicación de 16 letras) //hacerlo en app settings y leerlo desde ahí para no exponerlo en el código fuente
+            string remitente = "molinajuarezaitana@gmail.com"; // CAMBIA ESTO POR TU GMAIL /admin
+            string password = "cbmr lqdy lrfa xdlb"; // CAMBIA ESTO POR TU CLAVE DE 16 LETRAS //admin
 
             // El link que le llegará al usuario
             string link = $"http://localhost:5219/Account/ResetPassword?token={token}";
 
-            // 2. PREPARAR EL PAQUETE (El correo)
+            //  correo que se le envia al usuario
             MailMessage correo = new MailMessage();
             correo.From = new MailAddress(remitente);
             correo.To.Add(destino);
@@ -31,7 +31,7 @@ namespace MyStoreLaZeta.Services
                 </div>";
             correo.IsBodyHtml = true;
 
-            // 3. ENVIARLO (Configuración del servidor de Gmail)
+            // ENVIARLO 
             SmtpClient smtp = new SmtpClient();
             smtp.Host = "smtp.gmail.com";
             smtp.Port = 587;

@@ -74,37 +74,50 @@
                     <th></th>
                 </tr>
             </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>@item.OrderId</td>
-                        <td>
-                            <div class="fw-bold">@item.ClientName</div>
-                            <small class="text-muted">@item.Email</small>
-                        </td>
-                        <td>@item.OrderDate.ToString("dd/MM/yy")</td>
-                        <td class="text-success fw-bold">$@item.TotalAmount.ToString("N0")</td>
-                        <td>@item.ShippingMethod</td>
-                        <td>
-                            @if (item.Status == "Pendiente")
-                            {
-                                <span class="badge bg-warning text-dark">Pendiente</span>
-                            }
-                            else
-                            {
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.OrderId</td>
 
-                                <span class="badge bg-success">Completado</span>
-                            }
-                        </td>
-                        <td>
-                            <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-primary">
-                                <i class="fa-solid fa-eye"></i>
-                            </a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
+                            <td>
+                                <div class="fw-bold">@item.ClientName</div>
+                                <small class="text-muted">@item.Email</small>
+                            </td>
+
+                            <td>@item.OrderDate.ToString("dd/MM/yy")</td>
+
+                            <td class="text-success fw-bold">$@item.TotalAmount.ToString("N0")</td>
+
+                            <td>@item.ShippingMethod</td>
+
+                            <td>
+                                @if (item.Status == "Pendiente")
+                                {
+                                    <span class="badge bg-warning text-dark">Pendiente</span>
+                                }
+                                else if (item.Status == "Cancelado")
+                                {
+                                    <span class="badge bg-danger">Cancelado</span>
+                                }
+                                else if (item.Status == "Entregado")
+                                {
+                                    <span class="badge bg-success">Entregado</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">@item.Status</span>
+                                }
+                            </td>
+
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-primary">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
         </table>
             </div>
     </div>
@@ -129,9 +142,9 @@
                         "previous": "<i class='fa-solid fa-chevron-left me-1'></i> Anterior"
                     }
                 },
-                "pageLength": 10, // Los pedidos suelen ser más pequeños, mostramos 10 por defecto
+                "pageLength": 10, 
                 "lengthMenu": [5, 10, 25, 50],
-                "ordering": false // ¡Triangulitos desactivados!
+                "ordering": false // opcion de triangulitos por las dudas lo dejo
             });
         });
     </script>

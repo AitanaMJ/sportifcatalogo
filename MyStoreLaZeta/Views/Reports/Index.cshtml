@@ -1,95 +1,111 @@
 ﻿@{
-    ViewData["Title"] = "Reporte de Ventas";
+    ViewData["Title"] = "Tablero de Control - La Zeta";
 }
 
 <div class="container mt-4">
-
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <h2 class="mb-0 text-zeta-dark">Tablero de Control</h2>
-        <a asp-action="ExportarExcel" class="btn btn-success shadow-sm">
-            <i class="fa-solid fa-file-excel me-2"></i> Descargar Excel
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-zeta-dark fw-bold">Tablero de Control</h2>
+        <a asp-action="ExportarExcel" asp-route-mesFiltro="@ViewBag.MesFiltro" class="btn btn-success">
+            <i class="fa-solid fa-file-excel me-2"></i>Descargar Excel
         </a>
     </div>
 
     <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="input-group shadow-sm">
+                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-calendar-days text-muted"></i></span>
+                <input type="month" id="filtroMes" class="form-control border-start-0" value="@ViewBag.MesFiltro">
+                <button class="btn btn-zeta-cyan text-white" onclick="actualizarReporte()">Filtrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
         <div class="col-md-6">
-            <div class="card text-white bg-success mb-3 shadow" style="border-radius: 15px;">
-                <div class="card-body text-center">
-                    <h5 class="card-title opacity-75">Ingresos Totales</h5>
+            <div class="card bg-success text-white shadow border-0" style="border-radius: 15px;">
+                <div class="card-body text-center p-4">
+                    <h5 class="opacity-75 small text-uppercase">Ingresos del Mes</h5>
                     <h1 class="display-4 fw-bold">$@ViewBag.TotalIngresos?.ToString("N0")</h1>
                 </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card text-white bg-info mb-3 shadow" style="border-radius: 15px;">
-                <div class="card-body text-center">
-                    <h5 class="card-title opacity-75">Pedidos Totales</h5>
+            <div class="card bg-info text-white shadow border-0" style="border-radius: 15px;">
+                <div class="card-body text-center p-4">
+                    <h5 class="opacity-75 small text-uppercase">Pedidos del Mes</h5>
                     <h1 class="display-4 fw-bold">@ViewBag.CantidadPedidos</h1>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card shadow-sm p-4 border-0" style="border-radius: 15px;">
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
-            <h4 class="text-zeta-dark mb-0">@ViewBag.TituloGrafico</h4>
-
-            <div class="btn-group shadow-sm" role="group">
-                <a asp-action="Index" asp-route-tipo="diario"
-                   class="btn @(ViewBag.TipoActivo == "diario" ? "btn-zeta-cyan text-white" : "btn-outline-secondary")">
-                    Diario
-                </a>
-                <a asp-action="Index" asp-route-tipo="semanal"
-                   class="btn @(ViewBag.TipoActivo == "semanal" ? "btn-zeta-cyan text-white" : "btn-outline-secondary")">
-                    Semanal
-                </a>
-                <a asp-action="Index" asp-route-tipo="mensual"
-                   class="btn @(ViewBag.TipoActivo == "mensual" ? "btn-zeta-cyan text-white" : "btn-outline-secondary")">
-                    Mensual
-                </a>
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm p-4 border-0 h-100" style="border-radius: 15px;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold text-zeta-dark">@ViewBag.TituloGrafico</h5>
+                    <div class="btn-group btn-group-sm shadow-sm">
+                        <a asp-action="Index" asp-route-tipo="diario" asp-route-mesFiltro="@ViewBag.MesFiltro" class="btn @(ViewBag.TipoActivo == "diario" ? "btn-zeta-cyan text-white" : "btn-outline-secondary")">Diario</a>
+                        <a asp-action="Index" asp-route-tipo="semanal" asp-route-mesFiltro="@ViewBag.MesFiltro" class="btn @(ViewBag.TipoActivo == "semanal" ? "btn-zeta-cyan text-white" : "btn-outline-secondary")">Semanal</a>
+                        <a asp-action="Index" asp-route-tipo="mensual" asp-route-mesFiltro="@ViewBag.MesFiltro" class="btn @(ViewBag.TipoActivo == "mensual" ? "btn-zeta-cyan text-white" : "btn-outline-secondary")">Mensual</a>
+                    </div>
+                </div>
+                <canvas id="graficoVentas" height="150"></canvas>
             </div>
         </div>
 
-        <canvas id="graficoVentas" height="100"></canvas>
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm p-4 border-0 h-100" style="border-radius: 15px;">
+                <h5 class="fw-bold text-zeta-dark text-center mb-4">Categorías Vendidas</h5>
+                <canvas id="graficoCategorias"></canvas>
+                <div id="sinDatosCategorias" class="text-center text-muted mt-5 d-none">
+                    <i class="fa-solid fa-chart-pie fa-3x mb-2 opacity-25"></i>
+                    <p>Sin ventas en este mes</p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    var ctx = document.getElementById('graficoVentas').getContext('2d');
-    var chart = new Chart(ctx, {
+    function actualizarReporte() {
+        const mes = document.getElementById('filtroMes').value;
+        window.location.href = `/Reports/Index?tipo=@ViewBag.TipoActivo&mesFiltro=${mes}`;
+    }
+
+    // Gráfico de Líneas
+    new Chart(document.getElementById('graficoVentas'), {
         type: 'line',
         data: {
-            // CAMBIO IMPORTANTE: Usamos 'Etiquetas' en vez de 'Fechas' para que sirva para meses también
             labels: @Html.Raw(Json.Serialize(ViewBag.Etiquetas)),
             datasets: [{
-                label: 'Ventas ($)',
-                // CAMBIO IMPORTANTE: Usamos 'Valores' en vez de 'Montos'
                 data: @Html.Raw(Json.Serialize(ViewBag.Valores)),
                 borderColor: '#17A09C',
                 backgroundColor: 'rgba(23, 160, 156, 0.1)',
-                borderWidth: 3,
-                pointBackgroundColor: '#ffffff',
-                pointBorderColor: '#17A09C',
-                pointRadius: 5,
                 fill: true,
                 tension: 0.3
             }]
         },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false } // Ocultamos la leyenda para que se vea más limpio
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: { borderDash: [5, 5] } // Líneas punteadas elegantes
-                },
-                x: {
-                    grid: { display: false }
-                }
-            }
-        }
+        options: { plugins: { legend: { display: false } } }
     });
+
+    // Gráfico de Torta
+    const catLabels = @Html.Raw(Json.Serialize(ViewBag.CategoriasEtiquetas));
+    if(catLabels.length === 0) {
+        document.getElementById('graficoCategorias').style.display = 'none';
+        document.getElementById('sinDatosCategorias').classList.remove('d-none');
+    } else {
+        new Chart(document.getElementById('graficoCategorias'), {
+            type: 'doughnut',
+            data: {
+                labels: catLabels,
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(ViewBag.CategoriasValores)),
+                    backgroundColor: ['#17A09C', '#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF']
+                }]
+            },
+            options: { plugins: { legend: { position: 'bottom' } }, cutout: '65%' }
+        });
+    }
 </script>

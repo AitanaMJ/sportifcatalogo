@@ -43,13 +43,25 @@
                                 <td>
                                     <h6 class="fw-bold mb-0 text-zeta-dark">@item.Name</h6>
                                     <small class="text-muted">ID: #@item.ProductId</small>
+                                    @if (!string.IsNullOrEmpty(item.SizeName))
+                                    {
+                                        <br /><small class="badge bg-light text-dark border">@item.ColorName - @item.SizeName</small>
+                                    }
                                 </td>
-                                <td class="text-center">@item.Price.ToString("C2")</td>
+                                <td class="text-center">
+                                    @* Muestra el precio final con descuento *@
+                                    <span class="fw-bold">@item.FinalPrice.ToString("C2")</span>
+                                    @if (item.Discount > 0)
+                                    {
+                                        <br /><small class="text-muted text-decoration-line-through" style="font-size: 0.8rem;">@item.Price.ToString("C2")</small>
+                                    }
+                                </td>
                                 <td class="text-center">
                                     <span class="badge bg-light text-dark border px-3 py-2">@item.Quantity</span>
                                 </td>
                                 <td class="text-center fw-bold" style="color: var(--zeta-cyan);">
-                                    @((item.Price * item.Quantity).ToString("C2"))
+                                    @* Subtotal calculado con el precio final *@
+                                    @((item.FinalPrice * item.Quantity).ToString("C2"))
                                 </td>
                                 <td class="text-end">
                                     <a href="/Home/RemoveItemToCart?productId=@item.ProductId" 
@@ -68,7 +80,8 @@
                     <div class="p-3 rounded-3 bg-light">
                         <span class="text-muted">Total estimado:</span>
                         <h3 class="fw-bold m-0" style="color: var(--zeta-dark);">
-                            @Model.Sum(x => x.Price * x.Quantity).ToString("C2")
+                            @* Suma total usando el precio con descuento *@
+                            @Model.Sum(x => x.FinalPrice * x.Quantity).ToString("C2")
                         </h3>
                     </div>
                 </div>
@@ -89,7 +102,7 @@
             </div>
             <h2 class="fw-bold">Tu carrito está vacío</h2>
             <p class="text-muted">¡Aprovecha nuestras ofertas y llévate lo mejor de La Zeta!</p>
-            <a asp-action="Index" class="btn btn-zeta-cyan px-5 py-3 mt-3 shadow-sm">
+            <a asp-action="Catalogo" class="btn btn-zeta-cyan px-5 py-3 mt-3 shadow-sm">
                 VER CATÁLOGO DE PRODUCTOS
             </a>
         </div>

@@ -26,15 +26,14 @@ namespace MyStoreLaZeta.Controllers
             return View(catalog);
         }
 
-        // GET: /Home/Catalogo
-        // Agregamos el parámetro "page" con valor por defecto 1
+       
         public async Task<IActionResult> Catalogo(string search = null, int? categoryId = null, string categoryName = null, int page = 1)
         {
             var categories = await _categoryService.GetAllCategoriesAsync();
             IEnumerable<ProductVM> products;
             string filtroActivo = null;
 
-            // 1. Traemos los productos según los filtros (igual que antes)
+            
             if (categoryId.HasValue)
             {
                 products = await _productService.GetCatalogAsync(categoryId: categoryId.Value);
@@ -50,40 +49,38 @@ namespace MyStoreLaZeta.Controllers
                 products = await _productService.GetCatalogAsync();
             }
 
-            // ==========================================
-            // LÓGICA DE PAGINACIÓN
-            // ==========================================
-            int cantidadPorPagina = 6; // ¿Cuántos quieres ver por página? Puedes poner 6, 8, 9...
+           
+            int cantidadPorPagina = 6; 
             int totalProductos = products.Count();
 
-            // Calculamos el total de páginas (ej: 13 productos / 6 = 3 páginas)
+         
             int totalPaginas = (int)Math.Ceiling((double)totalProductos / cantidadPorPagina);
 
-            // Cortamos la lista mágica: Saltamos los anteriores y tomamos los de esta página
+           
             var productosPaginados = products
                 .Skip((page - 1) * cantidadPorPagina)
                 .Take(cantidadPorPagina)
                 .ToList();
 
-            // Guardamos los datos de navegación en ViewBag para que la vista los use
+            
             ViewBag.PaginaActual = page;
             ViewBag.TotalPaginas = totalPaginas;
             ViewBag.Search = search;
             ViewBag.CategoryId = categoryId;
             ViewBag.CategoryName = categoryName;
 
-            // 3. Empaquetamos y enviamos
+            
             var model = new CatalogVM
             {
                 Categories = categories,
-                Products = productosPaginados, // ¡OJO AQUÍ! Mandamos solo la porción paginada
+                Products = productosPaginados, 
                 filterBy = filtroActivo
             };
 
             return View(model);
         }
 
-
+        /*filtrar por categoria*/
         public async Task<IActionResult>FilterByCategory(int id, string name)
         {
             var categories = await _categoryService.GetAllCategoriesAsync();
@@ -104,38 +101,59 @@ namespace MyStoreLaZeta.Controllers
         public async Task<IActionResult> ProductDetail(int id)
         {
             var product = await _productService.GetByIdAsync(id);
+            if (product == null) return NotFound();
             return View(product);
         }
 
+        /*añadir items en el carrito*/
+       
         [HttpPost]
-        public async Task<IActionResult> AddItemToCart(int productId, int quantity)
+        public async Task<IActionResult> AddItemToCart(int productId, int quantity, int? variationId = null)
         {
             var product = await _productService.GetByIdAsync(productId);
-
-
-
             var cart = HttpContext.Session.Get<List<CartItemVM>>("Cart") ?? new List<CartItemVM>();
 
-            if(cart.Find(x => x.ProductId == productId) == null)
+
+            var existingItem = cart.FirstOrDefault(x => x.ProductId == productId && x.VariationId == variationId);
+            if (existingItem == null)
             {
+               
+                string color = "";
+                string size = "";
+
+                if (variationId.HasValue)
+                {
+                    var v = product.Variations.FirstOrDefault(x => x.Id == variationId);
+                    if (v != null)
+                    {
+                        color = v.Color;
+                        size = v.Size;
+                    }
+                }
+
                 cart.Add(new CartItemVM
                 {
                     ProductId = productId,
+                    VariationId = variationId, 
                     Name = product.Name,
                     ImageName = product.ImageName,
                     Price = product.Price,
+                    Discount = product.Discount ?? 0,
                     Quantity = quantity,
+                    ColorName = color,
+                    SizeName = size
                 });
             }
             else
             {
-                var updateProduct = cart.Find(x => x.ProductId == productId);
-                updateProduct!.Quantity += quantity;
+                
+                existingItem.Quantity += quantity;
             }
 
             HttpContext.Session.Set("Cart", cart);
             ViewBag.message = "Producto agregado al carrito";
-            return View("ProductDetail",product);
+
+            return View("ProductDetail", product);
         }
 
 
@@ -156,23 +174,19 @@ namespace MyStoreLaZeta.Controllers
             return View("ViewCart",cart);
         }
 
-        // ==========================================
-        //  MÉTODOS NUEVOS PARA EL CHECKOUT (CORREGIDOS)
-        // ==========================================
-
-        // 1. GET: Muestra la pantalla de Checkout
+      
         public IActionResult Checkout()
         {
-            // Recuperamos el carrito de la sesión
+            
             var cart = HttpContext.Session.Get<List<CartItemVM>>("Cart") ?? new List<CartItemVM>();
 
-            // Si el carrito está vacío, lo mandamos al inicio
+           
             if (cart.Count == 0) return RedirectToAction("Index");
 
             var model = new CheckoutVM
             {
                 CartItems = cart,
-                Total = cart.Sum(x => x.Quantity * x.Price),
+                Total = cart.Sum(x => x.Quantity * x.FinalPrice),
                 ShippingMethod = "Retiro",
                 PaymentMethod = "Efectivo"
             };
@@ -180,11 +194,10 @@ namespace MyStoreLaZeta.Controllers
             return View(model);
         }
 
-        // 2. POST: Procesa la compra (Guarda en BD y manda a WhatsApp)
+        /*actualizar precio en lospedidos*/
         [HttpPost]
         public async Task<IActionResult> ProcessOrder(CheckoutVM model, [FromServices] AppDbContext _context)
         {
-            // Recuperar carrito otra vez
             var cart = HttpContext.Session.Get<List<CartItemVM>>("Cart");
 
             if (cart == null || cart.Count == 0)
@@ -192,73 +205,51 @@ namespace MyStoreLaZeta.Controllers
                 return RedirectToAction("Index");
             }
 
-            // --- A. GUARDAR LA ORDEN EN LA BASE DE DATOS ---
             var order = new Order
             {
                 OrderDate = DateTime.Now,
                 ClientName = model.Name,
                 Email = model.Email,
                 Phone = model.Phone,
-                // Si elige Retiro, guardamos "Retiro en Local", si no, la dirección que escribió
                 Address = model.ShippingMethod == "EnvioDomicilio" ? model.Address : "Retiro en Local",
                 ShippingMethod = model.ShippingMethod,
                 PaymentMethod = model.PaymentMethod,
                 Status = "Pendiente",
-                TotalAmount = cart.Sum(x => x.Price * x.Quantity),
 
-                // Mapeamos los items del carrito a la base de datos
+                //  CAMBIO 1: Usar FinalPrice para el total general de la orden
+                TotalAmount = cart.Sum(x => x.FinalPrice * x.Quantity),
+
                 OrderItems = cart.Select(i => new OrderItem
                 {
                     ProductId = i.ProductId,
-                    ProductName = i.Name, // <--- ¡AQUÍ ESTABA EL ERROR! (Corregido a .Name)
-                    Price = i.Price,
+                    ProductName = !string.IsNullOrEmpty(i.SizeName)
+                      ? $"{i.Name} ({i.ColorName} - {i.SizeName})"
+                      : i.Name,
+
+                    // CAMBIO 2: Guardar el precio CON descuento en el historial
+                    Price = i.FinalPrice,
                     Quantity = i.Quantity
                 }).ToList()
             };
 
             _context.Orders.Add(order);
-            await _context.SaveChangesAsync(); // Se genera el ID de la orden
+            await _context.SaveChangesAsync();
 
-            // --- B. LIMPIAR EL CARRITO ---
             HttpContext.Session.Remove("Cart");
 
-            // --- C. REDIRECCIÓN A WHATSAPP ---
-
-            // ¡IMPORTANTE! CAMBIA ESTO POR TU NÚMERO REAL
-            // Formato: 549 + CodArea + Numero (Ej: 5493815555555)
-            string miTelefono = "5493810000000";
-
-            // Armamos el mensaje
-            // Usamos i.Name aquí también
-            string productosTexto = string.Join(", ", cart.Select(x => $"{x.Quantity}x {x.Name}"));
-
-            string mensaje =
-                $"Hola LaZeta" +
-                $" Hice un nuevo pedido #{order.OrderId}.\n\n" +
-                $" Cliente: {order.ClientName}\n" +
-                $" Pedido: {productosTexto}\n" +
-                $" Total: ${order.TotalAmount:N2}\n" +
-                $" Entrega: {order.ShippingMethod}\n" +
-                $" Pago: {order.PaymentMethod}\n";
-
-            if (order.ShippingMethod == "EnvioDomicilio")
-            {
-                mensaje += $" Dirección: {order.Address}\n";
-            }
-
-            if (model.PaymentMethod == "MercadoPago")
-            {
-                mensaje += "\n Espero el link de pago o Alias.";
-            }
-
-            // Generamos el link
-            string urlWhatsApp = $"https://wa.me/{miTelefono}?text={Uri.EscapeDataString(mensaje)}";
-
-            return Redirect(urlWhatsApp);
+            return RedirectToAction("OrderSuccess", new { id = order.OrderId });
         }
 
+        public async Task<IActionResult> OrderSuccess(int id, [FromServices] AppDbContext _context)
+        {
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
 
+            if (order == null) return NotFound();
 
+            return View(order);
+        }
 
         public IActionResult Privacy()
         {

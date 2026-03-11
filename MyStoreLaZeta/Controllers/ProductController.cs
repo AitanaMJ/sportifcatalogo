@@ -44,20 +44,30 @@ namespace MyStoreLaZeta.Controllers
             return View(productVM);
         }
 
+
         [HttpPost]
         public async Task<IActionResult> AddEdit(ProductVM entityVM)
         {
             ViewBag.message = null;
 
-            // 1. Limpieza de validaciones (Perfecto)
+            
             ModelState.Remove("Categories");
             ModelState.Remove("Category");
             ModelState.Remove("Category.Name");
             ModelState.Remove("ImageName");
+            ModelState.Remove("Variations");
+            ModelState.Remove("CostPrice");
+            ModelState.Remove("Discount");
+
+
+            var variationErrors = ModelState.Keys.Where(k => k.StartsWith("Variations")).ToList();
+            foreach (var key in variationErrors)
+            {
+                ModelState.Remove(key);
+            }
 
             if (!ModelState.IsValid)
             {
-                // 2. Recargar lista si hay error (Perfecto)
                 var listaCategorias = await _categoryService.GetAllCategoriesAsync();
                 entityVM.Categories = listaCategorias.Select(x => new SelectListItem
                 {
@@ -68,55 +78,49 @@ namespace MyStoreLaZeta.Controllers
                 return View(entityVM);
             }
 
+            if (!entityVM.Discount.HasValue)
+            {
+                entityVM.Discount = 0;
+            }
+
             try
             {
+               
+                int cantidadRecibida = entityVM.Variations != null ? entityVM.Variations.Count : 0;
+
                 if (entityVM.ProductId == 0)
                 {
-                    // --- LOGICA DE CREAR (Está perfecta) ---
                     await _productService.AddAsync(entityVM);
-                    ViewBag.message = "Producto creado correctamente";
+                    ViewBag.message = $"¡Éxito! Producto creado. El sistema recibió {cantidadRecibida} variaciones.";
 
                     ModelState.Clear();
-                    entityVM = new ProductVM();
-
-                    var listaCategorias = await _categoryService.GetAllCategoriesAsync();
-                    entityVM.Categories = listaCategorias.Select(x => new SelectListItem
-                    {
-                        Text = x.Name,
-                        Value = x.CategoryId.ToString()
-                    }).ToList();
-
-                    return View(entityVM);
+                    entityVM = new ProductVM(); 
                 }
                 else
                 {
-                    // --- LOGICA DE EDITAR (AQUÍ ESTABA EL CAMBIO) ---
                     await _productService.EditAsync(entityVM);
+                    ViewBag.message = $"¡Éxito! Producto editado. El sistema recibió {cantidadRecibida} variaciones.";
 
-                    ViewBag.message = "Producto editado correctamente";
-
-                    // 1. Limpiamos el estado del formulario anterior
                     ModelState.Clear();
 
-                    // 2. Creamos un nuevo objeto vacío (esto pone ProductId en 0)
-                    entityVM = new ProductVM();
-
-                    // 3. ¡IMPORTANTE! Volvemos a cargar las categorías para el formulario vacío
-                    var listaCategorias = await _categoryService.GetAllCategoriesAsync();
-                    entityVM.Categories = listaCategorias.Select(x => new SelectListItem
-                    {
-                        Text = x.Name,
-                        Value = x.CategoryId.ToString()
-                    }).ToList();
-
-                    // 4. Retornamos la vista vacía
-                    return View(entityVM);
+                    
+                    entityVM = await _productService.GetByIdAsync(entityVM.ProductId);
                 }
+
+                var listaCategoriasEnd = await _categoryService.GetAllCategoriesAsync();
+                entityVM.Categories = listaCategoriasEnd.Select(x => new SelectListItem
+                {
+                    Text = x.Name,
+                    Value = x.CategoryId.ToString()
+                }).ToList();
+
+                return View(entityVM);
             }
             catch (Exception ex)
             {
-                ViewBag.message = "Error: " + ex.Message;
-                // Si falló, hay que recargar categorías también para que no se rompa la vista de error
+                string errorReal = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                ViewBag.message = "Error Base de Datos: " + errorReal;
+
                 var listaCategorias = await _categoryService.GetAllCategoriesAsync();
                 entityVM.Categories = listaCategorias.Select(x => new SelectListItem
                 {
@@ -127,6 +131,9 @@ namespace MyStoreLaZeta.Controllers
                 return View(entityVM);
             }
         }
+
+
+
         public async Task<IActionResult> Delete(int id)
         {
             await _productService.DeleteAsync(id);

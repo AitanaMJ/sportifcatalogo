@@ -21,9 +21,20 @@
 
                 <h1 class="display-4 fw-bold text-zeta-dark mb-3">@Model.Name</h1>
 
-                <div class="fs-3 mb-4 fw-bold" style="color: var(--zeta-cyan);">
-                    @Model.Price.ToString("C2")
-                </div>
+                <div class="mb-3">
+    @if (Model.Discount > 0)
+    {
+        <span class="text-muted text-decoration-line-through fs-5">@Model.Price.ToString("C")</span>
+        <span class="badge bg-danger ms-2">@Model.Discount% OFF</span>
+        <h2 class="text-danger fw-bold">
+            @((Model.Price - (Model.Price * Model.Discount.Value / 100)).ToString("C"))
+        </h2>
+    }
+    else
+    {
+        <h2 class="text-zeta-cyan fw-bold">@Model.Price.ToString("C")</h2>
+    }
+</div>
 
                 <div class="description-box mb-4 text-muted lh-lg">
                     @Html.Raw(Model.Description)
@@ -40,17 +51,43 @@
                     </div>
                 </div>
 
-                <form action="/Home/AddItemToCart" method="post">
-                    <div class="d-flex align-items-center gap-3">
-                        <input hidden name="productId" asp-for="@Model.ProductId" />
+                <form action="/Home/AddItemToCart" method="post" id="cartForm">
+                    <input hidden name="productId" asp-for="@Model.ProductId" />
 
+                    @if (Model.HasVariations && Model.Variations.Any())
+                    {
+                        <div class="product-selection-area mb-4 p-3 bg-light rounded-3">
+                            <h6 class="fw-bold text-uppercase mb-2" style="font-size: 0.75rem; color: #666;">1. Elegí Color:</h6>
+                            <div class="d-flex gap-2 mb-3" id="color-options">
+                                @foreach (var color in Model.Variations.Select(v => v.Color.Trim().ToUpper()).Distinct())
+                                {
+                                    <button type="button" class="btn btn-outline-dark rounded-pill px-3 btn-color-selector" data-color="@color">
+                                        @color
+                                    </button>
+                                }
+                            </div>
+
+                            <h6 class="fw-bold text-uppercase mb-2" style="font-size: 0.75rem; color: #666;">2. Elegí Talle:</h6>
+                            <div class="d-flex gap-2" id="size-options">
+                                <p class="text-muted small italic m-0">Seleccioná un color primero...</p>
+                            </div>
+
+                            <div id="error-message" class="text-danger small fw-bold mt-2" style="display: none;">
+                                <i class="fa-solid fa-circle-exclamation me-1"></i> Por favor, elegí color y talle.
+                            </div>
+
+                            <input type="hidden" id="selectedVariationId" name="variationId" value="" />
+                        </div>
+                    }
+
+                    <div class="d-flex align-items-center gap-3">
                         <div class="quantity-input shadow-sm rounded-3 overflow-hidden d-flex border">
                             <input class="form-control text-center border-0 fw-bold"
                                    name="quantity" type="number" value="1" min="1"
                                    style="width: 70px; height: 50px;" />
                         </div>
 
-                        <button class="btn btn-zeta-orange flex-grow-1 py-3 fw-bold text-uppercase shadow-sm" type="submit">
+                        <button id="btnAddToCart" class="btn btn-zeta-orange flex-grow-1 py-3 fw-bold text-uppercase shadow-sm" type="submit">
                             <i class="fa-solid fa-cart-shopping me-2"></i>
                             Añadir al carrito
                         </button>
@@ -58,7 +95,7 @@
                 </form>
 
                 <div class="mt-4">
-                    <a class="btn btn-link text-muted text-decoration-none px-0" href="/Home/Index">
+                    <a class="btn btn-link text-muted text-decoration-none px-0" href="/Home/Catalogo">
                         <i class="fa-solid fa-arrow-left me-1"></i> Volver al catálogo
                     </a>
                 </div>
@@ -74,3 +111,73 @@
         </div>
     </div>
 </section>
+
+@section Scripts {
+    @if (Model.HasVariations && Model.Variations != null && Model.Variations.Any())
+    {
+        <script>
+            // 1. Cargamos las variaciones
+            const variations = @Html.Raw(Json.Serialize(Model.Variations.Select(v => new { 
+                id = v.Id, 
+                color = v.Color.Trim().ToUpper(), 
+                size = v.Size.Trim().ToUpper(), 
+                stock = v.Stock 
+            }).ToList()));
+
+            // 2. EVENTO DE COLOR
+            document.querySelectorAll('.btn-color-selector').forEach(button => {
+                button.addEventListener('click', function() {
+                    document.querySelectorAll('.btn-color-selector').forEach(b => b.classList.remove('active', 'btn-dark'));
+                    this.classList.add('active', 'btn-dark');
+
+                    const selectedColor = this.getAttribute('data-color');
+                    renderSizes(selectedColor);
+                });
+            });
+
+            // 3. FUNCIÓN DE TALLES
+            function renderSizes(color) {
+                const sizeContainer = document.getElementById('size-options');
+                sizeContainer.innerHTML = '';
+
+                const filtered = variations.filter(v => v.color === color);
+
+                filtered.forEach(v => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'btn btn-outline-secondary rounded-pill px-3 btn-size-selector';
+                    btn.innerText = v.size;
+
+                    if (v.stock <= 0) {
+                        btn.disabled = true;
+                        btn.classList.add('opacity-50', 'text-decoration-line-through');
+                    }
+
+                    btn.onclick = () => {
+                        document.querySelectorAll('.btn-size-selector').forEach(b => b.classList.remove('active', 'btn-dark'));
+                        btn.classList.add('active', 'btn-dark');
+                        
+                        // Guardamos el ID
+                        document.getElementById('selectedVariationId').value = v.id;
+                        
+                        // Si elige talle, ocultamos el error si estaba visible
+                        document.getElementById('error-message').style.display = 'none';
+                    };
+                    sizeContainer.appendChild(btn);
+                });
+            }
+
+            // 4. VALIDACIÓN SIMPLE (Texto en rojo)
+            document.getElementById('cartForm').onsubmit = function(e) {
+                const hasVar = "@Model.HasVariations".toLowerCase() === "true";
+                const selected = document.getElementById('selectedVariationId').value;
+                const errorDiv = document.getElementById('error-message');
+
+                if (hasVar && !selected) {
+                    e.preventDefault(); // No enviamos el formulario
+                    errorDiv.style.display = 'block'; // Mostramos el mensaje rojo
+                }
+            };
+        </script>
+    }
+}

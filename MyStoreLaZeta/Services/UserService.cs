@@ -7,12 +7,10 @@ namespace MyStoreLaZeta.Services
 {
     public class UserService(GenericRepository<User> _userRepository)
     {
-        // ==========================================
-        // LOGIN: Verificación Segura con BCrypt
-        // ==========================================
+        
         public async Task<UserVM> Login(LoginVM loginVM)
         {
-            // Paso 1: Buscamos al usuario únicamente por su Email
+            //  buscando al usuario únicamente por su Email
             var conditions = new List<Expression<Func<User, bool>>>()
             {
                 x => x.Email == loginVM.Email
@@ -22,7 +20,7 @@ namespace MyStoreLaZeta.Services
 
             var userVM = new UserVM();
 
-            // Paso 2: Si el usuario existe, verificamos matemáticamente la contraseña
+            // si el usuario existe, verificamos matemáticamente la contraseña
             if (found != null && PasswordHasher.VerifyPassword(loginVM.Password, found.Password))
             {
                 userVM.UserId = found.UserId;
@@ -32,23 +30,21 @@ namespace MyStoreLaZeta.Services
             }
             else
             {
-                // Si no coincide o no existe, nos aseguramos de que el ID sea 0
+                // si no coincide o no existe, nos aseguramos de que el ID sea 0
                 userVM.UserId = 0;
             }
 
             return userVM;
         }
 
-        // ==========================================
-        // REGISTRO: Encriptación de Contraseña
-        // ==========================================
+      
         public async Task Register(UserVM userVM)
         {
-            // Validación de coincidencia de claves (Seguridad en el cliente)
+            // validación de coincidencia de claves (Seguridad en el cliente)
             if (userVM.Password != userVM.RepeatPassword)
                 throw new InvalidCastException("Las contraseñas no coinciden.");
 
-            // Verificamos si el email ya está en uso
+            // verificamos si el email ya esta en uso
             var conditions = new List<Expression<Func<User, bool>>>()
             {
                 x => x.Email == userVM.Email
@@ -59,12 +55,11 @@ namespace MyStoreLaZeta.Services
             if (foundEmail != null)
                 throw new InvalidCastException("Este correo electrónico ya se encuentra registrado.");
 
-            // Paso 3: Creamos la entidad guardando el Hash, nunca el texto plano
+            // creo la entidad guardando el Hash, nunca el texto plano
             var entity = new User()
             {
                 FullName = userVM.FullName,
                 Email = userVM.Email,
-                // ¡AQUÍ ESTÁ LA MAGIA!
                 Password = PasswordHasher.HashPassword(userVM.Password),
                 Type = userVM.Type
             };

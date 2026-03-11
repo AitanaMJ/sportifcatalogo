@@ -12,17 +12,17 @@ namespace MyStoreLaZeta.Controllers
 {
     public class AccountController : Controller
     {
-        // 1. DEFINIMOS LAS HERRAMIENTAS
+       
         private readonly UserService _userService;
         private readonly AppDbContext _context;
-        private readonly EmailService _emailService; // <--- NUEVO: Agregamos el servicio de Email
+        private readonly EmailService _emailService; 
 
-        // 2. CONSTRUCTOR ACTUALIZADO
+        
         public AccountController(UserService userService, AppDbContext context, EmailService emailService)
         {
             _userService = userService;
             _context = context;
-            _emailService = emailService; // <--- NUEVO: Conectamos el servicio
+            _emailService = emailService; 
         }
 
         [HttpPost]
@@ -37,8 +37,7 @@ namespace MyStoreLaZeta.Controllers
                 return Content("Error: Token inválido o expirado.");
             }
 
-            // --- ¡ZETIFICACIÓN DE SEGURIDAD! ---
-            // Encriptamos la nueva contraseña antes de guardarla
+           
             user.Password = PasswordHasher.HashPassword(model.NewPassword);
 
             user.ResetToken = null;
@@ -52,9 +51,7 @@ namespace MyStoreLaZeta.Controllers
 
 
 
-        // ==========================================
-        // LOGIN
-        // ==========================================
+       
         public IActionResult Login()
         {
             var viewModel = new LoginVM();
@@ -76,6 +73,7 @@ namespace MyStoreLaZeta.Controllers
             }
             else
             {
+                //identificar el rol del usaurio encontrado para asignarle los permisos correspondientes en la aplicación. Esto se hace creando una lista de claims (reclamaciones) que representan la identidad del usuario y sus roles. Luego, se crea una ClaimsIdentity con esos claims y se firma al usuario utilizando la autenticación de cookies. Finalmente, se redirige al usuario a la página principal de la aplicación.
                 List<Claim> claims = new List<Claim>()
                 {
                     new Claim(ClaimTypes.NameIdentifier, found.UserId.ToString()),
@@ -96,9 +94,7 @@ namespace MyStoreLaZeta.Controllers
 
         
 
-        // ==========================================
-        // REGISTRO
-        // ==========================================
+        
         public IActionResult Register()
         {
             var viewModel = new UserVM();
@@ -125,9 +121,6 @@ namespace MyStoreLaZeta.Controllers
             return View(viewmodel);
         }
 
-        // ==========================================
-        // SALIR (LOGOUT)
-        // ==========================================
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -135,9 +128,6 @@ namespace MyStoreLaZeta.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // ==========================================
-        // RECUPERAR CONTRASEÑA (AQUÍ ESTÁ EL CAMBIO IMPORTANTE)
-        // ==========================================
 
         [HttpGet]
         public IActionResult ForgotPassword()
@@ -152,7 +142,7 @@ namespace MyStoreLaZeta.Controllers
 
             var user = _context.Users.FirstOrDefault(u => u.Email == model.Email);
 
-            // IMPORTANTE: Si el usuario no existe, terminamos aquí para no dar error
+            //si el usuario no existe, termino aquí para no dar error
             if (user == null)
             {
                 ViewBag.Message = "Si el email existe, te hemos enviado instrucciones.";
@@ -165,21 +155,21 @@ namespace MyStoreLaZeta.Controllers
 
             await _context.SaveChangesAsync();
 
-            // --- CAMBIO: ENVIAR EL EMAIL REAL ---
+            
             try
             {
-                // Ya no usamos Console.WriteLine, usamos el servicio real
+                
                 _emailService.SendEmail(user.Email, user.ResetToken);
 
                 ViewBag.Message = "Te hemos enviado un enlace a tu correo. Revisa Spam por las dudas.";
             }
             catch (Exception ex)
             {
-                // Si falla Gmail, mostramos el error en pantalla para que sepas qué pasó
-                // (Luego cuando funcione bien, puedes quitar este mensaje de error)
+                // Si falla Gmail, muestro el error en pantalla para saber quepaso
+               
                 ViewBag.Message = "Error enviando correo: " + ex.Message;
             }
-            // ------------------------------------
+            
 
             return View();
         }

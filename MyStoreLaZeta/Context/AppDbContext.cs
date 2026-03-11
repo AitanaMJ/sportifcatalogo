@@ -10,12 +10,13 @@ namespace MyStoreLaZeta.Context
         }
 
         public DbSet<Category> Category { get; set; }
-
         public DbSet<Product> Products { get; set; }
-
+        public DbSet<ProductVariation> ProductVariations { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Order> Orders { get; set; } 
         public DbSet<OrderItem> OrderItems { get; set; }
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -36,6 +37,7 @@ namespace MyStoreLaZeta.Context
                 e.HasKey("ProductId");
                 e.Property("ProductId").ValueGeneratedOnAdd();
                 e.Property("Price").HasColumnType("decimal(10,2)");
+                e.Property("CostPrice").HasColumnType("decimal(10,2)");
                 e.HasOne(e => e.Category).WithMany(p => p.Products).HasForeignKey(e => e.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 

@@ -11,11 +11,12 @@
         </div>
     </div>
 
-    <form asp-action="ProcessOrder" method="post">
-        <div class="row g-5">
-            <div class="col-md-7 col-lg-8">
+    <form asp-controller="Checkout" asp-action="ProcessOrder" method="post" id="checkoutForm">
+        <div class="row g-4">
 
-                <div class="card card-zeta p-4 mb-4 border-0">
+            <div class="col-lg-7 col-xl-8 mb-4">
+
+                <div class="card card-zeta p-4 mb-4 border-0 shadow-sm">
                     <h4 class="mb-4 fw-bold" style="color: var(--zeta-cyan);">
                         <span class="badge rounded-circle me-2" style="background-color: var(--zeta-cyan);">1</span>
                         Tus Datos Personales
@@ -23,85 +24,78 @@
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label fw-bold">Nombre Completo</label>
-                            <input asp-for="Name" class="form-control shadow-sm" placeholder="Como figura en tu DNI" required />
+                            <input asp-for="Name" class="form-control bg-light border-0" placeholder="Como figura en tu DNI" required />
                         </div>
-
                         <div class="col-md-6">
                             <label class="form-label fw-bold">WhatsApp</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="fa-brands fa-whatsapp text-success"></i></span>
-                                <input asp-for="Phone" class="form-control shadow-sm" placeholder="Ej: 381 123 4567" required />
+                                <span class="input-group-text bg-light border-0"><i class="fa-brands fa-whatsapp text-success"></i></span>
+                                <input asp-for="Phone" class="form-control bg-light border-0" placeholder="Ej: 381 123 4567" required />
                             </div>
-                            <small class="text-muted">Indispensable para coordinar la entrega.</small>
                         </div>
-
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Email</label>
-                            <input asp-for="Email" type="email" class="form-control shadow-sm" placeholder="tu@email.com" required />
+                            <input asp-for="Email" type="email" class="form-control bg-light border-0" placeholder="tu@email.com" required />
                         </div>
                     </div>
                 </div>
 
-                <div class="card card-zeta p-4 mb-4 border-0">
+                <div class="card card-zeta p-4 mb-4 border-0 shadow-sm">
                     <h4 class="mb-4 fw-bold" style="color: var(--zeta-cyan);">
                         <span class="badge rounded-circle me-2" style="background-color: var(--zeta-cyan);">2</span>
                         Método de Entrega
                     </h4>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <div class="form-check p-3 border rounded shadow-sm custom-radio-card">
+                            <div class="form-check p-3 border rounded shadow-sm custom-radio-card bg-white">
                                 <input asp-for="ShippingMethod" value="Retiro" id="retiro" type="radio" class="form-check-input" checked required>
                                 <label class="form-check-label w-100" for="retiro">
                                     <i class="fa-solid fa-shop me-2"></i><strong>Retiro en Local</strong>
-                                    <div class="text-muted small">San Miguel de Tucumán (Gratis)</div>
+                                    <div class="text-muted small mt-1">San Miguel de Tucumán (Gratis)</div>
                                 </label>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-check p-3 border rounded shadow-sm custom-radio-card">
+                            <div class="form-check p-3 border rounded shadow-sm custom-radio-card bg-white">
                                 <input asp-for="ShippingMethod" value="EnvioDomicilio" id="envio" type="radio" class="form-check-input" required>
                                 <label class="form-check-label w-100" for="envio">
                                     <i class="fa-solid fa-truck-fast me-2"></i><strong>Envío a Domicilio</strong>
-                                    <div class="text-muted small">A coordinar según zona.</div>
+                                    <div class="text-muted small mt-1">A coordinar según zona.</div>
                                 </label>
                             </div>
                         </div>
                         <div class="col-12 mt-3">
                             <label class="form-label fw-bold">Dirección de Envío</label>
-                            <input asp-for="Address" class="form-control shadow-sm" placeholder="Calle, Altura, Barrio, Piso/Depto..." />
+                            <input asp-for="Address" class="form-control bg-light border-0" placeholder="Calle, Altura, Barrio, Piso/Depto..." />
                         </div>
                     </div>
                 </div>
 
-                <div class="card card-zeta p-4 mb-4 border-0">
+                <div class="card card-zeta p-4 border-0 shadow-sm">
                     <h4 class="mb-4 fw-bold" style="color: var(--zeta-cyan);">
                         <span class="badge rounded-circle me-2" style="background-color: var(--zeta-cyan);">3</span>
-                        Forma de Pago
+                        Medio de Pago
                     </h4>
-                    <div class="my-3">
-                        <div class="form-check p-3 border rounded shadow-sm mb-3 custom-radio-card">
-                            <input asp-for="PaymentMethod" value="Efectivo" id="pagoEfec" type="radio" class="form-check-input" checked required>
-                            <label class="form-check-label w-100" for="pagoEfec">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span><i class="fa-solid fa-money-bill-transfer me-2"></i><strong>Efectivo / Transferencia</strong></span>
-                                    <span class="badge bg-orange-soft text-orange fw-bold" style="background-color: #fff3eb; color: var(--zeta-orange);">10% OFF</span>
-                                </div>
-                                <div class="text-muted small">Te enviamos los datos de la cuenta por WhatsApp.</div>
-                            </label>
+
+                    <div class="alert alert-light border shadow-sm mb-4 d-flex align-items-center">
+                        <i class="fa-solid fa-lock text-success fs-4 me-3"></i>
+                        <div>
+                            <strong class="d-block">Pago Seguro</strong>
+                            <small class="text-muted">Tus datos están protegidos y encriptados por Mercado Pago.</small>
                         </div>
-                        <div class="form-check p-3 border rounded shadow-sm custom-radio-card">
-                            <input asp-for="PaymentMethod" value="MercadoPago" id="pagoMP" type="radio" class="form-check-input" required>
-                            <label class="form-check-label w-100" for="pagoMP">
-                                <span><i class="fa-solid fa-credit-card me-2"></i><strong>Mercado Pago</strong></span>
-                                <div class="text-muted small">Tarjetas de crédito, débito y dinero en cuenta.</div>
-                            </label>
+                    </div>
+
+                    <div id="paymentBrick_container" style="overflow: hidden;">
+                        <div class="text-center py-4">
+                            <i class="fa-solid fa-spinner fa-spin fs-2 text-muted mb-2"></i>
+                            <p class="text-muted small">Cargando opciones seguras de pago...</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-5 col-lg-4">
-                <div class="card card-zeta p-4 position-sticky shadow" style="top: 100px; border-top: 5px solid var(--zeta-orange) !important;">
+            <div class="col-lg-5 col-xl-4">
+                <div class="card card-zeta p-4 position-sticky shadow-sm" style="top: 20px; border-top: 5px solid var(--zeta-orange) !important;">
                     <h4 class="d-flex justify-content-between align-items-center mb-4">
                         <span style="color: var(--zeta-dark);">Tu Pedido</span>
                         <span class="badge rounded-pill" style="background-color: var(--zeta-orange);">@Model.CartItems.Count</span>
@@ -110,36 +104,170 @@
                     <ul class="list-group list-group-flush mb-4">
                         @foreach (var item in Model.CartItems)
                         {
-                            <li class="list-group-item d-flex justify-content-between align-items-start px-0 bg-transparent">
-                                <div class="me-auto">
-                                    <h6 class="my-0 fw-bold">@item.Name</h6>
-                                    <small class="text-muted">Cantidad: @item.Quantity</small>
-                                </div>
-                                <span class="text-muted fw-bold">@((item.Price * item.Quantity).ToString("C2"))</span>
-                            </li>
+
+                            @* Dentro del bucle que recorre los productos en el Checkout *@
+                            <div class="d-flex justify-content-between">
+                                <span>@item.Name x @item.Quantity</span>
+                                <span class="fw-bold">@((item.FinalPrice * item.Quantity).ToString("C2"))</span>
+                            </div>
+
+                            @* Y en el Total final abajo *@
+                            <div class="d-flex justify-content-between border-top pt-2">
+                                <h4 class="fw-bold">Total</h4>
+                                <h4 class="fw-bold text-zeta-cyan">@Model.Total.ToString("C2")</h4>
+                            </div>
+
                         }
+                    
+                    <div class="d-grid gap-2 mt-2">
+                        <div class="bg-light text-center py-2 px-3 rounded-3 border border-info border-opacity-50 shadow-sm">
+                            <i class="fa-solid fa-arrow-left-long text-info fs-5 mb-1"></i>
+                            <br>
+                            <span class="text-muted fw-bold" style="font-size: 0.85rem; line-height: 1.2; display: inline-block;">
+                                Completá el pago seguro<br>en el formulario de la izquierda
+                            </span>
+                        </div>
 
-                        <li class="list-group-item d-flex justify-content-between px-0 mt-3 border-top-0">
-                            <span class="fs-5 fw-bold">Total (ARS)</span>
-                            <strong class="fs-4" style="color: var(--zeta-cyan);">@Model.Total.ToString("C2")</strong>
-                        </li>
-                    </ul>
-
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-zeta-orange btn-lg py-3 fw-bold shadow-sm text-uppercase" type="submit">
-                            Confirmar y Pagar
-                        </button>
-                        <a asp-action="ViewCart" class="btn btn-link text-muted text-decoration-none small">
-                            <i class="fa-solid fa-arrow-left me-1"></i> Editar mi carrito
+                        <a asp-action="ViewCart" asp-controller="Home" class="btn btn-outline-secondary py-2 fw-bold shadow-sm text-uppercase" style="font-size: 0.85rem;">
+                            <i class="fa-solid fa-cart-shopping me-2"></i> Editar Carrito
                         </a>
                     </div>
 
-                    <div class="text-center mt-4">
+                    <div class="text-center mt-4 pt-3 border-top border-light">
                         <i class="fa-solid fa-shield-halved text-muted me-1"></i>
-                        <small class="text-muted">Compra protegida por La Zeta Merchandising</small>
+                        <small class="text-muted">Compra protegida por La Zeta</small>
                     </div>
                 </div>
             </div>
+
         </div>
     </form>
 </div>
+
+@section Scripts {
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+
+    <script>
+        document.getElementById('checkoutForm').addEventListener('submit', function (e) {
+            if (window.paymentBrickController) {
+                e.preventDefault();
+            }
+        });
+
+        const totalAmount = parseFloat('@Model.Total.ToString(System.Globalization.CultureInfo.InvariantCulture)');
+
+        const mp = new MercadoPago('TEST-76cd6818-bc4f-4ddc-9489-98f6dc1939bc', {
+            locale: 'es-AR'
+        });
+
+        const bricksBuilder = mp.bricks();
+
+        const renderPaymentBrick = async () => {
+
+            const settings = {
+                initialization: {
+                    amount: totalAmount
+                },
+
+                customization: {
+                    paymentMethods: {
+                        creditCard: "all",
+                        debitCard: "all",
+                        ticket: "all",
+                        mercadoPago: "all"
+                    }
+                },
+
+                callbacks: {
+                    onReady: () => {
+                        console.log("Brick listo");
+                    },
+
+                    onSubmit: async (cardFormData) => {
+
+                        console.log("cardFormData completo:", cardFormData);
+
+                        const formData = cardFormData.formData;
+
+                        if (!formData) {
+                            alert("Error obteniendo datos del formulario de pago");
+                            return;
+                        }
+
+                        console.log("formData:", formData);
+
+                        const isCard =
+                            formData.payment_method_id !== "rapipago" &&
+                            formData.payment_method_id !== "pagofacil";
+
+                        if (isCard && !formData.token) {
+                            alert("No se generó el token. Revisá los datos.");
+                            return;
+                        }
+
+                        const payload = {
+                            name: document.getElementById('Name')?.value || "",
+                            phone: document.getElementById('Phone')?.value || "",
+                            email: document.getElementById('Email')?.value || "",
+                            address: document.getElementById('Address')?.value || "",
+                            shippingMethod: document.querySelector('input[name="ShippingMethod"]:checked')?.value || "Retiro",
+
+                            token: formData.token || null,
+                            issuer_id: formData.issuer_id || null,
+                            payment_method_id: formData.payment_method_id,
+                            transaction_amount: formData.transaction_amount || totalAmount,
+                            installments: formData.installments || 1,
+
+                            payer: {
+                                email: document.getElementById('Email')?.value || "",
+                                identification: {
+                                    type: formData.payer?.identification?.type || "DNI",
+                                    number: formData.payer?.identification?.number || "12345678"
+                                }
+                            }
+                        };
+
+                        console.log("Payload al backend:", payload);
+
+                        try {
+                            const response = await fetch('/Checkout/ProcessPayment', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(payload)
+                            });
+
+                            const data = await response.json();
+
+                            console.log("📩 Respuesta backend:", data);
+
+                            if (data.success) {
+                                window.location.href = data.url;
+                            } else {
+                                alert(data.message || "Error en el pago");
+                            }
+
+                        } catch (error) {
+                            console.error("Error:", error);
+                            alert("Error de comunicación con el servidor");
+                        }
+                    },
+
+                    onError: (error) => {
+                        console.error("Error en el Brick:", error);
+                        alert("Error cargando Mercado Pago");
+                    }
+                }
+            };
+
+            window.paymentBrickController = await bricksBuilder.create(
+                'payment',
+                'paymentBrick_container',
+                settings
+            );
+        };
+
+        renderPaymentBrick();
+    </script>
+}

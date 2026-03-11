@@ -15,5 +15,12 @@ namespace MyStoreLaZeta.Entities
         public string ImageName { get; set; } = null;
 
         public Category? Category { get; set; }
+
+        public bool HasVariations { get; set; } = false;
+
+        public decimal CostPrice { get; set; } 
+        public int Discount { get; set; }
+
+        public virtual ICollection<ProductVariation> Variations { get; set; } = new List<ProductVariation>();
     }
 }
