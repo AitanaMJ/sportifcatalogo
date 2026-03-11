@@ -32,6 +32,8 @@
 
             <form asp-action="AddEdit" method="post" enctype="multipart/form-data">
                 <input type="hidden" asp-for="ProductId" />
+                @* Mantenemos esto oculto para no perder el estado al editar *@
+                <input type="hidden" asp-for="IsActive" />
 
                 <div class="row">
                     <div class="col-lg-7 pe-lg-5">
@@ -58,8 +60,6 @@
                             <span asp-validation-for="Description" class="text-danger small"></span>
                         </div>
 
-
-                      
                         <div class="card mb-4 border-0 shadow-sm bg-light">
                             <div class="card-body">
                                 <div class="row g-3">
@@ -69,7 +69,6 @@
                                             <span class="input-group-text bg-white"><i class="fa-solid fa-hand-holding-dollar text-muted"></i></span>
                                             <input type="number" id="costPrice" asp-for="CostPrice" class="form-control" placeholder="0.00" step="0.01" oninput="calcularRentabilidad()">
                                         </div>
-                                        <small class="text-muted" style="font-size: 0.7rem;">Lo que pagaste por el producto.</small>
                                     </div>
 
                                     <div class="col-md-4 border-start">
@@ -78,7 +77,6 @@
                                             <span class="input-group-text bg-white"><i class="fa-solid fa-tag text-orange"></i></span>
                                             <input type="number" id="discountPercent" asp-for="Discount" class="form-control" placeholder="0" min="0" max="100" oninput="calcularRentabilidad()">
                                         </div>
-                                        <small class="text-muted" style="font-size: 0.7rem;">Porcentaje de rebaja para el cliente.</small>
                                     </div>
 
                                     <div class="col-md-4 border-start d-flex flex-column justify-content-center align-items-center">
@@ -89,11 +87,6 @@
                                 </div>
                             </div>
                         </div>
-
-
-
-
-
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -115,9 +108,10 @@
                             </div>
                         </div>
 
+                        @* Sección de Variaciones *@
                         <div class="card mb-4 shadow-sm border-0 bg-light">
                             <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center rounded-top">
-                                <h6 class="mb-0 small text-uppercase fw-bold"><i class="fa-solid fa-layer-group me-2"></i>Variaciones (Talle/Color)</h6>
+                                <h6 class="mb-0 small text-uppercase fw-bold"><i class="fa-solid fa-layer-group me-2"></i>Variaciones</h6>
                                 <div>
                                     <button class="btn btn-sm btn-outline-light py-0 px-2 shadow-sm me-2" type="button" data-bs-toggle="collapse" data-bs-target="#generadorVariaciones">
                                         <i class="fa-solid fa-wand-magic-sparkles small"></i> Generador
@@ -127,10 +121,8 @@
                                     </button>
                                 </div>
                             </div>
-
                             <div class="collapse" id="generadorVariaciones">
                                 <div class="card-body bg-white border-bottom border-secondary">
-                                    <p class="text-muted small mb-2"><i class="fa-solid fa-info-circle me-1"></i>Escribe los valores separados por coma (,) y el sistema creará todas las combinaciones.</p>
                                     <div class="row g-2">
                                         <div class="col-md-5">
                                             <input type="text" id="genColors" class="form-control form-control-sm" placeholder="Colores (Ej: Negro, Blanco)">
@@ -144,7 +136,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="card-body border rounded-bottom p-3">
                                 <div id="variations-container">
                                     @if (Model.Variations != null && Model.Variations.Any())
@@ -154,7 +145,6 @@
                                             <div class="row g-2 mb-2 variation-row align-items-center">
                                                 <input type="hidden" name="Variations.Index" value="@i" />
                                                 <input type="hidden" name="Variations[@i].Id" value="@Model.Variations.ElementAt(i).Id" />
-
                                                 <div class="col-md-4">
                                                     <input name="Variations[@i].Color" value="@Model.Variations.ElementAt(i).Color" class="form-control form-control-sm" placeholder="Color" required />
                                                 </div>
@@ -174,7 +164,7 @@
                                     }
                                 </div>
                                 <div id="no-variations-msg" class="@(Model.Variations != null && Model.Variations.Any() ? "d-none" : "") text-center py-2">
-                                    <small class="text-muted italic">Usa el generador o haz clic en Agregar Fila para sumar opciones.</small>
+                                    <small class="text-muted italic">Usa el generador o agrega una fila.</small>
                                 </div>
                             </div>
                         </div>
@@ -182,11 +172,9 @@
                         <div class="mb-4">
                             <label class="form-label fw-bold">Actualizar Imagen</label>
                             <div class="input-group">
-                                <input type="file" class="form-control" asp-for="ImageFile" id="subidaArchivo"
-                                       onchange="mostrarVistaPrevia(this)">
-                                <label class="input-group-text bg-light" for="inputGroupFile02"><i class="fa-solid fa-upload"></i></label>
+                                <input type="file" class="form-control" asp-for="ImageFile" id="subidaArchivo" onchange="mostrarVistaPrevia(this)">
+                                <label class="input-group-text bg-light" for="subidaArchivo"><i class="fa-solid fa-upload"></i></label>
                             </div>
-                            <small class="text-muted">Formatos aceptados: JPG, PNG. Máximo 2MB.</small>
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex mt-4">
@@ -201,17 +189,14 @@
 
                     <div class="col-lg-5 mt-4 mt-lg-0 border-start ps-lg-5 d-flex flex-column align-items-center justify-content-start">
                         <h6 class="text-uppercase fw-bold text-muted small mb-3">Vista Previa de Imagen</h6>
-
                         <div class="text-center border p-3 rounded bg-light">
                             <img id="imgPreview"
                                  src="@(string.IsNullOrEmpty(Model.ImageName) ? "/images/sin-imagen.png" : "/images/productos/" + Model.ImageName)"
                                  alt="Vista Previa"
                                  style="max-width: 260px; max-height: 500px; @(string.IsNullOrEmpty(Model.ImageName) ? "display:none;" : "display:block;") mx-auto"
                                  class="img-fluid rounded shadow-sm" />
-
                             <p id="textoNoImagen" class="text-muted mt-2" style="@(string.IsNullOrEmpty(Model.ImageName) ? "display:block;" : "display:none;")">
-                                <i class="fa-regular fa-image fa-2x"></i><br>
-                                Sin imagen seleccionada
+                                <i class="fa-regular fa-image fa-2x"></i><br>Sin imagen
                             </p>
                         </div>
                     </div>
@@ -225,21 +210,17 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
     <script>
         function mostrarVistaPrevia(input) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
-
                 reader.onload = function (e) {
                     var imagen = document.getElementById('imgPreview');
                     imagen.src = e.target.result;
                     imagen.style.display = 'block';
-
                     var texto = document.getElementById('textoNoImagen');
                     if (texto) texto.style.display = 'none';
                 }
-
                 reader.readAsDataURL(input.files[0]);
             }
         }
@@ -247,14 +228,10 @@
         function addVariation(color = '', size = '') {
             document.getElementById('no-variations-msg').classList.add('d-none');
             let container = document.getElementById('variations-container');
-
-            
             let uniqueId = 'var_' + Date.now() + Math.floor(Math.random() * 1000);
-
             let html = `
                 <div class="row g-2 mb-2 variation-row animate__animated animate__fadeIn">
                     <input type="hidden" name="Variations.Index" value="${uniqueId}" />
-
                     <div class="col-md-4">
                         <input name="Variations[${uniqueId}].Color" value="${color}" class="form-control form-control-sm" placeholder="Color" required />
                     </div>
@@ -270,7 +247,6 @@
                         </button>
                     </div>
                 </div>`;
-
             container.insertAdjacentHTML('beforeend', html);
         }
 
@@ -281,56 +257,32 @@
             }
         }
 
-       
         function generateVariations() {
             let colorsInput = document.getElementById('genColors').value;
             let sizesInput = document.getElementById('genSizes').value;
-
-            if (!colorsInput || !sizesInput) {
-                alert("Por favor, ingresa al menos un color y un talle para generar.");
-                return;
-            }
-
+            if (!colorsInput || !sizesInput) return;
             let colors = colorsInput.split(',').map(c => c.trim()).filter(c => c !== '');
             let sizes = sizesInput.split(',').map(s => s.trim()).filter(s => s !== '');
-
             colors.forEach(color => {
                 sizes.forEach(size => {
                     addVariation(color, size);
                 });
             });
-
             document.getElementById('genColors').value = '';
             document.getElementById('genSizes').value = '';
-
-            var generadorCollapse = document.getElementById('generadorVariaciones');
-            var bsCollapse = new bootstrap.Collapse(generadorCollapse, { toggle: false });
-            bsCollapse.hide();
         }
 
-                function calcularRentabilidad() {
-            //tTomamos los valores de los inputs (asegurándonos que sean números)
+        function calcularRentabilidad() {
             const costo = parseFloat(document.getElementById('costPrice').value) || 0;
             const precioVentaOriginal = parseFloat(document.querySelector('[name="Price"]').value) || 0;
             const descuento = parseFloat(document.getElementById('discountPercent').value) || 0;
-
-            // calculo el precio final que paga el cliente
             const precioConDescuento = precioVentaOriginal - (precioVentaOriginal * (descuento / 100));
-
-            // l ganancia es: Lo que paga el cliente - Lo que me costo a mí
             const ganancia = precioConDescuento - costo;
-
-            // calculo el margen sobre el costo
             const margen = costo > 0 ? (ganancia / costo) * 100 : 0;
-
-            // actualizamos la pantalla
             const displayGanancia = document.getElementById('gananciaDisplay');
             const displayMargen = document.getElementById('margenDisplay');
-
             displayGanancia.innerText = `$ ${ganancia.toLocaleString('es-AR', {minimumFractionDigits: 0})}`;
             displayMargen.innerText = `${margen.toFixed(1)}% de margen`;
-
-            // avisa si la ganancia es menor
             if (ganancia < 0) {
                 displayGanancia.className = "fs-4 fw-bold text-danger animate__animated animate__shakeX";
                 displayMargen.className = "badge bg-danger";
@@ -339,8 +291,6 @@
                 displayMargen.className = "badge bg-success";
             }
         }
-
-        // Vinculamos también el input de "Price" que ya tenías para que recalcule
         document.querySelector('[name="Price"]').addEventListener('input', calcularRentabilidad);
     </script>
 }

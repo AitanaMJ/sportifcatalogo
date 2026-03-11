@@ -25,9 +25,7 @@
             </div>
         }
 
-
         <style>
-           
             .dataTables_filter input {
                 border-radius: 50px !important;
                 border: 1px solid #ced4da !important;
@@ -42,45 +40,12 @@
                     outline: none !important;
                 }
 
-            
-            .dataTables_length select {
-                border-radius: 10px !important;
-                padding: 4px 30px 4px 10px !important;
-                border: 1px solid #ced4da !important;
-            }
-
-           
-            .dataTables_wrapper .pagination {
-                margin-top: 20px !important;
-            }
-
             .dataTables_wrapper .page-item.active .page-link {
                 background-color: var(--zeta-cyan) !important;
                 border-color: var(--zeta-cyan) !important;
-                color: white !important;
                 border-radius: 50px !important;
-                box-shadow: 0 4px 10px rgba(23, 160, 156, 0.3) !important;
-            }
-
-            .dataTables_wrapper .page-item .page-link {
-                border: none !important;
-                color: #555;
-                font-weight: 600;
-                border-radius: 50px !important;
-                margin: 0 3px;
-                padding: 8px 16px;
-                background-color: transparent;
-            }
-
-            .dataTables_wrapper .page-item:not(.active) .page-link:hover {
-                background-color: #f8f9fa !important;
-                color: var(--zeta-cyan) !important;
             }
         </style>
-
-
-
-
 
         <div class="table-responsive">
             <table id="tablaProductos" class="table table-zeta align-middle">
@@ -88,6 +53,7 @@
                     <tr>
                         <th>Nombre</th>
                         <th>Categoría</th>
+                        <th class="text-center">Estado</th>
                         <th class="text-center">Precio</th>
                         <th class="text-center">Stock</th>
                         <th class="text-end" style="width:140px">Acciones</th>
@@ -96,30 +62,59 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr>
+                        <tr style="@(!item.IsActive ? "opacity: 0.6; background-color: #f8f9fa;" : "")">
                             <td class="fw-bold text-zeta-dark">@item.Name</td>
                             <td>
                                 <span class="badge rounded-pill bg-light text-dark border px-3">
                                     <i class="fa-solid fa-tag me-1 text-muted small"></i> @item.Category.Name
                                 </span>
                             </td>
+                            <td class="text-center">
+                                @if (item.IsActive)
+                                {
+                                    <span class="badge rounded-pill bg-success px-3">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill bg-secondary px-3">Inactivo</span>
+                                }
+                            </td>
                             <td class="text-center fw-bold" style="color: var(--zeta-cyan);">
                                 $@item.Price.ToString("N2")
                             </td>
                             <td class="text-center">
-                                <span class="badge @(item.Stock <= 5 ? "bg-danger" : "bg-dark")">
-                                    @item.Stock un.
-                                </span>
+                                @if (item.Stock == 0)
+                                {
+                                    <span class="badge bg-danger px-3 shadow-sm">
+                                        <i class="fa-solid fa-circle-xmark me-1"></i> SIN STOCK
+                                    </span>
+                                }
+                                else if (item.Stock <= 3)
+                                                      @* Umbral de alerta *@
+                                {
+                                    <span class="badge bg-warning text-dark px-3 shadow-sm animate__animated animate__pulse animate__infinite">
+                                        <i class="fa-solid fa-triangle-exclamation me-1"></i> ¡ULTIMAS @item.Stock!
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge @(item.Stock <= 10 ? "bg-info text-dark" : "bg-dark") px-3">
+                                        @item.Stock un.
+                                    </span>
+                                }
                             </td>
                             <td class="text-end">
-                                <a asp-controller="Product"
-                                   asp-action="AddEdit"
-                                   asp-route-id="@item.ProductId"
-                                   class="btn btn-sm btn-zeta-cyan text-white shadow-sm me-1">
+                                <a asp-controller="Product" asp-action="AddEdit" asp-route-id="@item.ProductId"
+                                   class="btn btn-sm btn-zeta-cyan text-white shadow-sm me-1" title="Editar">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
-                                <button class="btn btn-sm btn-outline-danger shadow-sm" onclick="deleteItem(@item.ProductId)">
-                                    <i class="fa-solid fa-trash"></i>
+
+                                @* BOTÓN TOGGLE CON AJAX *@
+                                <button type="button"
+                                        class="btn btn-sm @(item.IsActive ? "btn-outline-danger" : "btn-outline-success") shadow-sm"
+                                        onclick="confirmToggle(this, @item.ProductId)"
+                                        title="@(item.IsActive ? "Desactivar" : "Activar")">
+                                    <i class="fa-solid @(item.IsActive ? "fa-eye-slash" : "fa-eye")"></i>
                                 </button>
                             </td>
                         </tr>
@@ -131,56 +126,44 @@
 </div>
 
 @section Scripts {
-    <script>
-        function deleteItem(id) {
-            Swal.fire({
-                title: "¿Estás seguro?",
-                text: "Esta acción no se puede deshacer.",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#EB5D0B", 
-                cancelButtonColor: "#6c757d",
-                confirmButtonText: "Sí, eliminar",
-                cancelButtonText: "No, volver",
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = '@Url.Action("Delete", "Product")' + '?id=' + id;
-                }
-            });
-        }
-    </script>
-
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
     <script>
         $(document).ready(function() {
             $('#tablaProductos').DataTable({
+                "stateSave": true, // <--- CRUCIAL: Guarda en qué página estabas
                 "language": {
                     "lengthMenu": "Mostrar _MENU_ productos",
                     "zeroRecords": "No se encontraron productos",
                     "info": "Mostrando _START_ a _END_ de _TOTAL_ productos",
                     "infoEmpty": "No hay productos disponibles",
-                    "infoFiltered": "(filtrado de _MAX_ totales)",
                     "search": "Buscar:",
                     "paginate": {
-                        "next": "Siguiente <i class='fa-solid fa-chevron-right ms-1'></i>",
-                        "previous": "<i class='fa-solid fa-chevron-left me-1'></i> Anterior"
+                        "next": "Sig.",
+                        "previous": "Ant."
                     }
                 },
                 "pageLength": 5,
-                "lengthMenu": [5, 10, 25, 50],
-                "ordering": false,
-                "columnDefs": [
-                    { "orderable": false, "targets": -1 }
-                ]
+                "ordering": false
             });
         });
+
+                      function confirmToggle(btn, id) {
+            // URL directa para evitar errores
+            const url = '/Product/ToggleStatus?id=' + id;
+
+            fetch(url, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Recargamos pero con stateSave: true NO te vas a mover de página
+                    location.reload();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
     </script>
-
-
-
 }
 
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">

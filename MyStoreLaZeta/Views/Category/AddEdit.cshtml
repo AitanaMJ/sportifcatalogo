@@ -22,6 +22,8 @@
 
                     <form asp-action="AddEdit" method="post">
                         <input type="hidden" asp-for="CategoryId" />
+                        @* Importante: Mantiene el estado activo/inactivo al editar el nombre *@
+                        <input type="hidden" asp-for="IsActive" />
 
                         <div class="mb-4">
                             <label asp-for="Name" class="form-label fw-bold text-zeta-dark">Nombre de la Categoría</label>

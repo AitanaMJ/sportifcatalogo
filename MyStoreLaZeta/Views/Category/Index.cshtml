@@ -1,6 +1,6 @@
 ﻿@model List<CategoryVM>
 
-<div class="container mt-4">
+<div class="container-fluid mt-4">
     <div class="card card-zeta p-4 shadow-sm">
 
         <div class="row align-items-center mb-4">
@@ -25,35 +25,80 @@
             </div>
         }
 
+
+        <style>
+            .dataTables_filter input {
+                border-radius: 50px !important;
+                border: 1px solid #ced4da !important;
+                padding: 6px 20px !important;
+                margin-left: 10px !important;
+                transition: all 0.3s ease;
+            }
+
+                .dataTables_filter input:focus {
+                    border-color: var(--zeta-cyan) !important;
+                    box-shadow: 0 0 0 0.25rem rgba(23, 160, 156, 0.25) !important;
+                    outline: none !important;
+                }
+
+            .dataTables_wrapper .page-item.active .page-link {
+                background-color: var(--zeta-cyan) !important;
+                border-color: var(--zeta-cyan) !important;
+                border-radius: 50px !important;
+            }
+        </style>
+
+
+
+
+
+
         <div class="table-responsive">
-            <table class="table table-zeta align-middle">
+            <table id="tablaCategorias" class="table table-zeta align-middle">
                 <thead>
                     <tr>
-                        <th style="width: 70%">Nombre de la Categoría</th>
+                        <th style="width: 50%">Nombre de la Categoría</th>
+                        <th style="width: 20%">Estado</th>
                         <th class="text-end" style="width: 140px">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr>
+                        <tr style="@(!item.IsActive ? "opacity: 0.6; background-color: #f8f9fa;" : "")">
                             <td class="fw-bold text-zeta-dark">
                                 <div class="d-flex align-items-center">
                                     <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px;">
-                                        <i class="fa-solid fa-folder-open" style="color: var(--zeta-cyan); font-size: 0.9rem;"></i>
+                                        <i class="fa-solid fa-folder-open" style="color: @(item.IsActive ? "var(--zeta-cyan)" : "#6c757d"); font-size: 0.9rem;"></i>
                                     </div>
                                     @item.Name
                                 </div>
+                            </td>
+                            <td>
+                                @if (item.IsActive)
+                                {
+                                    <span class="badge rounded-pill bg-success px-3">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill bg-secondary px-3">Inactivo</span>
+                                }
                             </td>
                             <td class="text-end">
                                 <a asp-controller="Category"
                                    asp-action="AddEdit"
                                    asp-route-id="@item.CategoryId"
-                                   class="btn btn-sm btn-zeta-cyan text-white shadow-sm me-1">
+                                   class="btn btn-sm btn-zeta-cyan text-white shadow-sm me-1"
+                                   title="Editar">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
-                                <button class="btn btn-sm btn-outline-danger shadow-sm" onclick="deleteItem(@item.CategoryId)">
-                                    <i class="fa-solid fa-trash"></i>
+
+                                @* BOTÓN TOGGLE AJAX *@
+                                <button type="button"
+                                        class="btn btn-sm @(item.IsActive ? "btn-outline-danger" : "btn-outline-success") shadow-sm"
+                                        onclick="confirmToggle(this, @item.CategoryId)"
+                                        title="@(item.IsActive ? "Desactivar" : "Activar")">
+                                    <i class="fa-solid @(item.IsActive ? "fa-eye-slash" : "fa-eye")"></i>
                                 </button>
                             </td>
                         </tr>
@@ -65,23 +110,43 @@
 </div>
 
 @section Scripts {
+    @* Scripts de DataTables *@
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
     <script>
-        function deleteItem(id) {
-            Swal.fire({
-                title: "¿Estás seguro?",
-                text: "Se eliminarán los productos asociados a esta categoría.",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#EB5D0B", 
-                cancelButtonColor: "#6c757d",
-                confirmButtonText: "Sí, eliminar",
-                cancelButtonText: "No, volver",
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = '@Url.Action("Delete", "Category")' + '?id=' + id;
-                }
+        $(document).ready(function() {
+            $('#tablaCategorias').DataTable({
+                "stateSave": true, // Mantiene la página actual al recargar
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ categorías",
+                    "zeroRecords": "No se encontraron categorías",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ categorías",
+                    "infoEmpty": "No hay categorías disponibles",
+                    "search": "Buscar:",
+                    "paginate": {
+                        "next": "Sig.",
+                        "previous": "Ant."
+                    }
+                },
+                "pageLength": 5,
+                "ordering": false
             });
+        });
+
+                 function confirmToggle(btn, id) {
+            const url = '/Category/ToggleStatus?id=' + id;
+
+            fetch(url, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            })
+            .catch(error => console.error('Error:', error));
         }
     </script>
 }
+

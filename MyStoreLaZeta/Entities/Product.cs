@@ -21,6 +21,8 @@ namespace MyStoreLaZeta.Entities
         public decimal CostPrice { get; set; } 
         public int Discount { get; set; }
 
+        public bool IsActive { get; set; } = true;
+
         public virtual ICollection<ProductVariation> Variations { get; set; } = new List<ProductVariation>();
     }
 }

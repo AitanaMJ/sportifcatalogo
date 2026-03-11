@@ -1,6 +1,7 @@
 ﻿using MyStoreLaZeta.Entities;
 using MyStoreLaZeta.Models;
 using MyStoreLaZeta.Repositories;
+using System.Linq.Expressions; // Necesario para los filtros
 
 namespace MyStoreLaZeta.Services
 {
@@ -8,18 +9,30 @@ namespace MyStoreLaZeta.Services
     {
         public async Task<IEnumerable<CategoryVM>> GetAllCategoriesAsync()
         {
+            // Traemos todas para el Admin, pero mapeamos el IsActive
             var categories = await _categoryRepository.GetAllAsync();
-            var categoriesVM = categories.Select(item =>
-        new CategoryVM
-        {
-            CategoryId = item.CategoryId,
-            Name = item.Name,
-        }
-
-
-         ).ToList();
+            var categoriesVM = categories.Select(item => new CategoryVM
+            {
+                CategoryId = item.CategoryId,
+                Name = item.Name,
+                IsActive = item.IsActive // <--- Importante para el Admin
+            }).ToList();
 
             return categoriesVM;
+        }
+
+        // Método extra para el Cliente (solo activas)
+        public async Task<IEnumerable<CategoryVM>> GetActiveCategoriesAsync()
+        {
+            var categories = await _categoryRepository.GetAllAsync(
+                conditions: new Expression<Func<Category, bool>>[] { c => c.IsActive }
+            );
+            return categories.Select(item => new CategoryVM
+            {
+                CategoryId = item.CategoryId,
+                Name = item.Name,
+                IsActive = item.IsActive
+            }).ToList();
         }
 
         public async Task AddAsync(CategoryVM viewModel)
@@ -27,6 +40,7 @@ namespace MyStoreLaZeta.Services
             var entity = new Category
             {
                 Name = viewModel.Name,
+                IsActive = true // Por defecto activa al crear
             };
             await _categoryRepository.AddAsync(entity);
         }
@@ -34,27 +48,26 @@ namespace MyStoreLaZeta.Services
         public async Task<CategoryVM?> GetByIdAsync(int id)
         {
             var category = await _categoryRepository.GetByIdAsync(id);
-            var categoryVM = new CategoryVM();
+            if (category == null) return null;
 
-            if (category != null)
+            return new CategoryVM
             {
-                categoryVM.Name = category.Name;
-                categoryVM.CategoryId = category.CategoryId;
-
-            }
-
-            return categoryVM;
-
+                Name = category.Name,
+                CategoryId = category.CategoryId,
+                IsActive = category.IsActive // <--- Mapear aquí también
+            };
         }
 
         public async Task EditAsync(CategoryVM viewModel)
         {
-            var entity = new Category
+            // OJO: Para editar sin perder datos, lo ideal es traer la entidad primero
+            var entity = await _categoryRepository.GetByIdAsync(viewModel.CategoryId);
+            if (entity != null)
             {
-                Name = viewModel.Name,
-                CategoryId = viewModel.CategoryId,
-            };
-            await _categoryRepository.EditAsync(entity);
+                entity.Name = viewModel.Name;
+                entity.IsActive = viewModel.IsActive; // Permite reactivar desde el edit
+                await _categoryRepository.EditAsync(entity);
+            }
         }
 
         public async Task DeleteAsync(int id)
@@ -63,9 +76,9 @@ namespace MyStoreLaZeta.Services
 
             if (category != null)
             {
-                await _categoryRepository.DeleteAsync(category);
+                category.IsActive = false; // Soft Delete
+                await _categoryRepository.EditAsync(category); // <--- Corregido el nombre del repo
             }
         }
     }
-        
-} 
+}

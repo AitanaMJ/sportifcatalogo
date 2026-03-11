@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyStoreLaZeta.Models;
 using MyStoreLaZeta.Services;
@@ -11,7 +10,8 @@ namespace MyStoreLaZeta.Controllers
     {
         public async Task<IActionResult> Index()
         {
-         var categories = await _categoryService.GetAllCategoriesAsync();
+            // El Admin sigue viendo todas (activas e inactivas)
+            var categories = await _categoryService.GetAllCategoriesAsync();
             return View(categories);
         }
 
@@ -20,7 +20,7 @@ namespace MyStoreLaZeta.Controllers
         {
             if (id == 0)
             {
-                return View(new CategoryVM()); 
+                return View(new CategoryVM());
             }
 
             var categoryVM = await _categoryService.GetByIdAsync(id);
@@ -40,22 +40,34 @@ namespace MyStoreLaZeta.Controllers
             if (entityVM.CategoryId == 0)
             {
                 await _categoryService.AddAsync(entityVM);
-                ViewBag.message = "Categoria creada correctamente";
-
+                TempData["message"] = "Categoría creada correctamente"; // Usamos TempData para que el mensaje sobreviva al redirect
             }
             else
             {
                 await _categoryService.EditAsync(entityVM);
-                ViewBag.message = "Categoría editada correctamente";
-
+                TempData["message"] = "Categoría editada correctamente";
             }
 
-            return View(entityVM);
-        }
-        public async Task<IActionResult> Delete(int id)
-        {
-            await _categoryService.DeleteAsync(id);
+            // Después de guardar, es mejor volver al Index para ver la lista actualizada
             return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleStatus(int id)
+        {
+            var categoryVM = await _categoryService.GetByIdAsync(id);
+            if (categoryVM != null)
+            {
+                // Invierte el estado: si es true pasa a false, si es false pasa a true
+                categoryVM.IsActive = !categoryVM.IsActive;
+
+                await _categoryService.EditAsync(categoryVM);
+
+
+                return Json(new { success = true, newState = categoryVM.IsActive });
+              
+            }
+            return Json(new { success = false });
         }
     }
 }

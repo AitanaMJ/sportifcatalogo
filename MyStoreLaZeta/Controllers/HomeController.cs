@@ -12,11 +12,10 @@ namespace MyStoreLaZeta.Controllers
 {
     public class HomeController(
         CategoryService _categoryService,
-        ProductService _productService
-        
+        ProductService _productService,
+        AppDbContext _context
         ) : Controller
     {
-        
 
         public async Task<IActionResult> Index()
         {
@@ -26,14 +25,12 @@ namespace MyStoreLaZeta.Controllers
             return View(catalog);
         }
 
-       
         public async Task<IActionResult> Catalogo(string search = null, int? categoryId = null, string categoryName = null, int page = 1)
         {
             var categories = await _categoryService.GetAllCategoriesAsync();
             IEnumerable<ProductVM> products;
             string filtroActivo = null;
 
-            
             if (categoryId.HasValue)
             {
                 products = await _productService.GetCatalogAsync(categoryId: categoryId.Value);
@@ -49,43 +46,36 @@ namespace MyStoreLaZeta.Controllers
                 products = await _productService.GetCatalogAsync();
             }
 
-           
-            int cantidadPorPagina = 6; 
+            int cantidadPorPagina = 6;
             int totalProductos = products.Count();
-
-         
             int totalPaginas = (int)Math.Ceiling((double)totalProductos / cantidadPorPagina);
 
-           
             var productosPaginados = products
                 .Skip((page - 1) * cantidadPorPagina)
                 .Take(cantidadPorPagina)
                 .ToList();
 
-            
             ViewBag.PaginaActual = page;
             ViewBag.TotalPaginas = totalPaginas;
             ViewBag.Search = search;
             ViewBag.CategoryId = categoryId;
             ViewBag.CategoryName = categoryName;
 
-            
             var model = new CatalogVM
             {
                 Categories = categories,
-                Products = productosPaginados, 
+                Products = productosPaginados,
                 filterBy = filtroActivo
             };
 
             return View(model);
         }
 
-        /*filtrar por categoria*/
-        public async Task<IActionResult>FilterByCategory(int id, string name)
+        public async Task<IActionResult> FilterByCategory(int id, string name)
         {
             var categories = await _categoryService.GetAllCategoriesAsync();
-            var products = await _productService.GetCatalogAsync(categoryId:id);
-            var catalog = new CatalogVM { Categories = categories, Products = products, filterBy=name };
+            var products = await _productService.GetCatalogAsync(categoryId: id);
+            var catalog = new CatalogVM { Categories = categories, Products = products, filterBy = name };
             return View("index", catalog);
         }
 
@@ -93,7 +83,7 @@ namespace MyStoreLaZeta.Controllers
         public async Task<IActionResult> FilterBySearch(string value)
         {
             var categories = await _categoryService.GetAllCategoriesAsync();
-            var products = await _productService.GetCatalogAsync(search:value);
+            var products = await _productService.GetCatalogAsync(search: value);
             var catalog = new CatalogVM { Categories = categories, Products = products, filterBy = $"Resultado para: {value}" };
             return View("index", catalog);
         }
@@ -105,19 +95,16 @@ namespace MyStoreLaZeta.Controllers
             return View(product);
         }
 
-        /*añadir items en el carrito*/
-       
         [HttpPost]
         public async Task<IActionResult> AddItemToCart(int productId, int quantity, int? variationId = null)
         {
             var product = await _productService.GetByIdAsync(productId);
             var cart = HttpContext.Session.Get<List<CartItemVM>>("Cart") ?? new List<CartItemVM>();
 
-
             var existingItem = cart.FirstOrDefault(x => x.ProductId == productId && x.VariationId == variationId);
+
             if (existingItem == null)
             {
-               
                 string color = "";
                 string size = "";
 
@@ -134,7 +121,7 @@ namespace MyStoreLaZeta.Controllers
                 cart.Add(new CartItemVM
                 {
                     ProductId = productId,
-                    VariationId = variationId, 
+                    VariationId = variationId,
                     Name = product.Name,
                     ImageName = product.ImageName,
                     Price = product.Price,
@@ -146,16 +133,14 @@ namespace MyStoreLaZeta.Controllers
             }
             else
             {
-                
                 existingItem.Quantity += quantity;
             }
 
             HttpContext.Session.Set("Cart", cart);
-            ViewBag.message = "Producto agregado al carrito";
+            ViewBag.message = "¡Producto añadido con éxito!"; // Mensaje corregido
 
             return View("ProductDetail", product);
         }
-
 
         public IActionResult ViewCart()
         {
@@ -166,21 +151,16 @@ namespace MyStoreLaZeta.Controllers
         public IActionResult RemoveItemToCart(int productId)
         {
             var cart = HttpContext.Session.Get<List<CartItemVM>>("Cart") ?? new List<CartItemVM>();
+            var item = cart.Find(x => x.ProductId == productId);
+            if (item != null) cart.Remove(item);
 
-            var product = cart.Find(x => x.ProductId == productId);
-            cart.Remove(product!);
             HttpContext.Session.Set("Cart", cart);
-
-            return View("ViewCart",cart);
+            return View("ViewCart", cart);
         }
 
-      
         public IActionResult Checkout()
         {
-            
             var cart = HttpContext.Session.Get<List<CartItemVM>>("Cart") ?? new List<CartItemVM>();
-
-           
             if (cart.Count == 0) return RedirectToAction("Index");
 
             var model = new CheckoutVM
@@ -194,17 +174,48 @@ namespace MyStoreLaZeta.Controllers
             return View(model);
         }
 
-        /*actualizar precio en lospedidos*/
         [HttpPost]
-        public async Task<IActionResult> ProcessOrder(CheckoutVM model, [FromServices] AppDbContext _context)
+        public async Task<IActionResult> ProcessOrder(CheckoutVM model)
         {
             var cart = HttpContext.Session.Get<List<CartItemVM>>("Cart");
+            if (cart == null || cart.Count == 0) return RedirectToAction("Index");
 
-            if (cart == null || cart.Count == 0)
+            // 1. DESCUENTO DE STOCK OBLIGATORIO
+            foreach (var item in cart)
             {
-                return RedirectToAction("Index");
+                if (item.VariationId.HasValue && item.VariationId > 0)
+                {
+                    // Caso Ropa (Variaciones)
+                    var v = await _context.ProductVariations.FindAsync(item.VariationId);
+                    if (v != null)
+                    {
+                        v.Stock -= item.Quantity;
+                        // Le decimos a EF: "Oye, esto cambió sí o sí, actualizalo"
+                        _context.Entry(v).Property(x => x.Stock).IsModified = true;
+
+                        // Sincronizamos el stock total del producto principal
+                        var p = await _context.Products.FindAsync(item.ProductId);
+                        if (p != null)
+                        {
+                            p.Stock -= item.Quantity;
+                            _context.Entry(p).Property(x => x.Stock).IsModified = true;
+                        }
+                    }
+                }
+                else
+                {
+                    // Caso Taza (Producto Simple)
+                    var p = await _context.Products.FindAsync(item.ProductId);
+                    if (p != null)
+                    {
+                        p.Stock -= item.Quantity;
+                        // Forzamos la marca de modificación en la columna Stock
+                        _context.Entry(p).Property(x => x.Stock).IsModified = true;
+                    }
+                }
             }
 
+            // 2. CREACIÓN DE LA ORDEN (Esto ya sabemos que te funciona bien)
             var order = new Order
             {
                 OrderDate = DateTime.Now,
@@ -215,28 +226,25 @@ namespace MyStoreLaZeta.Controllers
                 ShippingMethod = model.ShippingMethod,
                 PaymentMethod = model.PaymentMethod,
                 Status = "Pendiente",
-
-                //  CAMBIO 1: Usar FinalPrice para el total general de la orden
                 TotalAmount = cart.Sum(x => x.FinalPrice * x.Quantity),
-
                 OrderItems = cart.Select(i => new OrderItem
                 {
                     ProductId = i.ProductId,
                     ProductName = !string.IsNullOrEmpty(i.SizeName)
-                      ? $"{i.Name} ({i.ColorName} - {i.SizeName})"
-                      : i.Name,
-
-                    // CAMBIO 2: Guardar el precio CON descuento en el historial
+                        ? $"{i.Name} ({i.ColorName} - {i.SizeName})"
+                        : i.Name,
                     Price = i.FinalPrice,
                     Quantity = i.Quantity
                 }).ToList()
             };
 
             _context.Orders.Add(order);
+
+            // 3. GUARDADO FINAL
+            // Aquí EF enviará los INSERT de la orden y los UPDATE del stock
             await _context.SaveChangesAsync();
 
             HttpContext.Session.Remove("Cart");
-
             return RedirectToAction("OrderSuccess", new { id = order.OrderId });
         }
 
@@ -247,7 +255,6 @@ namespace MyStoreLaZeta.Controllers
                 .FirstOrDefaultAsync(o => o.OrderId == id);
 
             if (order == null) return NotFound();
-
             return View(order);
         }
 

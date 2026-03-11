@@ -8,6 +8,9 @@ namespace MyStoreLaZeta.Models
         [Required]
 
 
-        public string Name { get; set; } 
+        public string Name { get; set; }
+
+        // Agregamos esto para que en la vista del Admin aparezca el estado
+        public bool IsActive { get; set; }
     }
 }
