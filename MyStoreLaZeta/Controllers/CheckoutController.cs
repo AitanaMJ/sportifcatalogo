@@ -88,19 +88,47 @@ namespace MyStoreLaZeta.Controllers
 
                 if (payment.Status == "approved" || payment.Status == "pending" || payment.Status == "in_process")
                 {
+                    // =================================================================
+                    // 1. DESCUENTO DE STOCK DIRECTO A LA BASE DE DATOS (LA MAGIA ACÁ)
+                    // =================================================================
+                    foreach (var item in cart)
+                    {
+                        if (item.VariationId.HasValue && item.VariationId > 0)
+                        {
+                            // Descuenta a la variación (ej: ropa, talle específico)
+                            await _context.ProductVariations
+                                .Where(v => v.Id == item.VariationId)
+                                .ExecuteUpdateAsync(s => s.SetProperty(v => v.Stock, v => v.Stock - item.Quantity));
+
+                            // Descuenta al producto principal
+                            await _context.Products
+                                .Where(p => p.ProductId == item.ProductId)
+                                .ExecuteUpdateAsync(s => s.SetProperty(p => p.Stock, p => p.Stock - item.Quantity));
+                        }
+                        else
+                        {
+                            // Descuenta al producto simple (ej: tu Taza)
+                            await _context.Products
+                                .Where(p => p.ProductId == item.ProductId)
+                                .ExecuteUpdateAsync(s => s.SetProperty(p => p.Stock, p => p.Stock - item.Quantity));
+                        }
+                    }
+
+                    // =================================================================
+                    // 2. CREAMOS LA ORDEN NORMALMENTE
+                    // =================================================================
                     var order = new Order
                     {
                         OrderDate = DateTime.Now,
                         ClientName = request.Name,
                         Email = request.Email,
                         Phone = request.Phone,
-                        Address = request.ShippingMethod == "EnvioDomicilio" ? request.Address
-                        : "Retiro en Local",
+                        Address = request.ShippingMethod == "EnvioDomicilio" ? request.Address : "Retiro en Local",
                         ShippingMethod = request.ShippingMethod,
                         PaymentMethod = "MercadoPago",
                         Status = payment.Status == "approved" ? "Aprobado" : "Pendiente",
 
-                       // Guardamos el total con descuento aplicado
+                        // Guardamos el total con descuento aplicado
                         TotalAmount = totalCarrito,
 
                         OrderItems = cart.Select(i => new OrderItem
@@ -110,7 +138,7 @@ namespace MyStoreLaZeta.Controllers
                                 ? $"{i.Name} ({i.ColorName} - {i.SizeName})"
                                 : i.Name,
 
-                           // Guardamos el precio unitario final (con descuento) en la base de datos
+                            // Guardamos el precio unitario final (con descuento) en la base de datos
                             Price = i.FinalPrice,
                             Quantity = i.Quantity
                         }).ToList()
@@ -151,20 +179,18 @@ namespace MyStoreLaZeta.Controllers
 
         public async Task<IActionResult> OrderSuccess(int id, string status = "")
         {
+            // Buscamos la orden completa para mostrar los datos en la pantalla final
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == id);
+
+            if (order == null)
             {
-                // la orden completa para mostrar los datos en la pantalla final
-                var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == id);
-
-                if (order == null)
-                {
-                    return NotFound();
-                }
-
-                ViewBag.Status = status;
-                ViewBag.OrderId = id; 
-
-                return View(order); // <-- Enviamos el objeto 'order' a la vista
+                return NotFound();
             }
+
+            ViewBag.Status = status;
+            ViewBag.OrderId = id;
+
+            return View(order); // <-- Enviamos el objeto 'order' a la vista
         }
 
         public class MPPaymentRequest

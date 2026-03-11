@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MyStoreLaZeta.Entities;
 using MyStoreLaZeta.Models;
@@ -71,23 +70,6 @@ namespace MyStoreLaZeta.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> FilterByCategory(int id, string name)
-        {
-            var categories = await _categoryService.GetAllCategoriesAsync();
-            var products = await _productService.GetCatalogAsync(categoryId: id);
-            var catalog = new CatalogVM { Categories = categories, Products = products, filterBy = name };
-            return View("index", catalog);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> FilterBySearch(string value)
-        {
-            var categories = await _categoryService.GetAllCategoriesAsync();
-            var products = await _productService.GetCatalogAsync(search: value);
-            var catalog = new CatalogVM { Categories = categories, Products = products, filterBy = $"Resultado para: {value}" };
-            return View("index", catalog);
-        }
-
         public async Task<IActionResult> ProductDetail(int id)
         {
             var product = await _productService.GetByIdAsync(id);
@@ -102,6 +84,31 @@ namespace MyStoreLaZeta.Controllers
             var cart = HttpContext.Session.Get<List<CartItemVM>>("Cart") ?? new List<CartItemVM>();
 
             var existingItem = cart.FirstOrDefault(x => x.ProductId == productId && x.VariationId == variationId);
+
+            // ==========================================
+            // NUEVO: Validación de Stock antes de agregar
+            // ==========================================
+            int currentQuantityInCart = existingItem != null ? existingItem.Quantity : 0;
+            int requestedTotalQuantity = currentQuantityInCart + quantity;
+            int availableStock = 0;
+
+            if (variationId.HasValue)
+            {
+                var v = product.Variations.FirstOrDefault(x => x.Id == variationId);
+                if (v != null) availableStock = v.Stock;
+            }
+            else
+            {
+                availableStock = product.Stock;
+            }
+
+            if (requestedTotalQuantity > availableStock)
+            {
+                // Si pide más de lo que hay, no lo dejamos agregar
+                ViewBag.errorMessage = $"No hay suficiente stock. (Stock disponible: {availableStock})";
+                return View("ProductDetail", product);
+            }
+            // ==========================================
 
             if (existingItem == null)
             {
@@ -137,7 +144,7 @@ namespace MyStoreLaZeta.Controllers
             }
 
             HttpContext.Session.Set("Cart", cart);
-            ViewBag.message = "¡Producto añadido con éxito!"; // Mensaje corregido
+            ViewBag.message = "¡Producto añadido con éxito!";
 
             return View("ProductDetail", product);
         }
@@ -148,14 +155,14 @@ namespace MyStoreLaZeta.Controllers
             return View(cart);
         }
 
-        public IActionResult RemoveItemToCart(int productId)
+        public IActionResult RemoveItemToCart(int productId, int? variationId = null)
         {
             var cart = HttpContext.Session.Get<List<CartItemVM>>("Cart") ?? new List<CartItemVM>();
-            var item = cart.Find(x => x.ProductId == productId);
+            var item = cart.Find(x => x.ProductId == productId && x.VariationId == variationId);
             if (item != null) cart.Remove(item);
 
             HttpContext.Session.Set("Cart", cart);
-            return View("ViewCart", cart);
+            return RedirectToAction("ViewCart");
         }
 
         public IActionResult Checkout()
@@ -180,42 +187,31 @@ namespace MyStoreLaZeta.Controllers
             var cart = HttpContext.Session.Get<List<CartItemVM>>("Cart");
             if (cart == null || cart.Count == 0) return RedirectToAction("Index");
 
-            // 1. DESCUENTO DE STOCK OBLIGATORIO
+            // 1. DESCUENTO DE STOCK DIRECTO A SQL (Sin tracking de memoria)
             foreach (var item in cart)
             {
                 if (item.VariationId.HasValue && item.VariationId > 0)
                 {
-                    // Caso Ropa (Variaciones)
-                    var v = await _context.ProductVariations.FindAsync(item.VariationId);
-                    if (v != null)
-                    {
-                        v.Stock -= item.Quantity;
-                        // Le decimos a EF: "Oye, esto cambió sí o sí, actualizalo"
-                        _context.Entry(v).Property(x => x.Stock).IsModified = true;
+                    // Resta a la variación (ropa, etc.)
+                    await _context.ProductVariations
+                        .Where(v => v.Id == item.VariationId)
+                        .ExecuteUpdateAsync(s => s.SetProperty(v => v.Stock, v => v.Stock - item.Quantity));
 
-                        // Sincronizamos el stock total del producto principal
-                        var p = await _context.Products.FindAsync(item.ProductId);
-                        if (p != null)
-                        {
-                            p.Stock -= item.Quantity;
-                            _context.Entry(p).Property(x => x.Stock).IsModified = true;
-                        }
-                    }
+                    // Resta al producto principal
+                    await _context.Products
+                        .Where(p => p.ProductId == item.ProductId)
+                        .ExecuteUpdateAsync(s => s.SetProperty(p => p.Stock, p => p.Stock - item.Quantity));
                 }
                 else
                 {
-                    // Caso Taza (Producto Simple)
-                    var p = await _context.Products.FindAsync(item.ProductId);
-                    if (p != null)
-                    {
-                        p.Stock -= item.Quantity;
-                        // Forzamos la marca de modificación en la columna Stock
-                        _context.Entry(p).Property(x => x.Stock).IsModified = true;
-                    }
+                    // Resta al producto simple (como tu Taza)
+                    await _context.Products
+                        .Where(p => p.ProductId == item.ProductId)
+                        .ExecuteUpdateAsync(s => s.SetProperty(p => p.Stock, p => p.Stock - item.Quantity));
                 }
             }
 
-            // 2. CREACIÓN DE LA ORDEN (Esto ya sabemos que te funciona bien)
+            // 2. CREAMOS Y GUARDAMOS LA ORDEN NORMALMENTE
             var order = new Order
             {
                 OrderDate = DateTime.Now,
@@ -230,25 +226,21 @@ namespace MyStoreLaZeta.Controllers
                 OrderItems = cart.Select(i => new OrderItem
                 {
                     ProductId = i.ProductId,
-                    ProductName = !string.IsNullOrEmpty(i.SizeName)
-                        ? $"{i.Name} ({i.ColorName} - {i.SizeName})"
-                        : i.Name,
+                    ProductName = !string.IsNullOrEmpty(i.SizeName) ? $"{i.Name} ({i.ColorName} - {i.SizeName})" : i.Name,
                     Price = i.FinalPrice,
                     Quantity = i.Quantity
                 }).ToList()
             };
 
             _context.Orders.Add(order);
-
-            // 3. GUARDADO FINAL
-            // Aquí EF enviará los INSERT de la orden y los UPDATE del stock
             await _context.SaveChangesAsync();
 
             HttpContext.Session.Remove("Cart");
+
             return RedirectToAction("OrderSuccess", new { id = order.OrderId });
         }
 
-        public async Task<IActionResult> OrderSuccess(int id, [FromServices] AppDbContext _context)
+        public async Task<IActionResult> OrderSuccess(int id)
         {
             var order = await _context.Orders
                 .Include(o => o.OrderItems)

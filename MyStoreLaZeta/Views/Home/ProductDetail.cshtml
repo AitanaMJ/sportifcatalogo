@@ -176,13 +176,24 @@
                     </a>
                 </div>
 
+                @* --- MENSAJE DE ÉXITO --- *@
                 @if (ViewBag.message != null)
                 {
                     <div class="alert alert-success mt-4 border-0 shadow-sm d-flex align-items-center" role="alert" style="border-left: 5px solid #28a745 !important;">
-                        <i class="fa-solid fa-circle-check fa-lg me-3"></i>
+                        <i class="fa-solid fa-circle-check fa-lg me-3 text-success"></i>
                         <div>@ViewBag.message</div>
                     </div>
                 }
+
+                @* --- NUEVO: MENSAJE DE ERROR DE STOCK --- *@
+                @if (ViewBag.errorMessage != null)
+                {
+                    <div class="alert alert-danger mt-4 border-0 shadow-sm d-flex align-items-center" role="alert" style="border-left: 5px solid #dc3545 !important; background-color: #f8d7da;">
+                        <i class="fa-solid fa-triangle-exclamation fa-lg me-3 text-danger"></i>
+                        <div class="fw-bold text-danger">@ViewBag.errorMessage</div>
+                    </div>
+                }
+            </div> <!-- Fin de col-md-6 -->
             </div>
         </div>
     </div>

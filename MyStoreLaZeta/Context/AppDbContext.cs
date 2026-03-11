@@ -24,6 +24,7 @@ namespace MyStoreLaZeta.Context
 
             modelBuilder.Entity<Category>(e =>
             {
+               
                 e.HasKey("CategoryId");
                 e.Property("CategoryId").ValueGeneratedOnAdd();
                 e.HasData(
