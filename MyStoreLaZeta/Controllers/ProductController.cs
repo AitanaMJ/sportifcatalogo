@@ -11,7 +11,7 @@ namespace MyStoreLaZeta.Controllers
     {
         public async Task<IActionResult> Index()
         {
-            // El Admin ve todos los productos para poder reactivarlos si es necesario
+           
             var products = await _productService.GetAllAsync();
             return View(products);
         }
@@ -46,7 +46,7 @@ namespace MyStoreLaZeta.Controllers
         [HttpPost]
         public async Task<IActionResult> AddEdit(ProductVM entityVM)
         {
-            // Limpiamos validaciones que no son necesarias para el post
+          
             ModelState.Remove("Categories");
             ModelState.Remove("Category");
             ModelState.Remove("Category.Name");
@@ -86,7 +86,7 @@ namespace MyStoreLaZeta.Controllers
                     TempData["message"] = "Producto actualizado correctamente.";
                 }
 
-                return RedirectToAction("Index"); // Estándar de Admin: volver a la lista
+                return RedirectToAction("Index"); 
             }
             catch (Exception ex)
             {
@@ -104,7 +104,7 @@ namespace MyStoreLaZeta.Controllers
             }
         }
 
-        // Acción de Borrado Lógico
+       
         [HttpPost]
         public async Task<IActionResult> ToggleStatus(int id)
         {

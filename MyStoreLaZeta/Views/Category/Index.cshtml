@@ -46,7 +46,7 @@
                 border-radius: 50px !important;
             }
 
-            /* Estilo para recortar la descripción si es muy larga */
+           
             .text-truncate-2 {
                 display: -webkit-box;
                 -webkit-line-clamp: 2;
@@ -71,7 +71,7 @@
                     {
                         <tr style="@(!item.IsActive ? "opacity: 0.6; background-color: #f8f9fa;" : "")">
 
-                            @* 1. COLUMNA PORTADA (NUEVA) *@
+                            @* 1. COLUMNA PORTADA *@
                             <td class="text-center">
                                 @if (!string.IsNullOrEmpty(item.ImageName))
                                 {
@@ -85,12 +85,12 @@
                                 }
                             </td>
 
-                            @* 2. COLUMNA NOMBRE (Tuya, retocada) *@
+                            @* 2. COLUMNA NOMBRE *@
                             <td class="fw-bold text-zeta-dark fs-6">
                                 @item.Name
                             </td>
 
-                            @* 3. COLUMNA DESCRIPCIÓN (NUEVA) *@
+                            @* 3. COLUMNA DESCRIPCIÓN  *@
                             <td>
                                 @if (!string.IsNullOrEmpty(item.Description))
                                 {
@@ -104,7 +104,7 @@
                                 }
                             </td>
 
-                            @* 4. COLUMNA ESTADO (Tuya) *@
+                            @* 4. COLUMNA ESTADO *@
                             <td>
                                 @if (item.IsActive)
                                 {
@@ -116,7 +116,7 @@
                                 }
                             </td>
 
-                            @* 5. COLUMNA ACCIONES (Tuya) *@
+                            @* 5. COLUMNA ACCIONES  *@
                             <td class="text-end">
                                 <a asp-controller="Category"
                                    asp-action="AddEdit"
@@ -162,7 +162,7 @@
                     }
                 },
                 "pageLength": 5,
-                // Desactivamos el ordenamiento automático para que no se rompa visualmente con las imágenes
+               
                 "ordering": false
             });
         });

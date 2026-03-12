@@ -85,9 +85,9 @@ namespace MyStoreLaZeta.Controllers
 
             var existingItem = cart.FirstOrDefault(x => x.ProductId == productId && x.VariationId == variationId);
 
-            // ==========================================
-            // NUEVO: Validación de Stock antes de agregar
-            // ==========================================
+           
+            //  Validación de Stock antes de agregar
+           
             int currentQuantityInCart = existingItem != null ? existingItem.Quantity : 0;
             int requestedTotalQuantity = currentQuantityInCart + quantity;
             int availableStock = 0;
@@ -108,7 +108,7 @@ namespace MyStoreLaZeta.Controllers
                 ViewBag.errorMessage = $"No hay suficiente stock. (Stock disponible: {availableStock})";
                 return View("ProductDetail", product);
             }
-            // ==========================================
+            
 
             if (existingItem == null)
             {

@@ -39,17 +39,17 @@ namespace MyStoreLaZeta.Controllers
                 // Credenciales
                 MercadoPagoConfig.AccessToken = "TEST-8242036467932674-030212-e7c0c84de9ac435128816fed550dcb77-244346147";
 
-                // ✅ CORRECCIÓN: Usamos FinalPrice para que el cobro sea el correcto con descuentos
+               
                 var totalCarrito = cart.Sum(x => x.FinalPrice * x.Quantity);
 
-                // 🔒 Validaciones
+                
                 if (string.IsNullOrEmpty(request.Email))
                     return BadRequest(new { success = false, message = "Email requerido." });
 
                 if (string.IsNullOrEmpty(request.PaymentMethodId))
                     return BadRequest(new { success = false, message = "Método de pago requerido." });
 
-                // Usamos el total calculado internamente para mayor seguridad
+               
                 decimal montoFinal = request.TransactionAmount ?? totalCarrito;
 
                 if (montoFinal <= 0)
@@ -57,7 +57,6 @@ namespace MyStoreLaZeta.Controllers
 
                 bool isCardPayment = !string.IsNullOrEmpty(request.Token);
 
-                // ✅ CREAR PAYMENT SÚPER BLINDADO
                 var paymentRequest = new PaymentCreateRequest
                 {
                     TransactionAmount = montoFinal,
@@ -88,9 +87,7 @@ namespace MyStoreLaZeta.Controllers
 
                 if (payment.Status == "approved" || payment.Status == "pending" || payment.Status == "in_process")
                 {
-                    // =================================================================
-                    // 1. DESCUENTO DE STOCK DIRECTO A LA BASE DE DATOS (LA MAGIA ACÁ)
-                    // =================================================================
+                    
                     foreach (var item in cart)
                     {
                         if (item.VariationId.HasValue && item.VariationId > 0)
@@ -107,16 +104,15 @@ namespace MyStoreLaZeta.Controllers
                         }
                         else
                         {
-                            // Descuenta al producto simple (ej: tu Taza)
+                            // Descuenta al producto simple (ej: Taza)
                             await _context.Products
                                 .Where(p => p.ProductId == item.ProductId)
                                 .ExecuteUpdateAsync(s => s.SetProperty(p => p.Stock, p => p.Stock - item.Quantity));
                         }
                     }
 
-                    // =================================================================
-                    // 2. CREAMOS LA ORDEN NORMALMENTE
-                    // =================================================================
+                    // creo LA ORDEN NORMALMENTE
+                    
                     var order = new Order
                     {
                         OrderDate = DateTime.Now,
@@ -128,7 +124,7 @@ namespace MyStoreLaZeta.Controllers
                         PaymentMethod = "MercadoPago",
                         Status = payment.Status == "approved" ? "Aprobado" : "Pendiente",
 
-                        // Guardamos el total con descuento aplicado
+                        // Guardo el total con descuento aplicado
                         TotalAmount = totalCarrito,
 
                         OrderItems = cart.Select(i => new OrderItem
@@ -138,7 +134,7 @@ namespace MyStoreLaZeta.Controllers
                                 ? $"{i.Name} ({i.ColorName} - {i.SizeName})"
                                 : i.Name,
 
-                            // Guardamos el precio unitario final (con descuento) en la base de datos
+                            // GuardO el precio unitario final (con descuento) en la base de datos
                             Price = i.FinalPrice,
                             Quantity = i.Quantity
                         }).ToList()
@@ -179,7 +175,7 @@ namespace MyStoreLaZeta.Controllers
 
         public async Task<IActionResult> OrderSuccess(int id, string status = "")
         {
-            // Buscamos la orden completa para mostrar los datos en la pantalla final
+            // Busca la orden completa para mostrar los datos en la pantalla final
             var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == id);
 
             if (order == null)
@@ -190,7 +186,7 @@ namespace MyStoreLaZeta.Controllers
             ViewBag.Status = status;
             ViewBag.OrderId = id;
 
-            return View(order); // <-- Enviamos el objeto 'order' a la vista
+            return View(order); // Enviamos el objeto 'order' a la vista
         }
 
         public class MPPaymentRequest

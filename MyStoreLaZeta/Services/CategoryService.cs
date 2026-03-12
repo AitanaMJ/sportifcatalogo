@@ -1,7 +1,7 @@
 ﻿using MyStoreLaZeta.Entities;
 using MyStoreLaZeta.Models;
 using MyStoreLaZeta.Repositories;
-using System.Linq.Expressions; // Necesario para los filtros
+using System.Linq.Expressions; 
 
 namespace MyStoreLaZeta.Services
 {
@@ -9,15 +9,15 @@ namespace MyStoreLaZeta.Services
     {
         public async Task<IEnumerable<CategoryVM>> GetAllCategoriesAsync()
         {
-            // Traemos todas para el Admin, pero mapeamos el IsActive
+           
             var categories = await _categoryRepository.GetAllAsync();
             var categoriesVM = categories.Select(item => new CategoryVM
             {
                 CategoryId = item.CategoryId,
                 Name = item.Name,
-                IsActive = item.IsActive, // <--- Importante para el Admin
+                IsActive = item.IsActive, // 
 
-                // NUEVO: Mapeo de descripción e imagen
+                // Mapeo de descripción e imagen
                 Description = item.Description,
                 ImageName = item.ImageName
             }).ToList();
@@ -37,7 +37,7 @@ namespace MyStoreLaZeta.Services
                 Name = item.Name,
                 IsActive = item.IsActive,
 
-                // NUEVO: Mapeo de descripción e imagen
+               
                 Description = item.Description,
                 ImageName = item.ImageName
             }).ToList();
@@ -50,7 +50,7 @@ namespace MyStoreLaZeta.Services
                 Name = viewModel.Name,
                 IsActive = true, // Por defecto activa al crear
 
-                // NUEVO: Guardar la descripción e imagen al crear
+               
                 Description = viewModel.Description,
                 ImageName = viewModel.ImageName
             };
@@ -66,9 +66,9 @@ namespace MyStoreLaZeta.Services
             {
                 Name = category.Name,
                 CategoryId = category.CategoryId,
-                IsActive = category.IsActive, // <--- Mapear aquí también
+                IsActive = category.IsActive, 
 
-                // NUEVO: Traer descripción e imagen para editar
+               
                 Description = category.Description,
                 ImageName = category.ImageName
             };
@@ -76,14 +76,14 @@ namespace MyStoreLaZeta.Services
 
         public async Task EditAsync(CategoryVM viewModel)
         {
-            // OJO: Para editar sin perder datos, lo ideal es traer la entidad primero
+           
             var entity = await _categoryRepository.GetByIdAsync(viewModel.CategoryId);
             if (entity != null)
             {
                 entity.Name = viewModel.Name;
-                entity.IsActive = viewModel.IsActive; // Permite reactivar desde el edit
+                entity.IsActive = viewModel.IsActive; 
 
-                // NUEVO: Actualizar descripción e imagen (si se subió una nueva, ya viene en el viewModel.ImageName)
+              
                 entity.Description = viewModel.Description;
                 entity.ImageName = viewModel.ImageName;
 
@@ -97,8 +97,8 @@ namespace MyStoreLaZeta.Services
 
             if (category != null)
             {
-                category.IsActive = false; // Soft Delete
-                await _categoryRepository.EditAsync(category); // <--- Corregido el nombre del repo
+                category.IsActive = false; 
+                await _categoryRepository.EditAsync(category); 
             }
         }
     }

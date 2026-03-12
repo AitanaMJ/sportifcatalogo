@@ -60,7 +60,7 @@ namespace MyStoreLaZeta.Services
             {
                 var variacionesReales = _context.ProductVariations
                                                 .Where(v => v.ProductId == product.ProductId)
-                                                .Select(v => new ProductVariation // <--- Asegurate que el nombre coincida con tu clase de variaciones en el VM
+                                                .Select(v => new ProductVariation 
                                                 {
                                                     Id = v.Id,
                                                     Color = v.Color,
@@ -125,13 +125,12 @@ namespace MyStoreLaZeta.Services
                 Price = viewModel.Price,
                 Stock = viewModel.Stock,
                 ImageName = viewModel.ImageName,
-                IsActive = true, // Se crea activo por defecto
+                IsActive = true, 
                 HasVariations = viewModel.Variations != null && viewModel.Variations.Any()
             };
 
             await _productRepository.AddAsync(entity);
-            // El Repositorio Genérico suele hacer SaveChanges, pero si usas el contexto directo:
-            // await _context.SaveChangesAsync();
+            
 
             if (viewModel.Variations != null && viewModel.Variations.Any())
             {
@@ -161,7 +160,7 @@ namespace MyStoreLaZeta.Services
                     await viewModel.ImageFile.CopyToAsync(fileStream);
                 }
 
-                // Borramos la imagen vieja SOLO si estamos editando (no en delete)
+               
                 if (!string.IsNullOrEmpty(product.ImageName))
                 {
                     string oldPath = Path.Combine(UploadFolder, product.ImageName);
@@ -178,7 +177,7 @@ namespace MyStoreLaZeta.Services
             product.Price = viewModel.Price;
             product.Stock = viewModel.Stock;
             product.CategoryId = viewModel.Category.CategoryId;
-            product.IsActive = viewModel.IsActive; // Permite reactivarlo
+            product.IsActive = viewModel.IsActive; 
 
             var oldVariations = _context.ProductVariations.Where(v => v.ProductId == product.ProductId);
             _context.ProductVariations.RemoveRange(oldVariations);
@@ -204,11 +203,11 @@ namespace MyStoreLaZeta.Services
         // 5. Catálogo Público (Solo Activos y con Stock)
         public async Task<IEnumerable<ProductVM>> GetCatalogAsync(int categoryId = 0, string search = "")
         {
-            // FILTRO CRÍTICO: IsActive == true
+            
             var conditions = new List<Expression<Func<Product, bool>>> {
                 x => x.Stock > 0,
                 x => x.IsActive == true,
-                x => x.Category != null && x.Category.IsActive == true // <--- ¡ÉSTA ES LA LÍNEA MÁGICA!
+                x => x.Category != null && x.Category.IsActive == true 
             };
 
             if (categoryId != 0) conditions.Add(x => x.CategoryId == categoryId);
@@ -244,7 +243,7 @@ namespace MyStoreLaZeta.Services
 
             if (product != null)
             {
-                // NO BORRAMOS LA IMAGEN para mantener trazabilidad histórica
+                
                 product.IsActive = false;
                 await _productRepository.EditAsync(product);
             }

@@ -27,7 +27,7 @@ namespace MyStoreLaZeta.Models
 
         public int? Discount { get; set; }
 
-        // Agregamos esto para que en la vista del Admin aparezca el estado
+       
         public bool IsActive { get; set; }
 
         public List<ProductVariation> Variations { get; set; } = new List<ProductVariation>();

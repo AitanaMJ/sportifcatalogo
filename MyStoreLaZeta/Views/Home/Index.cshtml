@@ -1,123 +1,228 @@
 ﻿@model CatalogVM;
 @{
-    ViewData["Title"] = "Catálogo de Merchandising";
+    ViewData["Title"] = "La Zeta - Merchandising Personalizado";
 }
 
-<div class="container mt-4 mb-5">
-    <div class="row align-items-center p-4 p-lg-5 rounded-4 shadow-sm"
-         style="background-color: #f8fbfb; border: 2px solid #eef7f7;">
-
-        <div class="col-lg-6 order-2 order-lg-1 text-center text-lg-start">
-            <h6 class="fw-bold text-uppercase mb-3" style="color: var(--zeta-cyan); letter-spacing: 2px;">
-                LA ZETA MERCHANDISING
-            </h6>
-
-            <h1 class="display-5 fw-bold text-zeta-dark mb-4 lh-sm">
-                Los mejores productos personalizados en un solo lugar.
-            </h1>
-
-            <div class="d-flex align-items-center justify-content-center justify-content-lg-start mb-4 p-3 rounded-3 bg-white shadow-sm border d-inline-flex">
-                <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-                     style="width: 45px; height: 45px; background-color: #fff3eb;">
-                    <i class="fa-solid fa-truck-fast fa-lg" style="color: var(--zeta-orange);"></i>
-                </div>
-                <div>
-                    <h5 class="fw-bold mb-0 text-zeta-dark">Envíos a todo Tucumán.</h5>
-                    <small class="text-muted">Recibí tu pedido rápido y seguro.</small>
-                </div>
+<div id="heroCarousel" class="carousel slide carousel-fade shadow-sm mb-5" data-bs-ride="carousel" style="z-index: 1;">
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+    </div>
+    <div class="carousel-inner shadow-sm rounded-bottom-4">
+        <div class="carousel-item active" style="height: 450px;">
+            <img src="~/images/bann1.png" class="d-block w-100 h-100 object-fit-cover" alt="Ofertas">
+            <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded-4 p-4 mb-5">
+                <h1 class="display-4 fw-bold text-white">Bienvenidos a La Zeta</h1>
+                <p class="fs-5 text-white">Personalizá tu mundo con los mejores productos de Tucumán.</p>
+                <a href="/Home/Catalogo" class="btn btn-zeta-orange btn-lg px-5 shadow-sm fw-bold">Ver Catálogo</a>
             </div>
+        </div>
+        <div class="carousel-item" style="height: 450px;">
+            <img src="~/images/banner2.png" class="d-block w-100 h-100 object-fit-cover" alt="Personalizados">
+            <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded-4 p-4 mb-5 text-start">
+                <h2 class="display-5 fw-bold text-white">Diseños Únicos</h2>
+                <p class="fs-5 text-white">Remeras, tazas y vinilos con tu impronta personal.</p>
+            </div>
+        </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+    </button>
+</div>
 
-            <div class="mt-3">
-                <a href="#catalogo-productos" class="btn btn-zeta-orange btn-lg px-5 shadow fw-bold text-uppercase">
-                    Ver Catálogo <i class="fa-solid fa-arrow-down ms-2"></i>
-                </a>
+
+<div class="container mb-4">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold text-zeta-dark">Categorías Destacadas</h2>
+        <div class="mx-auto" style="width: 50px; height: 3px; background-color: var(--zeta-cyan);"></div>
+    </div>
+
+    <div class="bento-container">
+        <div class="bento-main rounded-4 shadow-sm overflow-hidden position-relative">
+            <img src="~/images/5720a26d-3ef6-4189-b95f-e94770026cd6.png" class="bento-img" alt="Textil">
+            <div class="bento-overlay p-3 d-flex flex-column justify-content-end">
+                <h4 class="text-white fw-bold mb-2">Textil</h4>
+                <a href="/Home/Catalogo?Id=1&name=Textil" class="btn btn-sm btn-light rounded-pill px-3 align-self-start fw-bold shadow-sm">Explorar</a>
             </div>
         </div>
 
-        <div class="col-lg-6 order-1 order-lg-2 mb-5 mb-lg-0">
-            <div class="position-relative">
-                <div class="position-absolute top-0 start-0 w-100 h-100 bg-white rounded-4 shadow-lg"
-                     style="transform: rotate(-3deg); z-index: 0; opacity: 0.5;"></div>
-
-                <img src="~/images/hero_merch.png"
-                     alt="Productos La Zeta"
-                     class="img-fluid rounded-4 shadow position-relative"
-                     style="z-index: 1; border: 5px solid white;"
-                     onerror="this.src='https://placehold.co/600x400/eef7f7/17A09C?text=Tu+Imagen+Aquí'; this.style.border='none';">
+        <div class="bento-stack">
+            <div class="bento-wide rounded-4 shadow-sm overflow-hidden position-relative">
+                <img src="~/images/5e76668d-5c0a-4759-8baf-bc26b8e00bb8.jpg" class="bento-img" alt="Vasos">
+                <div class="bento-overlay p-3 d-flex flex-column justify-content-end">
+                    <h5 class="text-white fw-bold mb-0 text-shadow">Tazas y Vasos</h5>
+                </div>
+            </div>
+            <div class="bento-row">
+                <div class="bento-small rounded-4 shadow-sm overflow-hidden position-relative">
+                    <img src="~/images/d719785b-9292-43b4-96eb-9ca17fecc921.png" class="bento-img" alt="Llaveros">
+                    <div class="bento-overlay p-2 d-flex flex-column justify-content-end text-center">
+                        <span class="text-white fw-bold small">Llaveros</span>
+                    </div>
+                </div>
+                <div class="bento-small rounded-4 shadow-sm overflow-hidden position-relative">
+                    <img src="~/images/bf8f5e13-5385-4a88-ad38-dd72470db6db.png" class="bento-img" alt="Cuadernos">
+                    <div class="bento-overlay p-2 d-flex flex-column justify-content-end text-center">
+                        <span class="text-white fw-bold small">Cuadernos</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="container mb-5" id="catalogo-productos">
-    <div class="row g-3 justify-content-center align-items-center">
+<style>
+  
+    .bento-container {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 15px;
+        height: 350px !important; 
+        max-height: 350px;
+        margin-bottom: 70px; 
 
+    .bento-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .bento-row {
+        display: flex;
+        gap: 15px;
+        height: 50%;
+    }
+
+    
+    .bento-main, .bento-wide, .bento-small {
+        position: relative;
+        overflow: hidden;
+        background-color: #eee;
+    }
+
+    .bento-main {
+        height: 100%;
+    }
+
+    .bento-wide {
+        height: calc(50% - 7px);
+    }
+    
+    .bento-small {
+        width: 50%;
+        height: 100%;
+    }
+
+    
+    .bento-img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover; 
+        object-position: center;
+    }
+
+    .bento-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 70%);
+        z-index: 2;
+    }
+
+    
+    #catalogo-productos {
+        margin-top: 50px !important;
+        clear: both;
+    }
+
+    
+    @@media (max-width: 768px) {
+        .bento-container {
+            display: flex;
+            flex-direction: column;
+            height: auto !important;
+            max-height: none;
+        }
+
+        .bento-main, .bento-wide, .bento-small {
+            height: 200px !important;
+            width: 100%;
+        }
+
+        .bento-row {
+            flex-direction: column;
+            height: auto;
+        }
+    }
+</style>
+
+
+
+
+
+
+
+
+<div class="container mb-5" id="catalogo-productos">
+    <div class="row g-3 justify-content-center">
         <div class="col-12 col-md-auto">
-            <button type="button"
-                    class="btn btn-zeta-cyan btn-mobile-full py-2 fw-bold rounded-pill shadow-sm"
-                    data-bs-toggle="modal"
-                    data-bs-target="#exampleModal">
+            <button type="button" class="btn btn-zeta-cyan btn-mobile-full py-2 fw-bold rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
                 <i class="fa-solid fa-layer-group me-2"></i>Categorías
             </button>
         </div>
-
         <div class="col-12 col-md-8 col-lg-7">
             <form action="/Home/FilterBySearch" method="post" class="m-0">
                 <div class="input-group shadow-sm rounded-pill overflow-hidden border bg-white">
                     <span class="input-group-text bg-white border-0 ps-4">
                         <i class="fas fa-search text-muted"></i>
                     </span>
-                    <input type="text" class="form-control border-0 py-2 shadow-none"
-                           name="value" autocomplete="off"
-                           placeholder="Buscar tazas, remeras, gorras..." />
-                    <button class="btn btn-zeta-orange px-4 fw-bold" type="submit">
-                        BUSCAR
-                    </button>
+                    <input type="text" class="form-control border-0 py-2 shadow-none" name="value" autocomplete="off" placeholder="¿Qué estás buscando hoy?" />
+                    <button class="btn btn-zeta-orange px-4 fw-bold shadow-none" type="submit">BUSCAR</button>
                 </div>
             </form>
         </div>
-
     </div>
 </div>
 
-
 @if (!string.IsNullOrEmpty(Model.filterBy))
 {
-    <div class="container mb-4">
+    <div class="container mb-4 text-center">
         <div class="d-inline-flex align-items-center bg-light border p-2 px-3 rounded-pill shadow-sm">
             <i class="fa-solid fa-filter me-2 text-muted small"></i>
             <span class="text-dark small">Viendo: <strong style="color: var(--zeta-cyan);">@Model.filterBy</strong></span>
-            <a asp-action="Index" class="ms-3 text-danger text-decoration-none">
-                <i class="fa-solid fa-circle-xmark"></i>
-            </a>
+            <a asp-action="Index" class="ms-3 text-danger"><i class="fa-solid fa-circle-xmark"></i></a>
         </div>
     </div>
 }
 
-<div class="container">
+<div class="container mb-5">
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 py-4">
         @foreach (var p in Model.Products.Take(8))
         {
             <div class="col">
                 <div class="card h-100 card-zeta border-0 shadow-sm overflow-hidden">
                     <div class="position-relative" style="height: 220px; background-color: #fcfcfc;">
-                        <img class="w-100 h-100" src="~/images/@p.ImageName"
-                             style="object-fit: contain; padding: 10px;" alt="@p.Name" />
+                        <img class="w-100 h-100" src="~/images/@p.ImageName" style="object-fit: contain; padding: 10px;" alt="@p.Name" />
                     </div>
-
                     <div class="card-body p-4 text-center d-flex flex-column">
                         <h6 class="text-uppercase text-muted x-small fw-bold mb-2" style="font-size: 0.7rem;">
                             @(p.Category?.Name ?? "Sin Categoría")
                         </h6>
-
                         <h5 class="fw-bold text-zeta-dark flex-grow-1">@p.Name</h5>
-
                         <div class="mt-3">
                             <h4 class="fw-bold mb-3" style="color: var(--zeta-cyan);">@p.Price.ToString("C2")</h4>
                             <div class="d-grid">
-                                <a class="btn btn-zeta-orange mt-auto fw-bold" href="/Home/ProductDetail?id=@p.ProductId">
-                                    Ver Detalles
-                                </a>
+                                <a class="btn btn-zeta-orange mt-auto fw-bold shadow-sm" href="/Home/ProductDetail?id=@p.ProductId">Ver Detalles</a>
                             </div>
                         </div>
                     </div>
@@ -127,31 +232,6 @@
     </div>
 </div>
 
-@if (Model.Products.Count() > 8)
-{
-    <div class="row mt-5 mb-3">
-        <div class="col-12 text-center">
-            <a asp-controller="Home" asp-action="Catalogo"
-               class="btn btn-outline-dark rounded-pill px-5 py-2 fw-bold shadow-sm btn-ver-mas">
-                Ver todo el catálogo <i class="fa-solid fa-arrow-right ms-2"></i>
-            </a>
-        </div>
-    </div>
-
-    <style>
-        .btn-ver-mas {
-            transition: all 0.3s ease;
-            border-width: 2px;
-        }
-
-            .btn-ver-mas:hover {
-                background-color: var(--zeta-cyan);
-                color: white;
-                border-color: var(--zeta-cyan);
-                transform: scale(1.05);
-            }
-    </style>
-}
 
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-hidden="true">

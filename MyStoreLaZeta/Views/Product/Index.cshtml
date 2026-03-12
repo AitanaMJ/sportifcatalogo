@@ -76,7 +76,7 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        // Lógica para saber si está a la venta o no
+                        
                         var isForSale = item.IsActive && item.Stock > 0;
                         var saleStatusData = isForSale ? "venta" : "noventa";
 
@@ -149,10 +149,10 @@
 
     <script>
         $(document).ready(function() {
-            // 1. Recuperamos el filtro de la "memoria" del navegador (o usamos 'todos' por defecto)
+          
             var currentFilter = sessionStorage.getItem('filtroProductosZeta') || 'todos';
 
-            // 2. Lógica personalizada de filtrado para DataTables
+          
             $.fn.dataTable.ext.search.push(
                 function(settings, data, dataIndex, rowData, counter) {
                     if (currentFilter === 'todos') {
@@ -169,7 +169,7 @@
                 }
             );
 
-            // 3. Inicializamos la tabla
+            
             var table = $('#tablaProductos').DataTable({
                 "stateSave": true,
                 "language": {
@@ -187,21 +187,21 @@
                 "ordering": false
             });
 
-            // 4. Pintamos el botón correcto apenas carga la página (basado en la memoria)
+           
             $('.btn-filter').removeClass('active btn-zeta-dark text-white').addClass('btn-outline-secondary');
             $('.btn-filter[data-filter="' + currentFilter + '"]').removeClass('btn-outline-secondary').addClass('active btn-zeta-dark text-white');
 
-            // Forzamos un dibujado de la tabla por si cargó un filtro guardado
+            
             table.draw();
 
-            // 5. Evento Click en los botones de filtro
+            
             $('.btn-filter').on('click', function() {
                 $('.btn-filter').removeClass('active btn-zeta-dark text-white').addClass('btn-outline-secondary');
                 $(this).removeClass('btn-outline-secondary').addClass('active btn-zeta-dark text-white');
 
                 currentFilter = $(this).data('filter');
 
-                // GUARDAMOS EL FILTRO EN LA MEMORIA
+                
                 sessionStorage.setItem('filtroProductosZeta', currentFilter);
 
                 table.draw();
@@ -215,7 +215,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Al recargar la página, ahora leerá el sessionStorage y mantendrá tu filtro
+                    
                     location.reload();
                 }
             })

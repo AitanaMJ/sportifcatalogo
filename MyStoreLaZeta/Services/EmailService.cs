@@ -8,10 +8,10 @@ namespace MyStoreLaZeta.Services
         public void SendEmail(string destino, string token)
         {
             //  TUS DATOS DE GMAIL (Necesitas la clave de aplicación de 16 letras) //hacerlo en app settings y leerlo desde ahí para no exponerlo en el código fuente
-            string remitente = "molinajuarezaitana@gmail.com"; // CAMBIA ESTO POR TU GMAIL /admin
-            string password = "cbmr lqdy lrfa xdlb"; // CAMBIA ESTO POR TU CLAVE DE 16 LETRAS //admin
+            string remitente = "molinajuarezaitana@gmail.com"; // CAMBIAR ESTO POR TU GMAIL /admin
+            string password = "cbmr lqdy lrfa xdlb"; // CAMBIAR ESTO POR TU CLAVE DE 16 LETRAS //admin
 
-            // El link que le llegará al usuario
+            //  link que le llega al usuario
             string link = $"http://localhost:5219/Account/ResetPassword?token={token}";
 
             //  correo que se le envia al usuario

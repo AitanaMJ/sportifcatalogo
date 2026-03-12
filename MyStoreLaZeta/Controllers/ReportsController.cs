@@ -163,7 +163,7 @@ namespace MyStoreLaZeta.Controllers
             {
                 var worksheet = workbook.Worksheets.Add("Logística");
 
-                // Cabeceras pro
+                // Cabeceras 
                 worksheet.Cell(1, 1).Value = "Pedido #";
                 worksheet.Cell(1, 2).Value = "Fecha";
                 worksheet.Cell(1, 3).Value = "Cliente";
@@ -171,7 +171,7 @@ namespace MyStoreLaZeta.Controllers
                 worksheet.Cell(1, 5).Value = "Envío";
                 worksheet.Cell(1, 6).Value = "Productos (Cant. - Detalle)";
 
-                // Le damos un poco de estilo a las cabeceras
+                //  estilo 
                 var headerRange = worksheet.Range("A1:F1");
                 headerRange.Style.Font.Bold = true;
                 headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#17A2B8"); // El Cyan de La Zeta
@@ -186,7 +186,7 @@ namespace MyStoreLaZeta.Controllers
                     worksheet.Cell(fila, 4).Value = p.Status;
                     worksheet.Cell(fila, 5).Value = p.ShippingMethod;
 
-                    // Juntamos todos los productos del pedido en una sola celda separados por coma
+                    // todos los productos del pedido en una sola celda separados por coma
                     var detalleProductos = string.Join(", ", p.OrderItems.Select(i => $"{i.Quantity}x {i.Product?.Name}"));
                     worksheet.Cell(fila, 6).Value = detalleProductos;
 
