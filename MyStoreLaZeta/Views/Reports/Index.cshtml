@@ -3,22 +3,39 @@
 }
 
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-zeta-dark fw-bold">Tablero de Control</h2>
-        <a asp-action="ExportarExcel" asp-route-mesFiltro="@ViewBag.MesFiltro" class="btn btn-success">
-            <i class="fa-solid fa-file-excel me-2"></i>Descargar Excel
-        </a>
-    </div>
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6">
+            <h2 class="text-zeta-dark fw-bold m-0">Tablero de Control</h2>
+        </div>
+        <div class="col-md-6 text-end">
+            <div class="btn-group shadow-sm" role="group">
+                <!-- Botón Ventas -->
+                <a asp-action="ExportarExcel" asp-route-mesFiltro="@ViewBag.MesFiltro"
+                   class="btn btn-success px-3" title="Reporte contable mensual">
+                    <i class="fa-solid fa-file-invoice-dollar me-2"></i>Excel Ventas
+                </a>
 
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="input-group shadow-sm">
-                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-calendar-days text-muted"></i></span>
-                <input type="month" id="filtroMes" class="form-control border-start-0" value="@ViewBag.MesFiltro">
-                <button class="btn btn-zeta-cyan text-white" onclick="actualizarReporte()">Filtrar</button>
+                <!-- Botón Pedidos -->
+                <a asp-action="ExportarExcelLogistica"
+                   class="btn btn-zeta-cyan text-white px-3" title="Hoja de armado para el depósito">
+                    <i class="fa-solid fa-boxes-packing me-2"></i>Excel Pedidos
+                </a>
             </div>
         </div>
     </div>
+
+    <!-- Filtro de fecha abajo de los botones para que no se amontone todo -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <form method="get" class="d-flex gap-2 bg-white p-2 rounded-3 shadow-sm border">
+                <input type="month" name="mesFiltro" value="@ViewBag.MesFiltro" class="form-control border-0">
+                <button type="submit" class="btn btn-zeta-cyan text-white rounded-2 px-4">
+                    Filtrar
+                </button>
+            </form>
+        </div>
+    </div>
+
 
     <div class="row mb-4">
         <div class="col-md-6">

@@ -1,14 +1,29 @@
 ﻿@model IEnumerable<MyStoreLaZeta.Entities.Order>
 
-<div class="container mt-4">
-    <h2 class="text-zeta-dark mb-4">Administración de Pedidos</h2>
+<div class="container mt-4 mb-5">
+    <h2 class="text-zeta-dark fw-bold mb-4">
+        <i class="fa-solid fa-file-invoice-dollar me-2" style="color: var(--zeta-cyan);"></i>
+        Administración de Pedidos
+    </h2>
 
-    <div class="card card-zeta p-3">
+    <div class="card card-zeta p-4 shadow-sm border-0">
 
+        @* BOTONES DE FILTRO ARREGLADOS *@
+        <div class="d-flex flex-wrap gap-2 mb-4 bg-light p-3 rounded-3 border">
+            <span class="fw-bold align-self-center text-muted me-2"><i class="fa-solid fa-filter"></i> Filtros rápidos:</span>
+            <button type="button" class="btn btn-zeta-dark text-white btn-filter-order active px-4 rounded-pill shadow-sm" data-filter="todos">
+                Todos
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-filter-order px-4 rounded-pill" data-filter="hoy">
+                <i class="fa-regular fa-calendar-star me-1"></i> Pedidos de Hoy
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-filter-order px-4 rounded-pill" data-filter="pendiente">
+                <i class="fa-solid fa-clock-rotate-left me-1"></i> Solo Pendientes
+            </button>
+        </div>
 
         <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
         <style>
-            /* Caja de Búsqueda redondeada */
             .dataTables_filter input {
                 border-radius: 50px !important;
                 border: 1px solid #ced4da !important;
@@ -23,14 +38,12 @@
                     outline: none !important;
                 }
 
-            /* Selector de cantidad */
             .dataTables_length select {
                 border-radius: 10px !important;
                 padding: 4px 30px 4px 10px !important;
                 border: 1px solid #ced4da !important;
             }
 
-            /* Diseño de la Paginación */
             .dataTables_wrapper .pagination {
                 margin-top: 20px !important;
             }
@@ -59,67 +72,74 @@
             }
         </style>
 
-
-
         <div class="table-responsive">
-            <table id="tablaPedidos" class="table table-striped align-middle">
-            <thead class="bg-light">
-                <tr>
-                    <th>#ID</th>
-                    <th>Cliente</th>
-                    <th>Fecha</th>
-                    <th>Total</th>
-                    <th>Envío</th>
-                    <th>Estado</th>
-                    <th></th>
-                </tr>
-            </thead>
+            <table id="tablaPedidos" class="table table-hover align-middle table-zeta">
+                <thead class="bg-light">
+                    <tr>
+                        <th style="width: 80px;">#ID</th>
+                        <th>Cliente</th>
+                        <th class="text-center">Fecha</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-center">Envío</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-end" style="width: 80px;">Acción</th>
+                    </tr>
+                </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr>
-                            <td>@item.OrderId</td>
+                        var orderDateStr = item.OrderDate.ToString("dd/MM/yyyy");
+                        var statusClass = item.Status.ToLower();
+
+                        <tr data-order-date="@orderDateStr" data-order-status="@statusClass">
+                            <td class="fw-bold text-muted">#@item.OrderId</td>
 
                             <td>
-                                <div class="fw-bold">@item.ClientName</div>
-                                <small class="text-muted">@item.Email</small>
+                                <div class="fw-bold text-zeta-dark">@item.ClientName</div>
+                                <small class="text-muted"><i class="fa-regular fa-envelope me-1"></i>@item.Email</small>
                             </td>
 
-                            <td>@item.OrderDate.ToString("dd/MM/yy")</td>
+                            <td class="text-center">
+                                @item.OrderDate.ToString("dd/MM/yy HH:mm")
+                            </td>
 
-                            <td class="text-success fw-bold">$@item.TotalAmount.ToString("N0")</td>
+                            <td class="text-success fw-bold text-end">
+                                $@item.TotalAmount.ToString("N0")
+                            </td>
 
-                            <td>@item.ShippingMethod</td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark border"><i class="fa-solid fa-truck-fast me-1 text-muted"></i>@item.ShippingMethod</span>
+                            </td>
 
-                            <td>
+                            <td class="text-center">
                                 @if (item.Status == "Pendiente")
                                 {
-                                    <span class="badge bg-warning text-dark">Pendiente</span>
+                                    <span class="badge bg-warning text-dark px-3 rounded-pill shadow-sm"><i class="fa-solid fa-clock me-1"></i>Pendiente</span>
                                 }
                                 else if (item.Status == "Cancelado")
                                 {
-                                    <span class="badge bg-danger">Cancelado</span>
+                                    <span class="badge bg-danger px-3 rounded-pill shadow-sm"><i class="fa-solid fa-xmark me-1"></i>Cancelado</span>
                                 }
                                 else if (item.Status == "Entregado")
                                 {
-                                    <span class="badge bg-success">Entregado</span>
+                                    <span class="badge bg-success px-3 rounded-pill shadow-sm"><i class="fa-solid fa-check-double me-1"></i>Entregado</span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-secondary">@item.Status</span>
+                                    <span class="badge bg-secondary px-3 rounded-pill shadow-sm">@item.Status</span>
                                 }
                             </td>
 
-                            <td>
-                                <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-primary">
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-zeta-cyan text-white shadow-sm" title="Ver detalle">
                                     <i class="fa-solid fa-eye"></i>
                                 </a>
                             </td>
                         </tr>
                     }
                 </tbody>
-        </table>
-            </div>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -129,7 +149,36 @@
 
     <script>
         $(document).ready(function() {
-            $('#tablaPedidos').DataTable({
+            // Fecha de hoy
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            let mm = today.getMonth() + 1;
+            let dd = today.getDate();
+
+            if (dd < 10) dd = '0' + dd;
+            if (mm < 10) mm = '0' + mm;
+            const formattedToday = dd + '/' + mm + '/' + yyyy;
+
+            var currentOrderFilter = sessionStorage.getItem('filtroPedidosZeta') || 'todos';
+
+            $.fn.dataTable.ext.search.push(
+                function(settings, data, dataIndex, rowData, counter) {
+                    if (currentOrderFilter === 'todos') {
+                        return true;
+                    }
+
+                    var tr = $(settings.aoData[dataIndex].nTr);
+                    var orderDate = tr.attr('data-order-date');
+                    var orderStatus = tr.attr('data-order-status');
+
+                    if (currentOrderFilter === 'hoy' && orderDate === formattedToday) return true;
+                    if (currentOrderFilter === 'pendiente' && orderStatus === 'pendiente') return true;
+
+                    return false;
+                }
+            );
+
+            var table = $('#tablaPedidos').DataTable({
                 "language": {
                     "lengthMenu": "Mostrar _MENU_ pedidos",
                     "zeroRecords": "No se encontraron pedidos",
@@ -142,9 +191,25 @@
                         "previous": "<i class='fa-solid fa-chevron-left me-1'></i> Anterior"
                     }
                 },
-                "pageLength": 10, 
+                "pageLength": 10,
                 "lengthMenu": [5, 10, 25, 50],
-                "ordering": false // opcion de triangulitos por las dudas lo dejo
+                "ordering": false,
+                "stateSave": true
+            });
+
+            // Lógica unificada para los botones (Igual que en productos)
+            $('.btn-filter-order').removeClass('active btn-zeta-dark text-white shadow-sm').addClass('btn-outline-secondary');
+            $('.btn-filter-order[data-filter="' + currentOrderFilter + '"]').removeClass('btn-outline-secondary').addClass('active btn-zeta-dark text-white shadow-sm');
+
+            table.draw(false);
+
+            $('.btn-filter-order').on('click', function() {
+                $('.btn-filter-order').removeClass('active btn-zeta-dark text-white shadow-sm').addClass('btn-outline-secondary');
+                $(this).removeClass('btn-outline-secondary').addClass('active btn-zeta-dark text-white shadow-sm');
+
+                currentOrderFilter = $(this).data('filter');
+                sessionStorage.setItem('filtroPedidosZeta', currentOrderFilter);
+                table.draw(false);
             });
         });
     </script>

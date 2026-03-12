@@ -207,7 +207,8 @@ namespace MyStoreLaZeta.Services
             // FILTRO CRÍTICO: IsActive == true
             var conditions = new List<Expression<Func<Product, bool>>> {
                 x => x.Stock > 0,
-                x => x.IsActive == true
+                x => x.IsActive == true,
+                x => x.Category != null && x.Category.IsActive == true // <--- ¡ÉSTA ES LA LÍNEA MÁGICA!
             };
 
             if (categoryId != 0) conditions.Add(x => x.CategoryId == categoryId);

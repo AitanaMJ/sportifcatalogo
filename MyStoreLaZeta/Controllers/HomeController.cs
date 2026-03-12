@@ -18,7 +18,7 @@ namespace MyStoreLaZeta.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var categories = await _categoryService.GetAllCategoriesAsync();
+            var categories = await _categoryService.GetActiveCategoriesAsync();
             var products = await _productService.GetCatalogAsync();
             var catalog = new CatalogVM { Categories = categories, Products = products };
             return View(catalog);
@@ -26,7 +26,7 @@ namespace MyStoreLaZeta.Controllers
 
         public async Task<IActionResult> Catalogo(string search = null, int? categoryId = null, string categoryName = null, int page = 1)
         {
-            var categories = await _categoryService.GetAllCategoriesAsync();
+            var categories = await _categoryService.GetActiveCategoriesAsync();
             IEnumerable<ProductVM> products;
             string filtroActivo = null;
 

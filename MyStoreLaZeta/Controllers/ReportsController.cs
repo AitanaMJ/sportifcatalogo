@@ -125,6 +125,12 @@ namespace MyStoreLaZeta.Controllers
                 worksheet.Cell(1, 2).Value = "Cliente";
                 worksheet.Cell(1, 3).Value = "Total";
 
+                // Le damos un poco de estilo a las cabeceras
+                var headerRange = worksheet.Range("A1:C1");
+                headerRange.Style.Font.Bold = true;
+                headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#17A2B8"); // El Cyan de La Zeta
+                headerRange.Style.Font.FontColor = XLColor.White;
+
                 int fila = 2;
                 foreach (var p in pedidos)
                 {
@@ -138,6 +144,62 @@ namespace MyStoreLaZeta.Controllers
                 {
                     workbook.SaveAs(stream);
                     return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ReporteLaZeta.xlsx");
+                }
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportarExcelLogistica()
+        {
+            // Filtramos solo los pedidos que el admin necesita armar/cobrar
+            var pedidos = await _context.Orders
+                .Include(o => o.OrderItems) // Incluimos los detalles del pedido
+                .ThenInclude(i => i.Product)
+                .Where(o => o.Status == "Pendiente" || o.Status == "En Preparación")
+                .OrderBy(o => o.Status).ThenBy(o => o.OrderDate)
+                .ToListAsync();
+
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("Logística");
+
+                // Cabeceras pro
+                worksheet.Cell(1, 1).Value = "Pedido #";
+                worksheet.Cell(1, 2).Value = "Fecha";
+                worksheet.Cell(1, 3).Value = "Cliente";
+                worksheet.Cell(1, 4).Value = "Estado";
+                worksheet.Cell(1, 5).Value = "Envío";
+                worksheet.Cell(1, 6).Value = "Productos (Cant. - Detalle)";
+
+                // Le damos un poco de estilo a las cabeceras
+                var headerRange = worksheet.Range("A1:F1");
+                headerRange.Style.Font.Bold = true;
+                headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#17A2B8"); // El Cyan de La Zeta
+                headerRange.Style.Font.FontColor = XLColor.White;
+
+                int fila = 2;
+                foreach (var p in pedidos)
+                {
+                    worksheet.Cell(fila, 1).Value = p.OrderId;
+                    worksheet.Cell(fila, 2).Value = p.OrderDate.ToString("dd/MM/yy HH:mm");
+                    worksheet.Cell(fila, 3).Value = p.ClientName;
+                    worksheet.Cell(fila, 4).Value = p.Status;
+                    worksheet.Cell(fila, 5).Value = p.ShippingMethod;
+
+                    // Juntamos todos los productos del pedido en una sola celda separados por coma
+                    var detalleProductos = string.Join(", ", p.OrderItems.Select(i => $"{i.Quantity}x {i.Product?.Name}"));
+                    worksheet.Cell(fila, 6).Value = detalleProductos;
+
+                    fila++;
+                }
+
+                worksheet.Columns().AdjustToContents(); // Autoajustar ancho de columnas
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var nombreArchivo = $"Hoja_Logistica_{DateTime.Now:dd-MM-yyyy}.xlsx";
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", nombreArchivo);
                 }
             }
         }

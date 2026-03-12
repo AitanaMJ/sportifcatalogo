@@ -1,6 +1,6 @@
 ﻿@model List<CategoryVM>
 
-<div class="container-fluid mt-4">
+<div class="container-fluid mt-4 mb-5">
     <div class="card card-zeta p-4 shadow-sm">
 
         <div class="row align-items-center mb-4">
@@ -25,7 +25,6 @@
             </div>
         }
 
-
         <style>
             .dataTables_filter input {
                 border-radius: 50px !important;
@@ -46,19 +45,24 @@
                 border-color: var(--zeta-cyan) !important;
                 border-radius: 50px !important;
             }
+
+            /* Estilo para recortar la descripción si es muy larga */
+            .text-truncate-2 {
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
         </style>
 
-
-
-
-
-
         <div class="table-responsive">
-            <table id="tablaCategorias" class="table table-zeta align-middle">
+            <table id="tablaCategorias" class="table table-zeta align-middle table-hover">
                 <thead>
                     <tr>
-                        <th style="width: 50%">Nombre de la Categoría</th>
-                        <th style="width: 20%">Estado</th>
+                        <th style="width: 80px" class="text-center">Portada</th>
+                        <th style="width: 25%">Nombre</th>
+                        <th style="width: 40%">Descripción</th>
+                        <th style="width: 15%">Estado</th>
                         <th class="text-end" style="width: 140px">Acciones</th>
                     </tr>
                 </thead>
@@ -66,14 +70,41 @@
                     @foreach (var item in Model)
                     {
                         <tr style="@(!item.IsActive ? "opacity: 0.6; background-color: #f8f9fa;" : "")">
-                            <td class="fw-bold text-zeta-dark">
-                                <div class="d-flex align-items-center">
-                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px;">
-                                        <i class="fa-solid fa-folder-open" style="color: @(item.IsActive ? "var(--zeta-cyan)" : "#6c757d"); font-size: 0.9rem;"></i>
+
+                            @* 1. COLUMNA PORTADA (NUEVA) *@
+                            <td class="text-center">
+                                @if (!string.IsNullOrEmpty(item.ImageName))
+                                {
+                                    <img src="~/images/@item.ImageName" alt="@item.Name" class="rounded shadow-sm" style="width: 50px; height: 50px; object-fit: cover; border: 1px solid #eee;" />
+                                }
+                                else
+                                {
+                                    <div class="rounded bg-light d-flex align-items-center justify-content-center mx-auto" style="width: 50px; height: 50px; border: 1px solid #eee;">
+                                        <i class="fa-regular fa-image text-muted" style="font-size: 1.2rem;"></i>
                                     </div>
-                                    @item.Name
-                                </div>
+                                }
                             </td>
+
+                            @* 2. COLUMNA NOMBRE (Tuya, retocada) *@
+                            <td class="fw-bold text-zeta-dark fs-6">
+                                @item.Name
+                            </td>
+
+                            @* 3. COLUMNA DESCRIPCIÓN (NUEVA) *@
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.Description))
+                                {
+                                    <span class="text-muted small text-truncate-2" title="@item.Description">
+                                        @item.Description
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small fst-italic">- Sin descripción -</span>
+                                }
+                            </td>
+
+                            @* 4. COLUMNA ESTADO (Tuya) *@
                             <td>
                                 @if (item.IsActive)
                                 {
@@ -84,6 +115,8 @@
                                     <span class="badge rounded-pill bg-secondary px-3">Inactivo</span>
                                 }
                             </td>
+
+                            @* 5. COLUMNA ACCIONES (Tuya) *@
                             <td class="text-end">
                                 <a asp-controller="Category"
                                    asp-action="AddEdit"
@@ -93,7 +126,6 @@
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
 
-                                @* BOTÓN TOGGLE AJAX *@
                                 <button type="button"
                                         class="btn btn-sm @(item.IsActive ? "btn-outline-danger" : "btn-outline-success") shadow-sm"
                                         onclick="confirmToggle(this, @item.CategoryId)"
@@ -110,7 +142,6 @@
 </div>
 
 @section Scripts {
-    @* Scripts de DataTables *@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
@@ -118,7 +149,7 @@
     <script>
         $(document).ready(function() {
             $('#tablaCategorias').DataTable({
-                "stateSave": true, // Mantiene la página actual al recargar
+                "stateSave": true,
                 "language": {
                     "lengthMenu": "Mostrar _MENU_ categorías",
                     "zeroRecords": "No se encontraron categorías",
@@ -131,11 +162,12 @@
                     }
                 },
                 "pageLength": 5,
+                // Desactivamos el ordenamiento automático para que no se rompa visualmente con las imágenes
                 "ordering": false
             });
         });
 
-                 function confirmToggle(btn, id) {
+        function confirmToggle(btn, id) {
             const url = '/Category/ToggleStatus?id=' + id;
 
             fetch(url, { method: 'POST' })

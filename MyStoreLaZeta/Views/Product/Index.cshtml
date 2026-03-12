@@ -1,7 +1,7 @@
 ﻿@model List<ProductVM>
 
-<div class="container-fluid mt-4">
-    <div class="card card-zeta p-4 shadow-sm">
+<div class="container-fluid mt-4 mb-5">
+    <div class="card card-zeta p-4 shadow-sm border-0">
 
         <div class="row align-items-center mb-4">
             <div class="col-md-6">
@@ -24,6 +24,20 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
+
+        @* BOTONES DE FILTRO (NUEVO) *@
+        <div class="d-flex flex-wrap gap-2 mb-4 bg-light p-3 rounded-3 border">
+            <span class="fw-bold align-self-center text-muted me-2"><i class="fa-solid fa-filter"></i> Filtros:</span>
+            <button type="button" class="btn btn-zeta-dark btn-filter active px-4 rounded-pill" data-filter="todos">
+                Todas
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-filter px-4 rounded-pill" data-filter="venta">
+                <i class="fa-solid fa-store me-1"></i> A la venta
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-filter px-4 rounded-pill" data-filter="noventa">
+                <i class="fa-solid fa-eye-slash me-1"></i> No a la venta
+            </button>
+        </div>
 
         <style>
             .dataTables_filter input {
@@ -48,7 +62,7 @@
         </style>
 
         <div class="table-responsive">
-            <table id="tablaProductos" class="table table-zeta align-middle">
+            <table id="tablaProductos" class="table table-zeta align-middle table-hover">
                 <thead>
                     <tr>
                         <th>Nombre</th>
@@ -62,10 +76,14 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr style="@(!item.IsActive ? "opacity: 0.6; background-color: #f8f9fa;" : "")">
+                        // Lógica para saber si está a la venta o no
+                        var isForSale = item.IsActive && item.Stock > 0;
+                        var saleStatusData = isForSale ? "venta" : "noventa";
+
+                        <tr style="@(!item.IsActive ? "opacity: 0.6; background-color: #f8f9fa;" : "")" data-sale-status="@saleStatusData">
                             <td class="fw-bold text-zeta-dark">@item.Name</td>
                             <td>
-                                <span class="badge rounded-pill bg-light text-dark border px-3">
+                                <span class="badge rounded-pill bg-white text-dark border px-3 shadow-sm">
                                     <i class="fa-solid fa-tag me-1 text-muted small"></i> @item.Category.Name
                                 </span>
                             </td>
@@ -90,7 +108,6 @@
                                     </span>
                                 }
                                 else if (item.Stock <= 3)
-                                                      @* Umbral de alerta *@
                                 {
                                     <span class="badge bg-warning text-dark px-3 shadow-sm animate__animated animate__pulse animate__infinite">
                                         <i class="fa-solid fa-triangle-exclamation me-1"></i> ¡ULTIMAS @item.Stock!
@@ -109,7 +126,6 @@
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
 
-                                @* BOTÓN TOGGLE CON AJAX *@
                                 <button type="button"
                                         class="btn btn-sm @(item.IsActive ? "btn-outline-danger" : "btn-outline-success") shadow-sm"
                                         onclick="confirmToggle(this, @item.ProductId)"
@@ -125,14 +141,37 @@
     </div>
 </div>
 
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
 @section Scripts {
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
     <script>
         $(document).ready(function() {
-            $('#tablaProductos').DataTable({
-                "stateSave": true, // <--- CRUCIAL: Guarda en qué página estabas
+            // 1. Recuperamos el filtro de la "memoria" del navegador (o usamos 'todos' por defecto)
+            var currentFilter = sessionStorage.getItem('filtroProductosZeta') || 'todos';
+
+            // 2. Lógica personalizada de filtrado para DataTables
+            $.fn.dataTable.ext.search.push(
+                function(settings, data, dataIndex, rowData, counter) {
+                    if (currentFilter === 'todos') {
+                        return true;
+                    }
+
+                    var tr = $(settings.aoData[dataIndex].nTr);
+                    var status = tr.attr('data-sale-status');
+
+                    if (currentFilter === 'venta' && status === 'venta') return true;
+                    if (currentFilter === 'noventa' && status === 'noventa') return true;
+
+                    return false;
+                }
+            );
+
+            // 3. Inicializamos la tabla
+            var table = $('#tablaProductos').DataTable({
+                "stateSave": true,
                 "language": {
                     "lengthMenu": "Mostrar _MENU_ productos",
                     "zeroRecords": "No se encontraron productos",
@@ -147,17 +186,36 @@
                 "pageLength": 5,
                 "ordering": false
             });
+
+            // 4. Pintamos el botón correcto apenas carga la página (basado en la memoria)
+            $('.btn-filter').removeClass('active btn-zeta-dark text-white').addClass('btn-outline-secondary');
+            $('.btn-filter[data-filter="' + currentFilter + '"]').removeClass('btn-outline-secondary').addClass('active btn-zeta-dark text-white');
+
+            // Forzamos un dibujado de la tabla por si cargó un filtro guardado
+            table.draw();
+
+            // 5. Evento Click en los botones de filtro
+            $('.btn-filter').on('click', function() {
+                $('.btn-filter').removeClass('active btn-zeta-dark text-white').addClass('btn-outline-secondary');
+                $(this).removeClass('btn-outline-secondary').addClass('active btn-zeta-dark text-white');
+
+                currentFilter = $(this).data('filter');
+
+                // GUARDAMOS EL FILTRO EN LA MEMORIA
+                sessionStorage.setItem('filtroProductosZeta', currentFilter);
+
+                table.draw();
+            });
         });
 
-                      function confirmToggle(btn, id) {
-            // URL directa para evitar errores
+        function confirmToggle(btn, id) {
             const url = '/Product/ToggleStatus?id=' + id;
 
             fetch(url, { method: 'POST' })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Recargamos pero con stateSave: true NO te vas a mover de página
+                    // Al recargar la página, ahora leerá el sessionStorage y mantendrá tu filtro
                     location.reload();
                 }
             })
@@ -165,6 +223,4 @@
         }
     </script>
 }
-
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 

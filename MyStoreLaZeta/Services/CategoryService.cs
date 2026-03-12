@@ -15,7 +15,11 @@ namespace MyStoreLaZeta.Services
             {
                 CategoryId = item.CategoryId,
                 Name = item.Name,
-                IsActive = item.IsActive // <--- Importante para el Admin
+                IsActive = item.IsActive, // <--- Importante para el Admin
+
+                // NUEVO: Mapeo de descripción e imagen
+                Description = item.Description,
+                ImageName = item.ImageName
             }).ToList();
 
             return categoriesVM;
@@ -31,7 +35,11 @@ namespace MyStoreLaZeta.Services
             {
                 CategoryId = item.CategoryId,
                 Name = item.Name,
-                IsActive = item.IsActive
+                IsActive = item.IsActive,
+
+                // NUEVO: Mapeo de descripción e imagen
+                Description = item.Description,
+                ImageName = item.ImageName
             }).ToList();
         }
 
@@ -40,7 +48,11 @@ namespace MyStoreLaZeta.Services
             var entity = new Category
             {
                 Name = viewModel.Name,
-                IsActive = true // Por defecto activa al crear
+                IsActive = true, // Por defecto activa al crear
+
+                // NUEVO: Guardar la descripción e imagen al crear
+                Description = viewModel.Description,
+                ImageName = viewModel.ImageName
             };
             await _categoryRepository.AddAsync(entity);
         }
@@ -54,7 +66,11 @@ namespace MyStoreLaZeta.Services
             {
                 Name = category.Name,
                 CategoryId = category.CategoryId,
-                IsActive = category.IsActive // <--- Mapear aquí también
+                IsActive = category.IsActive, // <--- Mapear aquí también
+
+                // NUEVO: Traer descripción e imagen para editar
+                Description = category.Description,
+                ImageName = category.ImageName
             };
         }
 
@@ -66,6 +82,11 @@ namespace MyStoreLaZeta.Services
             {
                 entity.Name = viewModel.Name;
                 entity.IsActive = viewModel.IsActive; // Permite reactivar desde el edit
+
+                // NUEVO: Actualizar descripción e imagen (si se subió una nueva, ya viene en el viewModel.ImageName)
+                entity.Description = viewModel.Description;
+                entity.ImageName = viewModel.ImageName;
+
                 await _categoryRepository.EditAsync(entity);
             }
         }
