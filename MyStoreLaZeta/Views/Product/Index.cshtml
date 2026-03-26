@@ -25,18 +25,57 @@
             </div>
         }
 
-        @* BOTONES DE FILTRO (NUEVO) *@
-        <div class="d-flex flex-wrap gap-2 mb-4 bg-light p-3 rounded-3 border">
-            <span class="fw-bold align-self-center text-muted me-2"><i class="fa-solid fa-filter"></i> Filtros:</span>
-            <button type="button" class="btn btn-zeta-dark btn-filter active px-4 rounded-pill" data-filter="todos">
-                Todas
-            </button>
-            <button type="button" class="btn btn-outline-secondary btn-filter px-4 rounded-pill" data-filter="venta">
-                <i class="fa-solid fa-store me-1"></i> A la venta
-            </button>
-            <button type="button" class="btn btn-outline-secondary btn-filter px-4 rounded-pill" data-filter="noventa">
-                <i class="fa-solid fa-eye-slash me-1"></i> No a la venta
-            </button>
+        <style>
+            .filtro-zeta {
+                border: 2px solid var(--zeta-cyan) !important;
+                color: var(--zeta-cyan) !important;
+                background-color: transparent !important;
+                border-radius: 50px !important;
+                font-weight: 600 !important;
+                transition: all 0.3s ease;
+            }
+
+                .filtro-zeta:hover {
+                    background-color: rgba(23, 160, 156, 0.1) !important;
+                    color: var(--zeta-cyan) !important;
+                }
+
+                .filtro-zeta.active {
+                    background-color: var(--zeta-cyan) !important;
+                    color: white !important;
+                    box-shadow: 0 4px 10px rgba(23, 160, 156, 0.4) !important;
+                }
+        </style>
+
+        @* SECCIÓN DE FILTROS ACTUALIZADA *@
+        <div class="d-flex flex-wrap gap-3 mb-4 bg-white p-3 rounded-4 shadow-sm border-0 align-items-center">
+            <span class="fw-bold text-muted me-2">
+                <i class="fa-solid fa-filter text-zeta-cyan"></i> Filtros:
+            </span>
+
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-sm filtro-zeta btn-filter-sale active px-3 shadow-sm" data-filter="todos">
+                    Todas
+                </button>
+                <button type="button" class="btn btn-sm filtro-zeta btn-filter-sale px-3 shadow-sm" data-filter="venta">
+                    <i class="fa-solid fa-store me-1"></i> A la venta
+                </button>
+                <button type="button" class="btn btn-sm filtro-zeta btn-filter-sale px-3 shadow-sm" data-filter="noventa">
+                    <i class="fa-solid fa-eye-slash me-1"></i> No a la venta
+                </button>
+            </div>
+
+            <div class="vr d-none d-md-block mx-2"></div>
+
+            <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold text-muted small mb-0">Stock:</span>
+                <select id="selectStockFilter" class="form-select form-select-sm shadow-sm" style="border-radius: 50px; border: 2px solid var(--zeta-cyan); color: var(--zeta-cyan); font-weight: 600; width: auto; cursor: pointer;">
+                    <option value="todos">Todos los niveles</option>
+                    <option value="sinstock">Sin Stock (0)</option>
+                    <option value="pocostock">Poco Stock (1 a 3)</option>
+                    <option value="normal">Stock Normal (+4)</option>
+                </select>
+            </div>
         </div>
 
         <style>
@@ -59,6 +98,11 @@
                 border-color: var(--zeta-cyan) !important;
                 border-radius: 50px !important;
             }
+
+            .dataTables_wrapper .page-item .page-link {
+                border-radius: 50px !important;
+                margin: 0 3px;
+            }
         </style>
 
         <div class="table-responsive">
@@ -76,11 +120,18 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        
                         var isForSale = item.IsActive && item.Stock > 0;
                         var saleStatusData = isForSale ? "venta" : "noventa";
 
-                        <tr style="@(!item.IsActive ? "opacity: 0.6; background-color: #f8f9fa;" : "")" data-sale-status="@saleStatusData">
+                        // CÁLCULO PARA EL DATA-ATTRIBUTE DE STOCK
+                        var stockLevelData = "normal";
+                        if (item.Stock == 0) stockLevelData = "sinstock";
+                        else if (item.Stock <= 3) stockLevelData = "pocostock";
+
+                        <tr style="@(!item.IsActive ? "opacity: 0.6; background-color: #f8f9fa;" : "")"
+                            data-sale-status="@saleStatusData"
+                            data-stock-level="@stockLevelData">
+
                             <td class="fw-bold text-zeta-dark">@item.Name</td>
                             <td>
                                 <span class="badge rounded-pill bg-white text-dark border px-3 shadow-sm">
@@ -149,34 +200,46 @@
 
     <script>
         $(document).ready(function() {
-          
-            var currentFilter = sessionStorage.getItem('filtroProductosZeta') || 'todos';
 
-          
+            // Restauramos lo guardado
+            var savedSaleFilter = sessionStorage.getItem('zetaProductSaleFilter') || 'todos';
+            var savedStockFilter = sessionStorage.getItem('zetaProductStockFilter') || 'todos';
+
+            // Actualizamos la vista inicial
+            $('.btn-filter-sale').removeClass('active');
+            $('.btn-filter-sale[data-filter="' + savedSaleFilter + '"]').addClass('active');
+            $('#selectStockFilter').val(savedStockFilter);
+
+            // Limpiamos filtros trabados
+            $.fn.dataTable.ext.search = [];
+
+            // Lógica de búsqueda cruzada en tiempo real
             $.fn.dataTable.ext.search.push(
                 function(settings, data, dataIndex, rowData, counter) {
-                    if (currentFilter === 'todos') {
-                        return true;
-                    }
-
                     var tr = $(settings.aoData[dataIndex].nTr);
-                    var status = tr.attr('data-sale-status');
+                    if (!tr) return true;
 
-                    if (currentFilter === 'venta' && status === 'venta') return true;
-                    if (currentFilter === 'noventa' && status === 'noventa') return true;
+                    var saleStatus = tr.attr('data-sale-status');
+                    var stockLevel = tr.attr('data-stock-level');
 
-                    return false;
+                    var currentSaleFilter = $('.btn-filter-sale.active').data('filter');
+                    var currentStockFilter = $('#selectStockFilter').val();
+
+                    var cumpleVenta = (currentSaleFilter === 'todos') || (saleStatus === currentSaleFilter);
+                    var cumpleStock = (currentStockFilter === 'todos') || (stockLevel === currentStockFilter);
+
+                    return cumpleVenta && cumpleStock;
                 }
             );
 
-            
             var table = $('#tablaProductos').DataTable({
                 "stateSave": true,
                 "language": {
                     "lengthMenu": "Mostrar _MENU_ productos",
-                    "zeroRecords": "No se encontraron productos",
+                    "zeroRecords": "No se encontraron productos con estos filtros",
                     "info": "Mostrando _START_ a _END_ de _TOTAL_ productos",
                     "infoEmpty": "No hay productos disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ totales)",
                     "search": "Buscar:",
                     "paginate": {
                         "next": "Sig.",
@@ -187,23 +250,16 @@
                 "ordering": false
             });
 
-           
-            $('.btn-filter').removeClass('active btn-zeta-dark text-white').addClass('btn-outline-secondary');
-            $('.btn-filter[data-filter="' + currentFilter + '"]').removeClass('btn-outline-secondary').addClass('active btn-zeta-dark text-white');
+            // Eventos: Guardamos en storage y redibujamos
+            $('.btn-filter-sale').on('click', function() {
+                $('.btn-filter-sale').removeClass('active');
+                $(this).addClass('active');
+                sessionStorage.setItem('zetaProductSaleFilter', $(this).data('filter'));
+                table.draw();
+            });
 
-            
-            table.draw();
-
-            
-            $('.btn-filter').on('click', function() {
-                $('.btn-filter').removeClass('active btn-zeta-dark text-white').addClass('btn-outline-secondary');
-                $(this).removeClass('btn-outline-secondary').addClass('active btn-zeta-dark text-white');
-
-                currentFilter = $(this).data('filter');
-
-                
-                sessionStorage.setItem('filtroProductosZeta', currentFilter);
-
+            $('#selectStockFilter').on('change', function() {
+                sessionStorage.setItem('zetaProductStockFilter', $(this).val());
                 table.draw();
             });
         });
@@ -215,7 +271,6 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    
                     location.reload();
                 }
             })
@@ -223,4 +278,3 @@
         }
     </script>
 }
-

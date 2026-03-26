@@ -16,11 +16,25 @@ namespace MyStoreLaZeta.Controllers
         ) : Controller
     {
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string search = null)
         {
+            // 1. Traemos las categorías (esto queda igual)
             var categories = await _categoryService.GetActiveCategoriesAsync();
-            var products = await _productService.GetCatalogAsync();
-            var catalog = new CatalogVM { Categories = categories, Products = products };
+
+            // 2. Traemos los productos, pero ahora le pasamos la palabra buscada
+            // Si 'search' está vacío, tu servicio trae todos automáticamente.
+            var products = await _productService.GetCatalogAsync(search: search);
+
+            // 3. Armamos el modelo para la vista
+            var catalog = new CatalogVM
+            {
+                Categories = categories,
+                Products = products
+            };
+
+            // 4. Guardamos la palabra buscada para que la barra de búsqueda no quede en blanco al recargar
+            ViewBag.BusquedaActual = search;
+
             return View(catalog);
         }
 
