@@ -260,9 +260,17 @@ body {
 .payment-icon {
     font-size: 1.8rem;
     color: var(--zeta-cyan);
-    margin-right: 15px;
-    opacity: 0.8;
+    opacity: 0.9;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
 }
+
+    .payment-icon:hover {
+        transform: scale(1.1);
+        opacity: 1;
+    }
 
 .social-icon-box {
     width: 40px;

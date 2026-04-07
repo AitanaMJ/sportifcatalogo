@@ -1,0 +1,33 @@
+﻿/* Estilo para el enlace de Iniciar Sesión */
+.zeta-nav-login {
+    
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+    .zeta-nav-login:hover {
+        color: var(--zeta-cyan) !important; /* Cambia a tu cyan al pasar el mouse */
+        transform: translateY(-1px);
+    }
+
+    /* Ajuste sutil para el icono */
+    .zeta-nav-login i {
+        font-size: 1.2rem;
+        color: var(--zeta-cyan);
+        /* Este es el truco: */
+        display: inline-flex;
+        align-self: center;
+        margin-top: -2px; /* Ajusta este valor (puede ser 1px o -1px) hasta que lo veas perfecto */
+    }
+
+/* Efecto para el botón de registro (naranja) */
+.zeta-btn-register {
+    transition: all 0.3s ease !important;
+}
+
+    .zeta-btn-register:hover {
+        box-shadow: 0 4px 12px rgba(255, 133, 27, 0.3); /* Sombra naranja suave */
+        transform: scale(1.05);
+    }
+
+
