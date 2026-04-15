@@ -5,7 +5,7 @@ using MyStoreLaZeta.Context;
 
 namespace MyStoreLaZeta.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class OrdersController : Controller
     {
         private readonly AppDbContext _context;

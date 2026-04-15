@@ -87,32 +87,44 @@ namespace MyStoreLaZeta.Controllers
 
                 if (payment.Status == "approved" || payment.Status == "pending" || payment.Status == "in_process")
                 {
-                    
+
                     foreach (var item in cart)
                     {
                         if (item.VariationId.HasValue && item.VariationId > 0)
                         {
-                            // Descuenta a la variación (ej: ropa, talle específico)
-                            await _context.ProductVariations
-                                .Where(v => v.Id == item.VariationId)
+                            // 1. Intentamos descontar de la variación SOLO si hay stock suficiente
+                            var filasAfectadasVariacion = await _context.ProductVariations
+                                .Where(v => v.Id == item.VariationId && v.Stock >= item.Quantity)
                                 .ExecuteUpdateAsync(s => s.SetProperty(v => v.Stock, v => v.Stock - item.Quantity));
 
-                            // Descuenta al producto principal
+                            // 2. Si filasAfectadas es 0, significa que alguien más compró el último y el stock ya no alcanzó
+                            if (filasAfectadasVariacion == 0)
+                            {
+                                throw new Exception($"Lo sentimos, alguien compró {item.Name} justo antes que tú y nos quedamos sin stock en ese talle/color.");
+                            }
+
+                            // 3. Si pasó la validación, descontamos al producto principal
                             await _context.Products
                                 .Where(p => p.ProductId == item.ProductId)
                                 .ExecuteUpdateAsync(s => s.SetProperty(p => p.Stock, p => p.Stock - item.Quantity));
                         }
                         else
                         {
-                            // Descuenta al producto simple (ej: Taza)
-                            await _context.Products
-                                .Where(p => p.ProductId == item.ProductId)
+                            // 1. Intentamos descontar del producto simple (ej: Taza) SOLO si hay stock suficiente
+                            var filasAfectadasProducto = await _context.Products
+                                .Where(p => p.ProductId == item.ProductId && p.Stock >= item.Quantity)
                                 .ExecuteUpdateAsync(s => s.SetProperty(p => p.Stock, p => p.Stock - item.Quantity));
+
+                            // 2. Verificamos si logramos descontarlo
+                            if (filasAfectadasProducto == 0)
+                            {
+                                throw new Exception($"Lo sentimos, alguien compró {item.Name} justo antes que tú y nos quedamos sin stock.");
+                            }
                         }
                     }
 
                     // creo LA ORDEN NORMALMENTE
-                    
+
                     var order = new Order
                     {
                         OrderDate = DateTime.Now,

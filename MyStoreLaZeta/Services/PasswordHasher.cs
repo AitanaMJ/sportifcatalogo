@@ -2,7 +2,7 @@
 {
     public class PasswordHasher
     {
-        // encripta la contraseña
+        // hasheando la contraseña
         public static string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);

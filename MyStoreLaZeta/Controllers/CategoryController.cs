@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Hosting; // <-- Necesario para la subida de archivos
+using Microsoft.AspNetCore.Hosting;
 using MyStoreLaZeta.Models;
 using MyStoreLaZeta.Services;
-using System.IO; // <-- Necesario para manejar rutas de archivos
+using System.IO; 
 
 namespace MyStoreLaZeta.Controllers
 {
     [Authorize(Roles = "Admin")]
-    // Agregamos IWebHostEnvironment al constructor
+    
     public class CategoryController(CategoryService _categoryService, IWebHostEnvironment _webHostEnvironment) : Controller
     {
         public async Task<IActionResult> Index()
@@ -40,11 +40,11 @@ namespace MyStoreLaZeta.Controllers
                 return View(entityVM);
 
             // ========================================================
-            // NUEVO: LÓGICA PARA GUARDAR LA IMAGEN FÍSICAMENTE
+            //  LÓGICA PARA GUARDAR LA IMAGEN FÍSICAMENTE
             // ========================================================
             if (entityVM.ImageFile != null)
             {
-                // 1. Generamos un nombre único (ej: 423b-891a-remera.jpg)
+                // 1. nombre único (ej: 423b-891a-remera.jpg)
                 string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(entityVM.ImageFile.FileName);
 
                 // 2. Buscamos la ruta de wwwroot/images

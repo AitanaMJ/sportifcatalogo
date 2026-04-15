@@ -59,15 +59,15 @@ namespace MyStoreLaZeta.Services
             if (product != null)
             {
                 var variacionesReales = _context.ProductVariations
-                                                .Where(v => v.ProductId == product.ProductId)
-                                                .Select(v => new ProductVariation 
-                                                {
-                                                    Id = v.Id,
-                                                    Color = v.Color,
-                                                    Size = v.Size,
-                                                    Stock = v.Stock
-                                                })
-                                             .ToList();
+                .Where(v => v.ProductId == product.ProductId)
+                .Select(v => new ProductVariation 
+                {
+                    Id = v.Id,
+                    Color = v.Color,
+                    Size = v.Size,
+                    Stock = v.Stock
+                })
+                .ToList();
 
                 productVM = new ProductVM
                 {
