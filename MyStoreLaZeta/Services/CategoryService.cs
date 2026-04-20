@@ -36,8 +36,6 @@ namespace MyStoreLaZeta.Services
                 CategoryId = item.CategoryId,
                 Name = item.Name,
                 IsActive = item.IsActive,
-
-               
                 Description = item.Description,
                 ImageName = item.ImageName
             }).ToList();

@@ -1,46 +1,54 @@
 ﻿@model IEnumerable<MyStoreLaZeta.Entities.Order>
 
-<div class="container mt-4 mb-5">
+<div class="container-fluid mt-4 mb-5">
+    <div class="card card-zeta p-4 shadow-sm border-0">
     <h2 class="text-zeta-dark fw-bold mb-4">
         <i class="fa-solid fa-file-invoice-dollar me-2" style="color: var(--zeta-cyan);"></i>
         Administración de Pedidos
     </h2>
 
     <style>
-        .filtro-zeta {
-            border: 2px solid var(--zeta-cyan) !important;
-            color: var(--zeta-cyan) !important;
-            background-color: transparent !important;
-            border-radius: 50px !important;
-            font-weight: 600 !important;
-            transition: all 0.3s ease;
-        }
-
-            .filtro-zeta:hover {
-                background-color: rgba(23, 160, 156, 0.1) !important;
+            .filtro-zeta {
+                border: 2px solid var(--zeta-cyan) !important;
                 color: var(--zeta-cyan) !important;
+                background-color: transparent !important;
+                border-radius: 50px !important;
+                font-weight: 600 !important;
+                transition: all 0.3s ease;
             }
 
-            .filtro-zeta.active {
-                background-color: var(--zeta-cyan) !important;
-                color: white !important;
-                box-shadow: 0 4px 10px rgba(23, 160, 156, 0.4) !important;
-            }
+                .filtro-zeta:hover {
+                    background-color: rgba(23, 160, 156, 0.1) !important;
+                    color: var(--zeta-cyan) !important;
+                }
+
+                .filtro-zeta.active {
+                    background-color: var(--zeta-cyan) !important;
+                    color: white !important;
+                    box-shadow: 0 4px 10px rgba(23, 160, 156, 0.4) !important;
+                }
     </style>
 
-    <div class="d-flex flex-wrap gap-3 mb-4 bg-light p-3 rounded-3 border align-items-center">
-        <span class="fw-bold align-self-center text-muted me-2"><i class="fa-solid fa-filter text-zeta-cyan"></i> Filtros:</span>
+    @* SECCIÓN DE FILTROS - TRES BOTONES *@
+    @* SECCIÓN DE FILTROS - ESTILO PRODUCTOS *@
+        <div class="d-flex flex-wrap gap-3 mb-4 bg-white p-3 rounded-4 shadow-sm border-0 align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-3">
+            <span class="fw-bold text-muted me-2">
+                <i class="fa-solid fa-filter text-zeta-cyan"></i> Filtros:
+            </span>
 
-        <div class="d-flex flex-wrap gap-2">
-            <button type="button" class="btn btn-sm filtro-zeta btn-filter-date active px-3 shadow-sm" data-filter="todos">
-                Todas las fechas
-            </button>
-            <button type="button" class="btn btn-sm filtro-zeta btn-filter-date px-3 shadow-sm" data-filter="hoy">
-                <i class="fa-regular fa-calendar-star me-1"></i> Solo Hoy
-            </button>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-sm filtro-zeta btn-filter-date active px-3 shadow-sm" data-filter="hoy">
+                    <i class="fa-solid fa-calendar-day me-1"></i> Pedidos de Hoy
+                </button>
+                <button type="button" class="btn btn-sm filtro-zeta btn-filter-date px-3 shadow-sm" data-filter="urgente">
+                    <i class="fa-solid fa-spinner fa-spin-pulse me-1"></i> Pendientes y En preparación
+                </button>
+                <button type="button" class="btn btn-sm filtro-zeta btn-filter-date px-3 shadow-sm" data-filter="todos">
+                    <i class="fa-solid fa-clock-rotate-left me-1"></i> Historial
+                </button>
+            </div>
         </div>
-
-        <div class="vr d-none d-md-block mx-2"></div>
 
         <div class="d-flex align-items-center gap-2">
             <span class="fw-bold text-muted small mb-0">Estado:</span>
@@ -57,52 +65,47 @@
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <style>
-        .dataTables_filter input {
-            border-radius: 50px !important;
-            border: 1px solid #ced4da !important;
-            padding: 6px 20px !important;
-            margin-left: 10px !important;
-            transition: all 0.3s ease;
-        }
-
-            .dataTables_filter input:focus {
-                border-color: var(--zeta-cyan) !important;
-                box-shadow: 0 0 0 0.25rem rgba(23, 160, 156, 0.25) !important;
-                outline: none !important;
+            .dataTables_filter input {
+                border-radius: 50px !important;
+                border: 1px solid #ced4da !important;
+                padding: 6px 20px !important;
+                margin-left: 10px !important;
+                transition: all 0.3s ease;
             }
 
-        .dataTables_length select {
-            border-radius: 10px !important;
-            padding: 4px 30px 4px 10px !important;
-            border: 1px solid #ced4da !important;
-        }
+                .dataTables_filter input:focus {
+                    border-color: var(--zeta-cyan) !important;
+                    box-shadow: 0 0 0 0.25rem rgba(23, 160, 156, 0.25) !important;
+                    outline: none !important;
+                }
 
-        .dataTables_wrapper .pagination {
-            margin-top: 20px !important;
-        }
+            .dataTables_wrapper .page-item.active .page-link {
+                background-color: var(--zeta-cyan) !important;
+                border-color: var(--zeta-cyan) !important;
+                border-radius: 50px !important;
+            }
 
-        .dataTables_wrapper .page-item.active .page-link {
-            background-color: var(--zeta-cyan) !important;
-            border-color: var(--zeta-cyan) !important;
-            color: white !important;
-            border-radius: 50px !important;
-            box-shadow: 0 4px 10px rgba(23, 160, 156, 0.3) !important;
-        }
-
-        .dataTables_wrapper .page-item .page-link {
-            border: none !important;
-            color: #555;
-            font-weight: 600;
-            border-radius: 50px !important;
-            margin: 0 3px;
-            padding: 8px 16px;
-            background-color: transparent;
-        }
+            .dataTables_wrapper .page-item .page-link {
+                border-radius: 50px !important;
+                margin: 0 3px;
+            }
 
         .dataTables_wrapper .page-item:not(.active) .page-link:hover {
             background-color: #f8f9fa !important;
             color: var(--zeta-cyan) !important;
         }
+
+            /* Media Query corregida con cierre */
+            @@media (max-width: 768px) {
+                .d-flex.flex-wrap.gap-3.mb-4 {
+                    flex-direction: column;
+                    align-items: stretch !important;
+                }
+
+                #selectStatusFilter {
+                    width: 100% !important;
+                }
+            }
     </style>
 
     <div class="table-responsive">
@@ -182,87 +185,94 @@
             </tbody>
         </table>
     </div>
+    </div>
 </div>
 
 @section Scripts {
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 
     <script>
-        $(document).ready(function() {
-            // 1. Calculamos la fecha de hoy
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            let mm = today.getMonth() + 1;
-            let dd = today.getDate();
-            if (dd < 10) dd = '0' + dd;
-            if (mm < 10) mm = '0' + mm;
-            const formattedToday = dd + '/' + mm + '/' + yyyy;
+                  $(document).ready(function() {
+                // 1. Fecha de hoy (dd/mm/yyyy)
+                const now = new Date();
+                const formattedToday =
+                    ("0" + now.getDate()).slice(-2) + "/" +
+                    ("0" + (now.getMonth() + 1)).slice(-2) + "/" +
+                    now.getFullYear();
 
-            // 2. Restauramos lo guardado en SessionStorage (si hay algo)
-            var savedDate = sessionStorage.getItem('zetaDateFilter') || 'todos';
-            var savedStatus = sessionStorage.getItem('zetaStatusFilter') || 'todos';
+                // 2. Limpieza total de filtros de DataTables al cargar
+                $.fn.dataTable.ext.search = [];
 
-            // Actualizamos la vista antes de cargar la tabla
-            $('.btn-filter-date').removeClass('active');
-            $('.btn-filter-date[data-filter="' + savedDate + '"]').addClass('active');
-            $('#selectStatusFilter').val(savedStatus);
+                // 3. La Lógica de Filtrado
+                $.fn.dataTable.ext.search.push(
+                    function(settings, data, dataIndex) {
+                        const tr = $(settings.aoData[dataIndex].nTr);
+                        const orderDate = tr.attr('data-order-date'); // dd/mm/yyyy
+                        const orderStatus = (tr.attr('data-order-status') || '').toLowerCase().trim();
 
-            // Limpiamos cualquier filtro previo trabado
-            $.fn.dataTable.ext.search = [];
+                        const currentBtn = $('.btn-filter-date.active').data('filter');
+                        const currentStatusSelect = $('#selectStatusFilter').val().toLowerCase();
 
-            // 3. NUEVA LOGICA: Lee el DOM en tiempo real
-            $.fn.dataTable.ext.search.push(
-                function(settings, data, dataIndex, rowData, counter) {
-                    var tr = $(settings.aoData[dataIndex].nTr);
-                    if (!tr) return true;
+                        // LÓGICA DE BOTONES SUPERIORES
+                        if (currentBtn === 'hoy') {
+                            return (orderDate === formattedToday);
+                        }
 
-                    var orderDate = tr.attr('data-order-date');
-                    var orderStatus = (tr.attr('data-order-status') || '').toLowerCase().trim();
+                        if (currentBtn === 'urgente') {
+                            return (orderStatus === 'pendiente' || orderStatus === 'en preparación');
+                        }
 
-                    // Leemos qué está seleccionado AHORA MISMO en los botones y el select
-                    var currentStatus = $('#selectStatusFilter').val();
-                    var currentDate = $('.btn-filter-date.active').data('filter');
+                        if (currentBtn === 'todos') {
+                            // Filtro cruzado con el SELECT
+                            if (currentStatusSelect === 'todos') return true;
+                            return (orderStatus === currentStatusSelect);
+                        }
 
-                    var cumpleFecha = (currentDate === 'todos') || (currentDate === 'hoy' && orderDate === formattedToday);
-                    var cumpleEstado = (currentStatus === 'todos') || (orderStatus === currentStatus);
-
-                    return cumpleFecha && cumpleEstado;
-                }
-            );
-
-            // 4. Inicializamos DataTables
-            var table = $('#tablaPedidos').DataTable({
-                "language": {
-                    "lengthMenu": "Mostrar _MENU_ pedidos",
-                    "zeroRecords": "No se encontraron pedidos",
-                    "info": "Mostrando _START_ a _END_ de _TOTAL_ pedidos",
-                    "infoEmpty": "No hay pedidos",
-                    "infoFiltered": "(filtrado de _MAX_ totales)",
-                    "search": "Buscar:",
-                    "paginate": {
-                        "next": "Siguiente <i class='fa-solid fa-chevron-right ms-1'></i>",
-                        "previous": "<i class='fa-solid fa-chevron-left me-1'></i> Anterior"
+                        return true;
                     }
-                },
-                "pageLength": 10,
-                "lengthMenu": [5, 10, 25, 50],
-                "ordering": false,
-                "stateSave": true
-            });
+                );
 
-            // 5. Eventos: Guardamos en storage y redibujamos
-            $('.btn-filter-date').on('click', function() {
-                $('.btn-filter-date').removeClass('active');
-                $(this).addClass('active');
-                sessionStorage.setItem('zetaDateFilter', $(this).data('filter'));
+                // 4. Inicializar DataTables
+                var table = $('#tablaPedidos').DataTable({
+                    "responsive": true,
+                    "stateSave": false, // DESACTIVADO para que no te trabe filtros viejos
+                    "language": {
+                        "search": "Buscar:",
+                        "zeroRecords": "No hay pedidos hoy",
+                        "info": "Mostrando _START_ a _END_ de _TOTAL_ pedidos",
+                        "paginate": { "next": "Sig.", "previous": "Ant." }
+                    },
+                    "pageLength": 10,
+                    "ordering": false
+                });
+
+                // 5. Evento para los BOTONES
+                $('.btn-filter-date').on('click', function() {
+                    $('.btn-filter-date').removeClass('active');
+                    $(this).addClass('active');
+
+                    const filtro = $(this).data('filter');
+
+                    // Bloqueamos/Desbloqueamos el select según corresponda
+                    if (filtro === 'todos') {
+                        $('#selectStatusFilter').prop('disabled', false).css('opacity', '1');
+                    } else {
+                        $('#selectStatusFilter').val('todos').prop('disabled', true).css('opacity', '0.5');
+                    }
+
+                    table.draw(); // Esto activa la lógica del push de arriba
+                });
+
+                // 6. Evento para el SELECT (Solo anda en Historial)
+                $('#selectStatusFilter').on('change', function() {
+                    table.draw();
+                });
+
+                // Primer dibujado forzado
                 table.draw();
             });
-
-            $('#selectStatusFilter').on('change', function() {
-                sessionStorage.setItem('zetaStatusFilter', $(this).val());
-                table.draw();
-            });
-        });
     </script>
 }

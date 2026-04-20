@@ -2,9 +2,39 @@
 
 <div class="container mt-4">
 
+  
+
     <div class="text-center mb-5">
         <h2 class="text-zeta-dark fw-bold">Nuestro Catálogo Completo</h2>
-        <p class="text-muted">Encuentra el merchandising perfecto para ti.</p>
+
+        @if (!string.IsNullOrEmpty(Model.filterBy))
+        {
+            // Limpiamos el texto del filtro para que coincida exactamente con el nombre en la BD
+            var nombreFiltrado = Model.filterBy.Replace("Viendo:", "").Replace("Viendo :", "").Trim();
+
+            // Buscamos ignorando mayúsculas/minúsculas y espacios extra
+            var catActual = Model.Categories?.FirstOrDefault(c =>
+            c.Name.Trim().Equals(nombreFiltrado, StringComparison.OrdinalIgnoreCase));
+
+            if (catActual != null && !string.IsNullOrEmpty(catActual.Description))
+            {
+                <p id="txtDescripcionCategoria" class="text-muted fs-6 fst-italic animate__animated animate__fadeIn mx-auto text-center d-block" style="max-width: 800px; text-transform: initial;">
+                    "@catActual.Description"
+                </p>
+            }
+            else
+            {
+                <p id="txtDescripcionCategoria" class="text-muted fs-5 animate__animated animate__fadeIn">
+                    Explora nuestra colección exclusiva de <strong>@nombreFiltrado</strong>.
+                </p>
+            }
+        }
+        else
+        {
+            <p id="txtDescripcionCategoria" class="text-muted fs-5">
+                Encuentra el merchandising perfecto para ti.
+            </p>
+        }
     </div>
 
     
@@ -229,6 +259,7 @@
                                        class="card card-zeta text-center p-3 text-decoration-none h-100 hover-effect">
                                         <i class="fa-solid fa-tag fa-lg text-muted mb-2"></i>
                                         <h6 class="text-dark fw-bold mb-0">@cat.Name</h6>
+
                                     </a>
                                 </div>
                             }

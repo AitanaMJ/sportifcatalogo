@@ -140,10 +140,19 @@ namespace MyStoreLaZeta.Controllers
                     fila++;
                 }
 
+                // --- AGREGÁ ESTO PARA LOS BORDES ---
+                var rangoTabla = worksheet.Range(1, 1, fila - 1, 3); // De A1 hasta C(última fila)
+                rangoTabla.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                rangoTabla.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                rangoTabla.Style.Border.OutsideBorderColor = XLColor.Black;
+                rangoTabla.Style.Border.InsideBorderColor = XLColor.Gray; // Un gris más suave para adentro
+
+                worksheet.Columns().AdjustToContents();
+
                 using (var stream = new MemoryStream())
                 {
                     workbook.SaveAs(stream);
-                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ReporteLaZeta.xlsx");
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ReporteTotalVentas.xlsx");
                 }
             }
         }
@@ -151,6 +160,7 @@ namespace MyStoreLaZeta.Controllers
         [HttpGet]
         public async Task<IActionResult> ExportarExcelLogistica()
         {
+           
             // Filtramos solo los pedidos que el admin necesita armar/cobrar
             var pedidos = await _context.Orders
                 .Include(o => o.OrderItems) // Incluimos los detalles del pedido
@@ -193,12 +203,21 @@ namespace MyStoreLaZeta.Controllers
                     fila++;
                 }
 
+                // --- AGREGÁ ESTO PARA LOS BORDES ---
+                var rangoLogistica = worksheet.Range(1, 1, fila - 1, 6); // De A1 hasta F(última fila)
+                rangoLogistica.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                rangoLogistica.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                rangoLogistica.Style.Border.OutsideBorderColor = XLColor.Black;
+                rangoLogistica.Style.Border.InsideBorderColor = XLColor.LightGray;
+
                 worksheet.Columns().AdjustToContents(); // Autoajustar ancho de columnas
+
+
 
                 using (var stream = new MemoryStream())
                 {
                     workbook.SaveAs(stream);
-                    var nombreArchivo = $"Hoja_Logistica_{DateTime.Now:dd-MM-yyyy}.xlsx";
+                    var nombreArchivo = $"Pedidos Pendientes - En Preparación{DateTime.Now:dd-MM-yyyy}.xlsx";
                     return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", nombreArchivo);
                 }
             }

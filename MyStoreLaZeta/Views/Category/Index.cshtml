@@ -1,7 +1,7 @@
 ﻿@model List<CategoryVM>
 
 <div class="container-fluid mt-4 mb-5">
-    <div class="card card-zeta p-4 shadow-sm">
+    <div class="card card-zeta p-4 shadow-sm border-0">
 
         <div class="row align-items-center mb-4">
             <div class="col-md-6">
@@ -26,6 +26,52 @@
         }
 
         <style>
+            .filtro-zeta {
+                border: 2px solid var(--zeta-cyan) !important;
+                color: var(--zeta-cyan) !important;
+                background-color: transparent !important;
+                border-radius: 50px !important;
+                font-weight: 600 !important;
+                transition: all 0.3s ease;
+            }
+
+                .filtro-zeta:hover {
+                    background-color: rgba(23, 160, 156, 0.1) !important;
+                    color: var(--zeta-cyan) !important;
+                }
+
+                .filtro-zeta.active {
+                    background-color: var(--zeta-cyan) !important;
+                    color: white !important;
+                    box-shadow: 0 4px 10px rgba(23, 160, 156, 0.4) !important;
+                }
+
+        </style>
+
+
+        @* SECCIÓN DE FILTROS ACTUALIZADA *@
+        <div class="d-flex flex-wrap gap-3 mb-4 bg-white p-3 rounded-4 shadow-sm border-0 align-items-center">
+            <span class="fw-bold text-muted me-3" style="font-size: 0.95rem;">
+                <i class="fa-solid fa-filter me-1"></i> Filtros:
+            </span>
+
+            <div class="d-flex gap-2">
+                <input type="radio" class="btn-check" name="filtroEstado" id="filtroActivas" value="activo" checked>
+                <label class="filtro-pill m-0" for="filtroActivas">
+                    <i class="fa-solid fa-tags me-1"></i> Activas
+                </label>
+
+                <input type="radio" class="btn-check" name="filtroEstado" id="filtroInactivas" value="inactivo">
+                <label class="filtro-pill m-0" for="filtroInactivas">
+                    <i class="fa-solid fa-eye-slash me-1"></i> Inactivas
+                </label>
+            </div>
+        </div>
+
+
+        <style>
+
+
             .dataTables_filter input {
                 border-radius: 50px !important;
                 border: 1px solid #ced4da !important;
@@ -53,8 +99,56 @@
                 -webkit-box-orient: vertical;
                 overflow: hidden;
             }
+
+            .filtro-pill {
+                border-radius: 50px !important;
+                padding: 4px 16px;
+                font-size: 0.9rem;
+                font-weight: 600;
+                color: var(--zeta-cyan);
+                border: 1px solid var(--zeta-cyan);
+                background-color: white;
+                transition: all 0.2s ease-in-out;
+                cursor: pointer;
+            }
+
+            /* Cuando el radio button oculto está seleccionado, pintamos el label */
+            .btn-check:checked + .filtro-pill {
+                background-color: var(--zeta-cyan) !important;
+                color: white !important;
+                border-color: var(--zeta-cyan) !important;
+            }
+
+            .filtro-pill:hover {
+                background-color: #f0fdfc; /* Un fondo muy clarito al pasar el mouse */
+            }
+
+            /* Ajustes para móviles (Media Query) */
+            @@media (max-width: 768px) {
+                /* Hacemos que los botones de filtro ocupen el ancho necesario y no se peguen */
+                .d-flex.align-items-center.mb-4 {
+                    flex-direction: column;
+                    align-items: flex-start !important;
+                }
+
+                .filtro-pill {
+                    padding: 6px 12px;
+                    font-size: 0.8rem;
+                }
+                /* Ajuste para que la tabla no rompa el diseño */
+                .card-zeta {
+                    padding: 1rem !important;
+                }
+
+                h2 {
+                    font-size: 1.5rem;
+                    margin-bottom: 15px !important;
+                }
+            }
+           
         </style>
 
+       
         <div class="table-responsive">
             <table id="tablaCategorias" class="table table-zeta align-middle table-hover">
                 <thead>
@@ -144,41 +238,104 @@
 @section Scripts {
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 
     <script>
-        $(document).ready(function() {
-            $('#tablaCategorias').DataTable({
-                "stateSave": true,
+
+               function confirmToggle(btn, id) {
+            // 1. Referencia a la fila que queremos afectar
+            const filaDOM = $(btn).closest('tr');
+            const table = $('#tablaCategorias').DataTable();
+
+            const url = '/Category/ToggleStatus?id=' + id;
+
+            // Deshabilitamos el botón para que no clickeen mil veces
+            btn.disabled = true;
+
+            fetch(url, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 2. CAMBIO AUTOMÁTICO SIN RECARGAR
+                        // Buscamos la celda del "Estado" (columna 3)
+                        const celdaEstado = table.cell(filaDOM, 3);
+
+                        // Obtenemos el valor actual para saber qué poner ahora
+                        const esActiva = celdaEstado.data().includes('bg-success');
+
+                        if (esActiva) {
+                            // Si era activa, ahora es inactiva (Badge gris)
+                            celdaEstado.data('<span class="badge rounded-pill bg-secondary px-3">Inactivo</span>');
+                            // Cambiamos el icono del ojito
+                            $(btn).removeClass('btn-outline-danger').addClass('btn-outline-success')
+                                  .html('<i class="fa-solid fa-eye"></i>');
+                        } else {
+                            // Si era inactiva, ahora es activa (Badge verde)
+                            celdaEstado.data('<span class="badge rounded-pill bg-success px-3">Activo</span>');
+                            // Cambiamos el icono del ojito
+                            $(btn).removeClass('btn-outline-success').addClass('btn-outline-danger')
+                                  .html('<i class="fa-solid fa-eye-slash"></i>');
+                        }
+
+                        // 3. RE-FILTRAR
+                        // Al ejecutar draw(), como la categoría cambió de estado,
+                        // el filtro la ocultará automáticamente de la vista actual.
+                        table.draw(false); // el false es para que no se mueva de la página actual de la tabla
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                });
+        }
+              $(document).ready(function() {
+            // 1. Inicializamos la tabla
+            var table = $('#tablaCategorias').DataTable({
+                "responsive": true,
+                "stateSave": false, // Desactívalo un momento para probar si es esto
                 "language": {
                     "lengthMenu": "Mostrar _MENU_ categorías",
                     "zeroRecords": "No se encontraron categorías",
                     "info": "Mostrando _START_ a _END_ de _TOTAL_ categorías",
                     "infoEmpty": "No hay categorías disponibles",
                     "search": "Buscar:",
-                    "paginate": {
-                        "next": "Sig.",
-                        "previous": "Ant."
-                    }
+                    "paginate": { "next": "Sig.", "previous": "Ant." }
                 },
                 "pageLength": 5,
-               
                 "ordering": false
             });
-        });
 
-        function confirmToggle(btn, id) {
-            const url = '/Category/ToggleStatus?id=' + id;
+            // 2. Nueva regla de filtro más simple y directa
+            $.fn.dataTable.ext.search.push(
+                function(settings, data, dataIndex) {
+                    // data[3] es el texto puro que DataTables ve en la columna Estado
+                    var textoColumna = data[3].toLowerCase();
+                    var filtroSeleccionado = $('input[name="filtroEstado"]:checked').val().toLowerCase();
 
-            fetch(url, { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
+                    // Verificamos si la palabra "activo" o "inactivo" está presente en la celda
+                    if (filtroSeleccionado === 'activo') {
+                        return textoColumna.includes('activo') && !textoColumna.includes('inactivo');
+                    } else if (filtroSeleccionado === 'inactivo') {
+                        return textoColumna.includes('inactivo');
+                    }
+                    return true;
                 }
-            })
-            .catch(error => console.error('Error:', error));
-        }
+            );
+
+            // 3. Evento de cambio
+            $('input[name="filtroEstado"]').on('change', function() {
+                table.draw();
+            });
+
+            // Dibujamos al cargar
+            table.draw();
+        });
     </script>
 }
 
