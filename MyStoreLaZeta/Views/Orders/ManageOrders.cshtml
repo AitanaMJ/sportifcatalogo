@@ -2,12 +2,12 @@
 
 <div class="container-fluid mt-4 mb-5">
     <div class="card card-zeta p-4 shadow-sm border-0">
-    <h2 class="text-zeta-dark fw-bold mb-4">
-        <i class="fa-solid fa-file-invoice-dollar me-2" style="color: var(--zeta-cyan);"></i>
-        Administración de Pedidos
-    </h2>
+        <h2 class="text-zeta-dark fw-bold mb-4">
+            <i class="fa-solid fa-file-invoice-dollar me-2" style="color: var(--zeta-cyan);"></i>
+            Administración de Pedidos
+        </h2>
 
-    <style>
+        <style>
             .filtro-zeta {
                 border: 2px solid var(--zeta-cyan) !important;
                 color: var(--zeta-cyan) !important;
@@ -27,44 +27,63 @@
                     color: white !important;
                     box-shadow: 0 4px 10px rgba(23, 160, 156, 0.4) !important;
                 }
-    </style>
 
-    @* SECCIÓN DE FILTROS - TRES BOTONES *@
-    @* SECCIÓN DE FILTROS - ESTILO PRODUCTOS *@
+            .input-fecha-zeta {
+                border: 1px solid #dee2e6;
+                border-radius: 10px;
+                padding: 5px 10px;
+                font-size: 0.85rem;
+                outline: none;
+            }
+
+                .input-fecha-zeta:focus {
+                    border-color: var(--zeta-cyan);
+                }
+        </style>
+
+        @* SECCIÓN DE FILTROS ACTUALIZADA CON ESTADO *@
         <div class="d-flex flex-wrap gap-3 mb-4 bg-white p-3 rounded-4 shadow-sm border-0 align-items-center justify-content-between">
-        <div class="d-flex align-items-center gap-3">
-            <span class="fw-bold text-muted me-2">
-                <i class="fa-solid fa-filter text-zeta-cyan"></i> Filtros:
-            </span>
+            <div class="d-flex align-items-center gap-3">
+                <span class="fw-bold text-muted me-2 small">
+                    <i class="fa-solid fa-filter text-zeta-cyan"></i> Filtros rápidos:
+                </span>
 
-            <div class="d-flex flex-wrap gap-2">
-                <button type="button" class="btn btn-sm filtro-zeta btn-filter-date active px-3 shadow-sm" data-filter="hoy">
-                    <i class="fa-solid fa-calendar-day me-1"></i> Pedidos de Hoy
-                </button>
-                <button type="button" class="btn btn-sm filtro-zeta btn-filter-date px-3 shadow-sm" data-filter="urgente">
-                    <i class="fa-solid fa-spinner fa-spin-pulse me-1"></i> Pendientes y En preparación
-                </button>
-                <button type="button" class="btn btn-sm filtro-zeta btn-filter-date px-3 shadow-sm" data-filter="todos">
-                    <i class="fa-solid fa-clock-rotate-left me-1"></i> Historial
-                </button>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <button type="button" class="btn btn-sm filtro-zeta btn-filter-date px-3 shadow-sm @(!Context.Request.Query.ContainsKey("desde") ? "active" : "")" data-filter="hoy">
+                        <i class="fa-solid fa-calendar-day me-1"></i> Hoy
+                    </button>
+                    <button type="button" class="btn btn-sm filtro-zeta btn-filter-date px-3 shadow-sm" data-filter="urgente">
+                        <i class="fa-solid fa-spinner fa-spin-pulse me-1"></i> Pendientes
+                    </button>
+
+                    <div class="d-flex align-items-center gap-2 ms-lg-3 p-2 rounded-4" style="background: #f8f9fa; border: 1px solid #eee;">
+                        <small class="fw-bold text-muted px-1">Historial:</small>
+                        <input type="date" id="fechaDesde" class="input-fecha-zeta" value="@Context.Request.Query["desde"]">
+                        <span class="text-muted">-</span>
+                        <input type="date" id="fechaHasta" class="input-fecha-zeta" value="@Context.Request.Query["hasta"]">
+                        <button type="button" onclick="consultarHistorial()" class="btn btn-sm btn-zeta-cyan rounded-circle text-white ms-1" style="width: 32px; height: 32px; padding: 0;">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            @* FILTRO POR ESTADO REINCORPORADO *@
+            <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold text-muted small mb-0">Estado:</span>
+                <select id="selectStatusFilter" class="form-select form-select-sm shadow-sm" style="border-radius: 50px; border: 2px solid var(--zeta-cyan); color: var(--zeta-cyan); font-weight: 600; width: auto; cursor: pointer;">
+                    <option value="todos">Todos los estados</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="en preparación">En Preparación</option>
+                    <option value="enviado">Enviado</option>
+                    <option value="entregado">Entregado</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
             </div>
         </div>
 
-        <div class="d-flex align-items-center gap-2">
-            <span class="fw-bold text-muted small mb-0">Estado:</span>
-            <select id="selectStatusFilter" class="form-select form-select-sm shadow-sm" style="border-radius: 50px; border: 2px solid var(--zeta-cyan); color: var(--zeta-cyan); font-weight: 600; width: auto; cursor: pointer;">
-                <option value="todos">Todos los estados</option>
-                <option value="pendiente">Solo Pendientes</option>
-                <option value="en preparación">En Preparación</option>
-                <option value="enviado">Enviados</option>
-                <option value="entregado">Entregados</option>
-                <option value="cancelado">Cancelados</option>
-            </select>
-        </div>
-    </div>
-
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <style>
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+        <style>
             .dataTables_filter input {
                 border-radius: 50px !important;
                 border: 1px solid #ced4da !important;
@@ -89,190 +108,157 @@
                 border-radius: 50px !important;
                 margin: 0 3px;
             }
+        </style>
 
-        .dataTables_wrapper .page-item:not(.active) .page-link:hover {
-            background-color: #f8f9fa !important;
-            color: var(--zeta-cyan) !important;
-        }
-
-            /* Media Query corregida con cierre */
-            @@media (max-width: 768px) {
-                .d-flex.flex-wrap.gap-3.mb-4 {
-                    flex-direction: column;
-                    align-items: stretch !important;
-                }
-
-                #selectStatusFilter {
-                    width: 100% !important;
-                }
-            }
-    </style>
-
-    <div class="table-responsive">
-        <table id="tablaPedidos" class="table table-hover align-middle table-zeta">
-            <thead class="bg-light">
-                <tr>
-                    <th style="width: 80px;">#ID</th>
-                    <th>Cliente</th>
-                    <th class="text-center">Fecha</th>
-                    <th class="text-end">Total</th>
-                    <th class="text-center">Envío</th>
-                    <th class="text-center">Estado</th>
-                    <th class="text-end" style="width: 80px;">Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    var orderDateStr = item.OrderDate.ToString("dd/MM/yyyy");
-                    var statusClass = item.Status.ToLower();
-
-                    <tr data-order-date="@orderDateStr" data-order-status="@statusClass">
-                        <td class="fw-bold text-muted">#@item.OrderId</td>
-                        <td>
-                            <div class="fw-bold text-zeta-dark">@item.ClientName</div>
-                            <small class="text-muted"><i class="fa-regular fa-envelope me-1"></i>@item.Email</small>
-                        </td>
-                        <td class="text-center">@item.OrderDate.ToString("dd/MM/yy HH:mm")</td>
-                        <td class="text-success fw-bold text-end">$@item.TotalAmount.ToString("N0")</td>
-
-                        <td class="text-center">
-                            @if (item.ShippingMethod == "Retiro")
-                            {
-                                <div class="d-flex flex-column align-items-center">
-                                    <span class="badge bg-light text-dark border shadow-sm mb-1">
-                                        <i class="fa-solid fa-store text-muted me-1"></i> Retiro en Local
-                                    </span>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="d-flex flex-column align-items-center">
-                                    <span class="badge text-white shadow-sm mb-1" style="background-color: var(--zeta-cyan);">
-                                        <i class="fa-solid fa-motorcycle me-1"></i> Envío a Domicilio
-                                    </span>
-                                    <small class="text-muted text-wrap mt-1" style="max-width: 180px; font-size: 0.8rem; line-height: 1.2;">
-                                        <i class="fa-solid fa-location-dot text-danger me-1"></i>@item.Address
-                                    </small>
-                                </div>
-                            }
-                        </td>
-                        <td class="text-center">
-                            @if (item.Status == "Pendiente")
-                            {
-                                <span class="badge bg-warning text-dark px-3 rounded-pill shadow-sm"><i class="fa-solid fa-clock me-1"></i>Pendiente</span>
-                            }
-                            else if (item.Status == "Cancelado")
-                            {
-                                <span class="badge bg-danger px-3 rounded-pill shadow-sm"><i class="fa-solid fa-xmark me-1"></i>Cancelado</span>
-                            }
-                            else if (item.Status == "Entregado")
-                            {
-                                <span class="badge bg-success px-3 rounded-pill shadow-sm"><i class="fa-solid fa-check-double me-1"></i>Entregado</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary px-3 rounded-pill shadow-sm">@item.Status</span>
-                            }
-                        </td>
-                        <td class="text-end">
-                            <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-zeta-cyan text-white shadow-sm" title="Ver detalle">
-                                <i class="fa-solid fa-eye"></i>
-                            </a>
-                        </td>
+        <div class="table-responsive">
+            <table id="tablaPedidos" class="table table-hover align-middle table-zeta">
+                <thead class="bg-light">
+                    <tr>
+                        <th style="width: 80px;">#ID</th>
+                        <th>Cliente</th>
+                        <th class="text-center">Fecha</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-center">Envío</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-end" style="width: 80px;">Acción</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var orderDateStr = item.OrderDate.ToString("dd/MM/yyyy");
+                        var statusClass = item.Status.ToLower();
+
+                        <tr data-order-date="@orderDateStr" data-order-status="@statusClass">
+                            <td class="fw-bold text-muted">#@item.OrderId</td>
+                            <td>
+                                <div class="fw-bold text-zeta-dark">@item.ClientName</div>
+                                <small class="text-muted"><i class="fa-regular fa-envelope me-1"></i>@item.Email</small>
+                            </td>
+                            <td class="text-center">@item.OrderDate.ToString("dd/MM/yy HH:mm")</td>
+                            <td class="text-success fw-bold text-end">$@item.TotalAmount.ToString("N0")</td>
+                            <td class="text-center">
+                                @if (item.ShippingMethod == "Retiro")
+                                {
+                                    <span class="badge bg-light text-dark border shadow-sm"><i class="fa-solid fa-store text-muted me-1"></i> Retiro</span>
+                                }
+                                else
+                                {
+                                    <span class="badge text-white shadow-sm" style="background-color: var(--zeta-cyan);"><i class="fa-solid fa-motorcycle me-1"></i> Envío</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @{
+                                    var badgeColor = item.Status switch
+                                    {
+                                        "Pendiente" => "bg-warning text-dark",
+                                        "Cancelado" => "bg-danger",
+                                        "Entregado" => "bg-success",
+                                        "En Preparación" => "bg-info text-white",
+                                        "Enviado" => "bg-primary",
+                                        _ => "bg-secondary"
+                                    };
+                                }
+                                <span class="badge @badgeColor px-3 rounded-pill shadow-sm">@item.Status</span>
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-zeta-cyan text-white shadow-sm">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 
     <script>
-                  $(document).ready(function() {
-                // 1. Fecha de hoy (dd/mm/yyyy)
-                const now = new Date();
-                const formattedToday =
-                    ("0" + now.getDate()).slice(-2) + "/" +
-                    ("0" + (now.getMonth() + 1)).slice(-2) + "/" +
-                    now.getFullYear();
+        $(document).ready(function() {
+            const now = new Date();
+            const hoyStr = ("0" + now.getDate()).slice(-2) + "/" + ("0" + (now.getMonth() + 1)).slice(-2) + "/" + now.getFullYear();
 
-                // 2. Limpieza total de filtros de DataTables al cargar
-                $.fn.dataTable.ext.search = [];
+            if (window.location.search.includes('desde')) {
+                $('.btn-filter-date').removeClass('active');
+            }
 
-                // 3. La Lógica de Filtrado
-                $.fn.dataTable.ext.search.push(
-                    function(settings, data, dataIndex) {
-                        const tr = $(settings.aoData[dataIndex].nTr);
-                        const orderDate = tr.attr('data-order-date'); // dd/mm/yyyy
-                        const orderStatus = (tr.attr('data-order-status') || '').toLowerCase().trim();
+            $.fn.dataTable.ext.search = [];
 
-                        const currentBtn = $('.btn-filter-date.active').data('filter');
-                        const currentStatusSelect = $('#selectStatusFilter').val().toLowerCase();
+            // Lógica de filtrado combinada
+            $.fn.dataTable.ext.search.push(
+                function(settings, data, dataIndex) {
+                    const tr = $(settings.aoData[dataIndex].nTr);
+                    const fechaFila = tr.attr('data-order-date');
+                    const estadoFila = (tr.attr('data-order-status') || '').toLowerCase().trim();
 
-                        // LÓGICA DE BOTONES SUPERIORES
-                        if (currentBtn === 'hoy') {
-                            return (orderDate === formattedToday);
+                    const botonActivo = $('.btn-filter-date.active');
+                    const estadoSeleccionado = $('#selectStatusFilter').val().toLowerCase().trim();
+
+                    // 1. Check de Botones Rápidos
+                    let pasaBoton = true;
+                    if (botonActivo.length > 0) {
+                        const filtro = botonActivo.data('filter');
+                        if (filtro === 'hoy') {
+                            pasaBoton = (fechaFila === hoyStr);
+                        } else if (filtro === 'urgente') {
+                            pasaBoton = (estadoFila === 'pendiente' || estadoFila === 'en preparación');
                         }
-
-                        if (currentBtn === 'urgente') {
-                            return (orderStatus === 'pendiente' || orderStatus === 'en preparación');
-                        }
-
-                        if (currentBtn === 'todos') {
-                            // Filtro cruzado con el SELECT
-                            if (currentStatusSelect === 'todos') return true;
-                            return (orderStatus === currentStatusSelect);
-                        }
-
-                        return true;
-                    }
-                );
-
-                // 4. Inicializar DataTables
-                var table = $('#tablaPedidos').DataTable({
-                    "responsive": true,
-                    "stateSave": false, // DESACTIVADO para que no te trabe filtros viejos
-                    "language": {
-                        "search": "Buscar:",
-                        "zeroRecords": "No hay pedidos hoy",
-                        "info": "Mostrando _START_ a _END_ de _TOTAL_ pedidos",
-                        "paginate": { "next": "Sig.", "previous": "Ant." }
-                    },
-                    "pageLength": 10,
-                    "ordering": false
-                });
-
-                // 5. Evento para los BOTONES
-                $('.btn-filter-date').on('click', function() {
-                    $('.btn-filter-date').removeClass('active');
-                    $(this).addClass('active');
-
-                    const filtro = $(this).data('filter');
-
-                    // Bloqueamos/Desbloqueamos el select según corresponda
-                    if (filtro === 'todos') {
-                        $('#selectStatusFilter').prop('disabled', false).css('opacity', '1');
-                    } else {
-                        $('#selectStatusFilter').val('todos').prop('disabled', true).css('opacity', '0.5');
                     }
 
-                    table.draw(); // Esto activa la lógica del push de arriba
-                });
+                    // 2. Check de Select de Estado
+                    let pasaEstado = true;
+                    if (estadoSeleccionado !== 'todos') {
+                        pasaEstado = (estadoFila === estadoSeleccionado);
+                    }
 
-                // 6. Evento para el SELECT (Solo anda en Historial)
-                $('#selectStatusFilter').on('change', function() {
-                    table.draw();
-                });
+                    return pasaBoton && pasaEstado;
+                }
+            );
 
-                // Primer dibujado forzado
+            var table = $('#tablaPedidos').DataTable({
+                "responsive": true,
+                "language": {
+                    "search": "Buscar:",
+                    "zeroRecords": "No hay pedidos con esos filtros",
+                    "info": "Mostrando _TOTAL_ pedidos",
+                    "paginate": { "next": "Sig.", "previous": "Ant." }
+                },
+                "pageLength": 6,
+                "ordering": false
+            });
+
+            $('.btn-filter-date').on('click', function() {
+                const filtro = $(this).data('filter');
+                if (filtro === 'hoy' && window.location.search.includes('desde')) {
+                    window.location.href = '@Url.Action("ManageOrders")';
+                    return;
+                }
+                $('.btn-filter-date').removeClass('active');
+                $(this).addClass('active');
                 table.draw();
             });
+
+            $('#selectStatusFilter').on('change', function() {
+                table.draw();
+            });
+
+            table.draw();
+        });
+
+        function consultarHistorial() {
+            const desde = document.getElementById('fechaDesde').value;
+            const hasta = document.getElementById('fechaHasta').value;
+            if (!desde || !hasta) {
+                alert("Selecciona el rango de fechas.");
+                return;
+            }
+            $('.btn-filter-date').removeClass('active');
+            window.location.href = `@Url.Action("ManageOrders")?desde=${desde}&hasta=${hasta}`;
+        }
     </script>
 }

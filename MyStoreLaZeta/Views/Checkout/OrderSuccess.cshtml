@@ -13,7 +13,8 @@
                         <i class="fa-solid fa-clock text-warning" style="font-size: 6rem;"></i>
                     </div>
                     <h1 class="mt-4 fw-bold" style="color: #FF6E00;">¡Pedido Recibido!</h1>
-                    <p class="lead mt-3">Tu pedido ha sido registrado.</p>
+                   <!-- Modificamos esta línea para incluir el ID -->
+                     <p class="lead mt-3">Tu pedido <span class="fw-bold text-dark">#@ViewBag.OrderId</span> ha sido registrado.</p>
 
                     <div class="alert alert-warning mt-4 text-start border-0 shadow-sm">
                         <h6 class="fw-bold"><i class="fa-solid fa-receipt me-2"></i> Instrucciones de Pago:</h6>

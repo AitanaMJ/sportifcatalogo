@@ -86,10 +86,36 @@
                     outline: none !important;
                 }
 
+            .dataTables_wrapper {
+                padding-bottom: 15px; /* Crea el espacio antes de la línea gris del card */
+            }
+
+            /* Esto hará que los números sean circulares como en Productos */
+            .dataTables_wrapper .page-item .page-link {
+                border-radius: 50% !important; /* Círculo perfecto */
+                margin: 0 4px; /* Espaciado entre botones */
+                width: 36px; /* Tamaño fijo para que sean círculos */
+                height: 36px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--zeta-cyan);
+                border: 1px solid #dee2e6;
+            }
+
+            /* Color para el botón de la página actual */
             .dataTables_wrapper .page-item.active .page-link {
                 background-color: var(--zeta-cyan) !important;
                 border-color: var(--zeta-cyan) !important;
-                border-radius: 50px !important;
+                color: white !important;
+            }
+
+            /* Estilo para los botones Ant. y Sig. */
+            .dataTables_wrapper .page-item:first-child .page-link,
+            .dataTables_wrapper .page-item:last-child .page-link {
+                border-radius: 50px !important; /* Ovalados para el texto */
+                width: auto;
+                padding: 0 15px;
             }
 
            
@@ -304,6 +330,7 @@
                     "zeroRecords": "No se encontraron categorías",
                     "info": "Mostrando _START_ a _END_ de _TOTAL_ categorías",
                     "infoEmpty": "No hay categorías disponibles",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
                     "search": "Buscar:",
                     "paginate": { "next": "Sig.", "previous": "Ant." }
                 },

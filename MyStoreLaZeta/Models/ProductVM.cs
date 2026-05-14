@@ -31,8 +31,6 @@ namespace MyStoreLaZeta.Models
         public bool IsActive { get; set; }
 
         public List<ProductVariation> Variations { get; set; } = new List<ProductVariation>();
-
-        
         public bool HasVariations { get; set; } = false;
     }
 

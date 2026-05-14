@@ -78,6 +78,7 @@
         </div>
 
         <style>
+
             .dataTables_filter input {
                 border-radius: 50px !important;
                 border: 1px solid #ced4da !important;
@@ -92,16 +93,37 @@
                     outline: none !important;
                 }
 
-            .dataTables_wrapper .page-item.active .page-link {
-                background-color: var(--zeta-cyan) !important;
-                border-color: var(--zeta-cyan) !important;
-                border-radius: 50px !important;
+            .dataTables_wrapper {
+                padding-bottom: 15px; /* Crea el espacio antes de la línea gris del card */
             }
 
-            .dataTables_wrapper .page-item .page-link {
-                border-radius: 50px !important;
-                margin: 0 3px;
-            }
+                /* Esto hará que los números sean circulares como en Productos */
+                .dataTables_wrapper .page-item .page-link {
+                    border-radius: 50% !important; /* Círculo perfecto */
+                    margin: 0 4px; /* Espaciado entre botones */
+                    width: 36px; /* Tamaño fijo para que sean círculos */
+                    height: 36px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--zeta-cyan);
+                    border: 1px solid #dee2e6;
+                }
+
+                /* Color para el botón de la página actual */
+                .dataTables_wrapper .page-item.active .page-link {
+                    background-color: var(--zeta-cyan) !important;
+                    border-color: var(--zeta-cyan) !important;
+                    color: white !important;
+                }
+
+                /* Estilo para los botones Ant. y Sig. */
+                .dataTables_wrapper .page-item:first-child .page-link,
+                .dataTables_wrapper .page-item:last-child .page-link {
+                    border-radius: 50px !important; /* Ovalados para el texto */
+                    width: auto;
+                    padding: 0 15px;
+                }
 
             /* Ajustes para que los filtros se vean bien en móviles */
             @@media (max-width: 768px) {

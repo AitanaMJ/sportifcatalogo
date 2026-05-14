@@ -39,17 +39,17 @@ namespace MyStoreLaZeta.Controllers
                 // Credenciales
                 MercadoPagoConfig.AccessToken = "TEST-8242036467932674-030212-e7c0c84de9ac435128816fed550dcb77-244346147";
 
-               
+
                 var totalCarrito = cart.Sum(x => x.FinalPrice * x.Quantity);
 
-                
+
                 if (string.IsNullOrEmpty(request.Email))
                     return BadRequest(new { success = false, message = "Email requerido." });
 
                 if (string.IsNullOrEmpty(request.PaymentMethodId))
                     return BadRequest(new { success = false, message = "Método de pago requerido." });
 
-               
+
                 decimal montoFinal = request.TransactionAmount ?? totalCarrito;
 
                 if (montoFinal <= 0)
