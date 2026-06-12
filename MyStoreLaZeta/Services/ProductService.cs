@@ -115,6 +115,9 @@ namespace MyStoreLaZeta.Services
                 viewModel.ImageName = uniqueFileName;
             }
 
+            // 1. Verificamos si tiene variaciones para saber qué stock usar
+            bool tieneVariaciones = viewModel.Variations != null && viewModel.Variations.Any();
+
             var entity = new Product
             {
                 CategoryId = viewModel.Category.CategoryId,
@@ -123,16 +126,20 @@ namespace MyStoreLaZeta.Services
                 CostPrice = viewModel.CostPrice,
                 Discount = viewModel.Discount ?? 0,
                 Price = viewModel.Price,
-                Stock = viewModel.Stock,
+
+                // Si tiene variaciones, sumamos. Si no, usamos el general.
+                Stock = tieneVariaciones ? viewModel.Variations.Sum(v => v.Stock) : viewModel.Stock,
+
                 ImageName = viewModel.ImageName,
-                IsActive = true, 
-                HasVariations = viewModel.Variations != null && viewModel.Variations.Any()
+                IsActive = true,
+                HasVariations = tieneVariaciones
             };
 
+            // Guardamos el producto padre (ahora sí, con el stock total correcto)
             await _productRepository.AddAsync(entity);
-            
 
-            if (viewModel.Variations != null && viewModel.Variations.Any())
+            // Guardamos las variaciones hijas
+            if (tieneVariaciones)
             {
                 foreach (var v in viewModel.Variations)
                 {

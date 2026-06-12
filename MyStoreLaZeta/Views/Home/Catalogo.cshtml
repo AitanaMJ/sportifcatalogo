@@ -9,10 +9,10 @@
 
         @if (!string.IsNullOrEmpty(Model.filterBy))
         {
-            // Limpiamos el texto del filtro para que coincida exactamente con el nombre en la BD
+           
             var nombreFiltrado = Model.filterBy.Replace("Viendo:", "").Replace("Viendo :", "").Trim();
 
-            // Buscamos ignorando mayúsculas/minúsculas y espacios extra
+          
             var catActual = Model.Categories?.FirstOrDefault(c =>
             c.Name.Trim().Equals(nombreFiltrado, StringComparison.OrdinalIgnoreCase));
 

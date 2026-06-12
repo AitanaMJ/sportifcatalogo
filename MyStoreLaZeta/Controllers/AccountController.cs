@@ -73,7 +73,6 @@ namespace MyStoreLaZeta.Controllers
             }
             else
             {
-                //identificar el rol del usaurio encontrado para asignarle los permisos correspondientes en la aplicación. Esto se hace creando una lista de claims (reclamaciones) que representan la identidad del usuario y sus roles. Luego, se crea una ClaimsIdentity con esos claims y se firma al usuario utilizando la autenticación de cookies. Finalmente, se redirige al usuario a la página principal de la aplicación.
                 List<Claim> claims = new List<Claim>()
                 {
                     new Claim(ClaimTypes.NameIdentifier, found.UserId.ToString()),

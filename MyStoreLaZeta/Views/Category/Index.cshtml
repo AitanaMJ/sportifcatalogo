@@ -49,7 +49,7 @@
         </style>
 
 
-        @* SECCIÓN DE FILTROS ACTUALIZADA *@
+      
         <div class="d-flex flex-wrap gap-3 mb-4 bg-white p-3 rounded-4 shadow-sm border-0 align-items-center">
             <span class="fw-bold text-muted me-3" style="font-size: 0.95rem;">
                 <i class="fa-solid fa-filter me-1"></i> Filtros:
@@ -87,14 +87,14 @@
                 }
 
             .dataTables_wrapper {
-                padding-bottom: 15px; /* Crea el espacio antes de la línea gris del card */
+                padding-bottom: 15px; 
             }
 
-            /* Esto hará que los números sean circulares como en Productos */
+            
             .dataTables_wrapper .page-item .page-link {
-                border-radius: 50% !important; /* Círculo perfecto */
-                margin: 0 4px; /* Espaciado entre botones */
-                width: 36px; /* Tamaño fijo para que sean círculos */
+                border-radius: 50% !important; 
+                margin: 0 4px; 
+                width: 36px; 
                 height: 36px;
                 display: flex;
                 align-items: center;
@@ -103,17 +103,17 @@
                 border: 1px solid #dee2e6;
             }
 
-            /* Color para el botón de la página actual */
+            
             .dataTables_wrapper .page-item.active .page-link {
                 background-color: var(--zeta-cyan) !important;
                 border-color: var(--zeta-cyan) !important;
                 color: white !important;
             }
 
-            /* Estilo para los botones Ant. y Sig. */
+            
             .dataTables_wrapper .page-item:first-child .page-link,
             .dataTables_wrapper .page-item:last-child .page-link {
-                border-radius: 50px !important; /* Ovalados para el texto */
+                border-radius: 50px !important; 
                 width: auto;
                 padding: 0 15px;
             }
@@ -138,7 +138,7 @@
                 cursor: pointer;
             }
 
-            /* Cuando el radio button oculto está seleccionado, pintamos el label */
+            
             .btn-check:checked + .filtro-pill {
                 background-color: var(--zeta-cyan) !important;
                 color: white !important;
@@ -146,12 +146,12 @@
             }
 
             .filtro-pill:hover {
-                background-color: #f0fdfc; /* Un fondo muy clarito al pasar el mouse */
+                background-color: #f0fdfc; 
             }
 
-            /* Ajustes para móviles (Media Query) */
+           
             @@media (max-width: 768px) {
-                /* Hacemos que los botones de filtro ocupen el ancho necesario y no se peguen */
+               
                 .d-flex.align-items-center.mb-4 {
                     flex-direction: column;
                     align-items: flex-start !important;
@@ -161,7 +161,7 @@
                     padding: 6px 12px;
                     font-size: 0.8rem;
                 }
-                /* Ajuste para que la tabla no rompa el diseño */
+                
                 .card-zeta {
                     padding: 1rem !important;
                 }
@@ -271,44 +271,40 @@
     <script>
 
                function confirmToggle(btn, id) {
-            // 1. Referencia a la fila que queremos afectar
+            
             const filaDOM = $(btn).closest('tr');
             const table = $('#tablaCategorias').DataTable();
 
             const url = '/Category/ToggleStatus?id=' + id;
 
-            // Deshabilitamos el botón para que no clickeen mil veces
             btn.disabled = true;
 
             fetch(url, { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // 2. CAMBIO AUTOMÁTICO SIN RECARGAR
-                        // Buscamos la celda del "Estado" (columna 3)
+                        
                         const celdaEstado = table.cell(filaDOM, 3);
 
-                        // Obtenemos el valor actual para saber qué poner ahora
+                        
                         const esActiva = celdaEstado.data().includes('bg-success');
 
                         if (esActiva) {
-                            // Si era activa, ahora es inactiva (Badge gris)
+                          
                             celdaEstado.data('<span class="badge rounded-pill bg-secondary px-3">Inactivo</span>');
-                            // Cambiamos el icono del ojito
+                            
                             $(btn).removeClass('btn-outline-danger').addClass('btn-outline-success')
                                   .html('<i class="fa-solid fa-eye"></i>');
                         } else {
-                            // Si era inactiva, ahora es activa (Badge verde)
+                            
                             celdaEstado.data('<span class="badge rounded-pill bg-success px-3">Activo</span>');
-                            // Cambiamos el icono del ojito
+                            
                             $(btn).removeClass('btn-outline-success').addClass('btn-outline-danger')
                                   .html('<i class="fa-solid fa-eye-slash"></i>');
                         }
 
-                        // 3. RE-FILTRAR
-                        // Al ejecutar draw(), como la categoría cambió de estado,
-                        // el filtro la ocultará automáticamente de la vista actual.
-                        table.draw(false); // el false es para que no se mueva de la página actual de la tabla
+                       
+                        table.draw(false); 
                     } else {
                         alert("Error: " + data.message);
                     }
@@ -321,10 +317,10 @@
                 });
         }
               $(document).ready(function() {
-            // 1. Inicializamos la tabla
+          
             var table = $('#tablaCategorias').DataTable({
                 "responsive": true,
-                "stateSave": false, // Desactívalo un momento para probar si es esto
+                "stateSave": false, 
                 "language": {
                     "lengthMenu": "Mostrar _MENU_ categorías",
                     "zeroRecords": "No se encontraron categorías",
@@ -338,14 +334,14 @@
                 "ordering": false
             });
 
-            // 2. Nueva regla de filtro más simple y directa
+            
             $.fn.dataTable.ext.search.push(
                 function(settings, data, dataIndex) {
-                    // data[3] es el texto puro que DataTables ve en la columna Estado
+                    
                     var textoColumna = data[3].toLowerCase();
                     var filtroSeleccionado = $('input[name="filtroEstado"]:checked').val().toLowerCase();
 
-                    // Verificamos si la palabra "activo" o "inactivo" está presente en la celda
+                    
                     if (filtroSeleccionado === 'activo') {
                         return textoColumna.includes('activo') && !textoColumna.includes('inactivo');
                     } else if (filtroSeleccionado === 'inactivo') {
@@ -355,12 +351,12 @@
                 }
             );
 
-            // 3. Evento de cambio
+            
             $('input[name="filtroEstado"]').on('change', function() {
                 table.draw();
             });
 
-            // Dibujamos al cargar
+           
             table.draw();
         });
     </script>

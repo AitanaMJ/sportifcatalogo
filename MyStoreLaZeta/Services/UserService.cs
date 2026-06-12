@@ -10,7 +10,7 @@ namespace MyStoreLaZeta.Services
         
         public async Task<UserVM> Login(LoginVM loginVM)
         {
-            //  buscando al usuario únicamente por su Email
+            
             var conditions = new List<Expression<Func<User, bool>>>()
             {
                 x => x.Email == loginVM.Email
@@ -20,7 +20,7 @@ namespace MyStoreLaZeta.Services
 
             var userVM = new UserVM();
 
-            // si el usuario existe, verificamos matemáticamente la contraseña
+            
             if (found != null && PasswordHasher.VerifyPassword(loginVM.Password, found.Password))
             {
                 userVM.UserId = found.UserId;
@@ -30,7 +30,7 @@ namespace MyStoreLaZeta.Services
             }
             else
             {
-                // si no coincide o no existe, nos aseguramos de que el ID sea 0
+                
                 userVM.UserId = 0;
             }
 

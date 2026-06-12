@@ -111,13 +111,13 @@
                                 <span class="fw-bold">@((item.FinalPrice * item.Quantity).ToString("C2"))</span>
                             </div>
 
-                            @* Y en el Total final abajo *@
-                            <div class="d-flex justify-content-between border-top pt-2">
-                                <h4 class="fw-bold">Total</h4>
-                                <h4 class="fw-bold text-zeta-cyan">@Model.Total.ToString("C2")</h4>
-                            </div>
+                        } @* Y en el Total final abajo *@
+                          <div class="d-flex justify-content-between border-top pt-2">
+    <h4 class="fw-bold">Total</h4>
+    <h4 class="fw-bold text-zeta-cyan">@Model.Total.ToString("C2")</h4>
+</div>
 
-                        }
+                        
                     
                     <div class="d-grid gap-2 mt-2">
                         <div class="bg-light text-center py-2 px-3 rounded-3 border border-info border-opacity-50 shadow-sm">

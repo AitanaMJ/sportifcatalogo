@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using System.Security.Claims; 
 using MercadoPago.Client.Common;
 using MercadoPago.Client.Payment;
 using MercadoPago.Client.Preference;
@@ -36,19 +37,20 @@ namespace MyStoreLaZeta.Controllers
                     return BadRequest(new { success = false, message = "El carrito está vacío." });
                 }
 
-                // Credenciales
-                MercadoPagoConfig.AccessToken = "TEST-8242036467932674-030212-e7c0c84de9ac435128816fed550dcb77-244346147";
+                MercadoPagoConfig.AccessToken = _configuration["MercadoPago:AccessToken"];
 
+                if (string.IsNullOrEmpty(MercadoPagoConfig.AccessToken))
+                {
+                    throw new Exception("Error de configuración: No se encontró el token de Mercado Pago en el servidor.");
+                }
 
                 var totalCarrito = cart.Sum(x => x.FinalPrice * x.Quantity);
-
 
                 if (string.IsNullOrEmpty(request.Email))
                     return BadRequest(new { success = false, message = "Email requerido." });
 
                 if (string.IsNullOrEmpty(request.PaymentMethodId))
                     return BadRequest(new { success = false, message = "Método de pago requerido." });
-
 
                 decimal montoFinal = request.TransactionAmount ?? totalCarrito;
 
@@ -87,83 +89,94 @@ namespace MyStoreLaZeta.Controllers
 
                 if (payment.Status == "approved" || payment.Status == "pending" || payment.Status == "in_process")
                 {
-
-                    foreach (var item in cart)
+                    // RECUPERAMOS EL ID DEL USUARIO SI INICIÓ SESIÓN
+                    int? currentUserId = null;
+                    if (User.Identity != null && User.Identity.IsAuthenticated)
                     {
-                        if (item.VariationId.HasValue && item.VariationId > 0)
+                        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                        if (int.TryParse(userIdClaim, out int id))
                         {
-                            // 1. Intentamos descontar de la variación SOLO si hay stock suficiente
-                            var filasAfectadasVariacion = await _context.ProductVariations
-                                .Where(v => v.Id == item.VariationId && v.Stock >= item.Quantity)
-                                .ExecuteUpdateAsync(s => s.SetProperty(v => v.Stock, v => v.Stock - item.Quantity));
-
-                            // 2. Si filasAfectadas es 0, significa que alguien más compró el último y el stock ya no alcanzó
-                            if (filasAfectadasVariacion == 0)
-                            {
-                                throw new Exception($"Lo sentimos, alguien compró {item.Name} justo antes que tú y nos quedamos sin stock en ese talle/color.");
-                            }
-
-                            // 3. Si pasó la validación, descontamos al producto principal
-                            await _context.Products
-                                .Where(p => p.ProductId == item.ProductId)
-                                .ExecuteUpdateAsync(s => s.SetProperty(p => p.Stock, p => p.Stock - item.Quantity));
-                        }
-                        else
-                        {
-                            // 1. Intentamos descontar del producto simple (ej: Taza) SOLO si hay stock suficiente
-                            var filasAfectadasProducto = await _context.Products
-                                .Where(p => p.ProductId == item.ProductId && p.Stock >= item.Quantity)
-                                .ExecuteUpdateAsync(s => s.SetProperty(p => p.Stock, p => p.Stock - item.Quantity));
-
-                            // 2. Verificamos si logramos descontarlo
-                            if (filasAfectadasProducto == 0)
-                            {
-                                throw new Exception($"Lo sentimos, alguien compró {item.Name} justo antes que tú y nos quedamos sin stock.");
-                            }
+                            currentUserId = id;
                         }
                     }
 
-                    // creo LA ORDEN NORMALMENTE
+                    //INICIAMOS LA TRANSACCIÓN SQL (Para proteger el stock)
+                    using var transaction = await _context.Database.BeginTransactionAsync();
 
-                    var order = new Order
+                    try
                     {
-                        OrderDate = DateTime.Now,
-                        ClientName = request.Name,
-                        Email = request.Email,
-                        Phone = request.Phone,
-                        Address = request.ShippingMethod == "EnvioDomicilio" ? request.Address : "Retiro en Local",
-                        ShippingMethod = request.ShippingMethod,
-                        PaymentMethod = "MercadoPago",
-                        Status = payment.Status == "approved" ? "Aprobado" : "Pendiente",
-
-                        // Guardo el total con descuento aplicado
-                        TotalAmount = totalCarrito,
-
-                        OrderItems = cart.Select(i => new OrderItem
+                        foreach (var item in cart)
                         {
-                            ProductId = i.ProductId,
-                            ProductName = !string.IsNullOrEmpty(i.SizeName)
-                                ? $"{i.Name} ({i.ColorName} - {i.SizeName})"
-                                : i.Name,
+                            if (item.VariationId.HasValue && item.VariationId > 0)
+                            {
+                                var filasAfectadasVariacion = await _context.ProductVariations
+                                    .Where(v => v.Id == item.VariationId && v.Stock >= item.Quantity)
+                                    .ExecuteUpdateAsync(s => s.SetProperty(v => v.Stock, v => v.Stock - item.Quantity));
 
-                            // GuardO el precio unitario final (con descuento) en la base de datos
-                            Price = i.FinalPrice,
-                            Quantity = i.Quantity
-                        }).ToList()
-                    };
+                                if (filasAfectadasVariacion == 0)
+                                    throw new Exception($"Lo sentimos, alguien compró {item.Name} justo antes que tú y nos quedamos sin stock en ese talle/color.");
 
-                    _context.Orders.Add(order);
-                    await _context.SaveChangesAsync();
+                                await _context.Products
+                                    .Where(p => p.ProductId == item.ProductId)
+                                    .ExecuteUpdateAsync(s => s.SetProperty(p => p.Stock, p => p.Stock - item.Quantity));
+                            }
+                            else
+                            {
+                                var filasAfectadasProducto = await _context.Products
+                                    .Where(p => p.ProductId == item.ProductId && p.Stock >= item.Quantity)
+                                    .ExecuteUpdateAsync(s => s.SetProperty(p => p.Stock, p => p.Stock - item.Quantity));
 
-                    HttpContext.Session.Remove("Cart");
+                                if (filasAfectadasProducto == 0)
+                                    throw new Exception($"Lo sentimos, alguien compró {item.Name} justo antes que tú y nos quedamos sin stock.");
+                            }
+                        }
 
-                    string statusToView = payment.Status == "approved" ? "approved" : "pending";
+                        // 3. CREAMOS LA ORDEN NORMALMENTE
+                        var order = new Order
+                        {
+                            UserId = currentUserId, // <-- ACÁ ASIGNAMOS EL ID DINÁMICO
+                            OrderDate = DateTime.Now,
+                            ClientName = request.Name,
+                            Email = request.Email,
+                            Phone = request.Phone,
+                            Address = request.ShippingMethod == "EnvioDomicilio" ? request.Address : "Retiro en Local",
+                            ShippingMethod = request.ShippingMethod,
+                            PaymentMethod = "MercadoPago",
+                            Status = payment.Status == "approved" ? "Aprobado" : "Pendiente",
+                            TotalAmount = totalCarrito,
+                            OrderItems = cart.Select(i => new OrderItem
+                            {
+                                ProductId = i.ProductId,
+                                ProductName = !string.IsNullOrEmpty(i.SizeName)
+                                    ? $"{i.Name} ({i.ColorName} - {i.SizeName})"
+                                    : i.Name,
+                                Price = i.FinalPrice,
+                                Quantity = i.Quantity
+                            }).ToList()
+                        };
 
-                    return Ok(new
+                        _context.Orders.Add(order);
+                        await _context.SaveChangesAsync();
+
+                        // 4. CONFIRMAMOS LA TRANSACCIÓN SI TODO SALIÓ BIEN
+                        await transaction.CommitAsync();
+
+                        HttpContext.Session.Remove("Cart");
+
+                        string statusToView = payment.Status == "approved" ? "approved" : "pending";
+
+                        return Ok(new
+                        {
+                            success = true,
+                            url = $"/Checkout/OrderSuccess?id={order.OrderId}&status={statusToView}"
+                        });
+                    }
+                    catch (Exception)
                     {
-                        success = true,
-                        url = $"/Checkout/OrderSuccess?id={order.OrderId}&status={statusToView}"
-                    });
+                        // SI EXPLOTA ALGO, DESHACEMOS LA VENTA PARA NO PERDER STOCK
+                        await transaction.RollbackAsync();
+                        throw;
+                    }
                 }
                 else
                 {
@@ -187,7 +200,6 @@ namespace MyStoreLaZeta.Controllers
 
         public async Task<IActionResult> OrderSuccess(int id, string status = "")
         {
-            // Busca la orden completa para mostrar los datos en la pantalla final
             var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == id);
 
             if (order == null)
@@ -198,7 +210,7 @@ namespace MyStoreLaZeta.Controllers
             ViewBag.Status = status;
             ViewBag.OrderId = id;
 
-            return View(order); // Enviamos el objeto 'order' a la vista
+            return View(order);
         }
 
         public class MPPaymentRequest
@@ -208,7 +220,6 @@ namespace MyStoreLaZeta.Controllers
             [JsonPropertyName("phone")] public string? Phone { get; set; }
             [JsonPropertyName("address")] public string? Address { get; set; }
             [JsonPropertyName("shippingMethod")] public string? ShippingMethod { get; set; }
-
             [JsonPropertyName("token")] public string? Token { get; set; }
             [JsonPropertyName("issuer_id")] public string? IssuerId { get; set; }
             [JsonPropertyName("payment_method_id")] public string? PaymentMethodId { get; set; }
