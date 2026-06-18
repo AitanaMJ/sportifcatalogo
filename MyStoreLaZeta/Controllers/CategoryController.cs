@@ -44,20 +44,20 @@ namespace MyStoreLaZeta.Controllers
             // ========================================================
             if (entityVM.ImageFile != null)
             {
-                // 1. nombre único (ej: 423b-891a-remera.jpg)
+                // nombre único (ej: 423b-891a-remera.jpg)
                 string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(entityVM.ImageFile.FileName);
 
-                // 2. Buscamos la ruta de wwwroot/images
+                //  ruta de wwwroot/images
                 string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images");
                 string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                // 3. Copiamos el archivo a esa carpeta
+                // se copia el archivo
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     await entityVM.ImageFile.CopyToAsync(fileStream);
                 }
 
-                // 4. Le asignamos solo el nombre al modelo para guardarlo en la Base de Datos
+                // asigno solo el nombre al modelo para guardarlo en la Base de Datos
                 entityVM.ImageName = uniqueFileName;
             }
             // ========================================================

@@ -212,13 +212,13 @@ namespace MyStoreLaZeta.Services
         {
             
             var conditions = new List<Expression<Func<Product, bool>>> {
-                x => x.Stock > 0,
-                x => x.IsActive == true,
-                x => x.Category != null && x.Category.IsActive == true 
+                x => x.Stock > 0, //prod que tienn stock
+                x => x.IsActive == true, // solo activos
+                x => x.Category != null && x.Category.IsActive == true // concategoria activa
             };
 
-            if (categoryId != 0) conditions.Add(x => x.CategoryId == categoryId);
-            if (!string.IsNullOrEmpty(search)) conditions.Add(x => x.Name.Contains(search));
+            if (categoryId != 0) conditions.Add(x => x.CategoryId == categoryId); //filtra categoria elegida por el usuario
+            if (!string.IsNullOrEmpty(search)) conditions.Add(x => x.Name.Contains(search)); //filtro buscador
 
             var products = await _productRepository.GetAllAsync(
                 conditions: conditions.ToArray(),

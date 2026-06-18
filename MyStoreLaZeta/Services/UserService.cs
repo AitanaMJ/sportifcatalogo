@@ -13,7 +13,7 @@ namespace MyStoreLaZeta.Services
             
             var conditions = new List<Expression<Func<User, bool>>>()
             {
-                x => x.Email == loginVM.Email
+                x => x.Email == loginVM.Email //busca el email ingresado por el usuario
             };
 
             var found = await _userRepository.GetByFilter(conditions.ToArray());
@@ -21,7 +21,7 @@ namespace MyStoreLaZeta.Services
             var userVM = new UserVM();
 
             
-            if (found != null && PasswordHasher.VerifyPassword(loginVM.Password, found.Password))
+            if (found != null && PasswordHasher.VerifyPassword(loginVM.Password, found.Password)) //hashea la contraseña ingresada y la compara con la que ingreso el usuario
             {
                 userVM.UserId = found.UserId;
                 userVM.FullName = found.FullName;
