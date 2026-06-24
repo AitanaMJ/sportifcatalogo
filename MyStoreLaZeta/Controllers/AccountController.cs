@@ -78,7 +78,8 @@ namespace MyStoreLaZeta.Controllers
                     new Claim(ClaimTypes.NameIdentifier, found.UserId.ToString()),
                     new Claim(ClaimTypes.Name, found.FullName),
                     new Claim(ClaimTypes.Email, found.Email),
-                    new Claim(ClaimTypes.Role, found.Type)
+                    new Claim(ClaimTypes.Role, found.Type),
+                    
                 };
 
                 ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

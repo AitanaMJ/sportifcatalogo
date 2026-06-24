@@ -69,13 +69,17 @@ namespace MyStoreLaZeta.Controllers
                         Email = request.Email,
                         Identification = new IdentificationRequest
                         {
-                            Type = "DNI",
-                            Number = "32456789"
+                            // Tomamos el DNI del request. Si viene vacío, usamos uno por defecto para no romper el código.
+                            Type = request.Payer?.Identification?.Type ?? "DNI",
+                            Number = request.Payer?.Identification?.Number ?? "00000000"
                         }
                     }
                 };
 
                 if (isCardPayment)
+                    // ... el resto de tu código sigue igual
+
+                    if (isCardPayment)
                 {
                     paymentRequest.Token = request.Token;
                     paymentRequest.Installments = request.Installments ?? 1;
@@ -165,10 +169,14 @@ namespace MyStoreLaZeta.Controllers
 
                         string statusToView = payment.Status == "approved" ? "approved" : "pending";
 
+                        // Extraemos el link del cupón (solo vendrá con datos si es pago en efectivo)
+                        string ticketUrl = payment.TransactionDetails?.ExternalResourceUrl ?? "";
+
                         return Ok(new
                         {
                             success = true,
-                            url = $"/Checkout/OrderSuccess?id={order.OrderId}&status={statusToView}"
+                            // Agregamos el ticket a la redirección
+                            url = $"/Checkout/OrderSuccess?id={order.OrderId}&status={statusToView}&ticket={Uri.EscapeDataString(ticketUrl)}"
                         });
                     }
                     catch (Exception)
@@ -198,7 +206,8 @@ namespace MyStoreLaZeta.Controllers
             }
         }
 
-        public async Task<IActionResult> OrderSuccess(int id, string status = "")
+        // Agregamos el parámetro 'ticket' a la firma del método
+        public async Task<IActionResult> OrderSuccess(int id, string status = "", string ticket = "")
         {
             var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == id);
 
@@ -209,6 +218,9 @@ namespace MyStoreLaZeta.Controllers
 
             ViewBag.Status = status;
             ViewBag.OrderId = id;
+
+            // Desencriptamos la URL del ticket y la guardamos en el ViewBag para que la vista la lea
+            ViewBag.TicketUrl = string.IsNullOrEmpty(ticket) ? "" : Uri.UnescapeDataString(ticket);
 
             return View(order);
         }

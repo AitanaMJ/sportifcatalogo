@@ -13,17 +13,25 @@
                         <i class="fa-solid fa-clock text-warning" style="font-size: 6rem;"></i>
                     </div>
                     <h1 class="mt-4 fw-bold" style="color: #FF6E00;">¡Pedido Recibido!</h1>
-                   <!-- Modificamos esta línea para incluir el ID -->
-                     <p class="lead mt-3">Tu pedido <span class="fw-bold text-dark">#@ViewBag.OrderId</span> ha sido registrado.</p>
+                    <p class="lead mt-3">Tu pedido <span class="fw-bold text-dark">#@ViewBag.OrderId</span> ha sido registrado.</p>
 
                     <div class="alert alert-warning mt-4 text-start border-0 shadow-sm">
                         <h6 class="fw-bold"><i class="fa-solid fa-receipt me-2"></i> Instrucciones de Pago:</h6>
                         <p class="small mb-2">Como elegiste pagar en efectivo:</p>
                         <ul class="small mb-0">
-                            <li>Revisá tu <strong>correo electrónico</strong> (Gmail); Mercado Pago te envió el cupón de pago.</li>
-                            <li>Acercate a cualquier sucursal de <strong>Pago Fácil o Rapipago</strong> con ese código.</li>
+                            <li>Acercate a cualquier sucursal de <strong>Pago Fácil o Rapipago</strong> con tu código.</li>
                             <li>Una vez que abones, el sistema nos avisará y prepararemos tu pedido.</li>
+                            <li>También enviamos una copia del cupón a tu correo electrónico.</li>
                         </ul>
+
+                        @if (!string.IsNullOrEmpty(ViewBag.TicketUrl))
+                        {
+                            <div class="mt-4 text-center">
+                                <a href="@ViewBag.TicketUrl" target="_blank" class="btn btn-warning fw-bold shadow-sm text-dark px-4 py-2" style="border-radius: 30px;">
+                                    <i class="fa-solid fa-print me-2"></i> Ver / Imprimir Cupón de Pago
+                                </a>
+                            </div>
+                        }
                     </div>
                 }
                 else
