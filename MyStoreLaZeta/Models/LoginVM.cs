@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MyStoreLaZeta.Models
+namespace CatalogoPro.Models
 {
     public class LoginVM
     {

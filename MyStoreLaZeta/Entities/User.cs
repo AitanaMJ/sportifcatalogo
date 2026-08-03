@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MyStoreLaZeta.Entities
+namespace CatalogoPro.Entities
 {
     public class User
     {
@@ -13,7 +13,6 @@ namespace MyStoreLaZeta.Entities
         public string Password { get; set; }
         [Required]
         public string Type { get; set; }
-        public ICollection<Order> Orders{ get; set; }
 
         // Token para recuperar contraseña
         public string? ResetToken { get; set; }

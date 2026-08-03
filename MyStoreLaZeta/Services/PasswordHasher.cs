@@ -1,4 +1,4 @@
-﻿namespace MyStoreLaZeta.Services
+﻿namespace CatalogoPro.Services
 {
     public class PasswordHasher
     {

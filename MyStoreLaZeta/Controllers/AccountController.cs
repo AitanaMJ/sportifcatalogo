@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MyStoreLaZeta.Context;
-using MyStoreLaZeta.Entities;
-using MyStoreLaZeta.Models;
-using MyStoreLaZeta.Services;
+using CatalogoPro.Context;
+using CatalogoPro.Entities;
+using CatalogoPro.Models;
+using CatalogoPro.Services;
 
-namespace MyStoreLaZeta.Controllers
+namespace CatalogoPro.Controllers
 {
     public class AccountController : Controller
     {
@@ -124,7 +124,6 @@ namespace MyStoreLaZeta.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            HttpContext.Session.Clear();
             return RedirectToAction("Index", "Home");
         }
 

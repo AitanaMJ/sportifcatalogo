@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using MyStoreLaZeta.Entities;
+using CatalogoPro.Entities;
 
-namespace MyStoreLaZeta.Models
+namespace CatalogoPro.Models
 {
     public class ProductVM
     {

@@ -2,12 +2,12 @@
 using DocumentFormat.OpenXml.Office2010.Excel;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.IdentityModel.Tokens;
-using MyStoreLaZeta.Context;
-using MyStoreLaZeta.Entities;
-using MyStoreLaZeta.Models;
-using MyStoreLaZeta.Repositories;
+using CatalogoPro.Context;
+using CatalogoPro.Entities;
+using CatalogoPro.Models;
+using CatalogoPro.Repositories;
 
-namespace MyStoreLaZeta.Services
+namespace CatalogoPro.Services
 {
     public class ProductService(
         GenericRepository<Product> _productRepository,

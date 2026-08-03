@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MyStoreLaZeta.Entities
+namespace CatalogoPro.Entities
 {
     public class ProductVariation
     {

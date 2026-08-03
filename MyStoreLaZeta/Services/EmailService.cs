@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Mail;
 
-namespace MyStoreLaZeta.Services
+namespace CatalogoPro.Services
 {
     public class EmailService
     {

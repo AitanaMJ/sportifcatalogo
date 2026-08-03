@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using MyStoreLaZeta.Models;
-using MyStoreLaZeta.Services;
+using CatalogoPro.Models;
+using CatalogoPro.Services;
 
-namespace MyStoreLaZeta.Controllers
+namespace CatalogoPro.Controllers
 {
     [Authorize(Roles = "Admin")]
     public class ProductController(ProductService _productService, CategoryService _categoryService) : Controller

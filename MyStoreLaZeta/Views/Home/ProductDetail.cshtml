@@ -1,296 +1,99 @@
-﻿@model ProductVM
+﻿@model CatalogoPro.Models.ProductVM
+@{
+    ViewData["Title"] = Model.Name;
 
-<style>
-    /* Botones compactos */
-    .btn-size-selector, .btn-color-selector {
-        min-width: 50px;
-        padding: 5px 12px;
-        font-size: 0.85rem;
-        margin-bottom: 5px;
-        transition: all 0.2s ease;
-        border-width: 1px;
-    }
+    // Configurá acá el número de WhatsApp de La Zeta (con código de país y área, sin el + ni espacios)
+    // Ejemplo para Tucumán: 549381XXXXXXX
+    string whatsappNumber = "543813577459";
+}
 
-    /* Efecto de selección sutil */
-    .btn-color-selector.active, .btn-size-selector.active {
-        background-color: var(--zeta-dark) !important;
-        color: white !important;
-        border-color: var(--zeta-dark) !important;
-        transform: scale(1.04);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
+<div class="container mt-5">
+    <div class="row bg-white p-4 rounded shadow-sm">
 
-    .product-selection-area {
-        padding: 1rem !important;
-        border-radius: 10px;
-    }
+        <!-- Columna de la Imagen -->
+        <div class="col-md-6 mb-4 text-center">
+            @if (!string.IsNullOrEmpty(Model.ImageName))
+            {
+                <img src="~/images/@Model.ImageName" class="img-fluid rounded" alt="@Model.Name" style="max-height: 500px; object-fit: contain;" />
+            }
+            else
+            {
+                <img src="~/images/no-image.png" class="img-fluid rounded" alt="Sin imagen" />
+            }
+        </div>
 
-    .product-selection-area h6 {
-        font-size: 0.7rem !important;
-        margin-bottom: 8px !important;
-    }
+        <!-- Columna de Detalles -->
+        <div class="col-md-6 d-flex flex-column justify-content-center">
+            <h1 class="fw-bold mb-2">@Model.Name</h1>
 
-    #stock-badge {
-        font-size: 0.75rem;
-        padding: 6px 12px;
-    }
-</style>
+            <h2 class="text-success fw-bold mb-4">
+                $@Model.Price.ToString("N2")
+            </h2>
 
-<section class="py-5">
-    <div class="container px-4 px-lg-5 my-5">
-        <div class="row gx-4 gx-lg-5 align-items-center">
+            <p class="text-muted mb-4" style="font-size: 1.1rem;">
+                @Model.Description
+            </p>
 
-            @* --- COLUMNA IMAGEN --- *@
-            <div class="col-md-6 mb-5 mb-md-0">
-                <div class="card card-zeta border-0 shadow-sm overflow-hidden p-3 bg-white">
-                    <img class="img-fluid rounded shadow-sm"
-                         src="~/images/@Model.ImageName"
-                         alt="@Model.Name"
-                         style="max-height: 550px; object-fit: contain; width: 100%;"
-                         loading="lazy" />
-                </div>
-            </div>
-
-            @* --- COLUMNA INFO --- *@
-            <div class="col-md-6 ps-lg-5">
-                <span class="badge mb-2 px-3 py-2 text-uppercase" style="background-color: var(--zeta-dark); font-size: 0.7rem; letter-spacing: 1px;">
-                    @Model.Category.Name
-                </span>
-
-                <h1 class="display-4 fw-bold text-zeta-dark mb-3">@Model.Name</h1>
-
-                @* --- PRECIOS --- *@
-                <div class="mb-3">
-                    @if (Model.Discount > 0)
-                    {
-                        <span class="text-muted text-decoration-line-through fs-5">@Model.Price.ToString("C")</span>
-                        <span class="badge bg-danger ms-2">@Model.Discount% OFF</span>
-                        <h2 class="text-danger fw-bold">
-                            @((Model.Price - (Model.Price * Model.Discount.Value / 100)).ToString("C"))
-                        </h2>
-                    }
-                    else
-                    {
-                        <h2 class="text-zeta-cyan fw-bold">@Model.Price.ToString("C")</h2>
-                    }
-                </div>
-
-                <div class="description-box mb-4 text-muted lh-lg">
-                    @Html.Raw(Model.Description)
-                </div>
-
-                @* --- ALERTAS DE ENVÍO --- *@
-                <div class="bg-light p-3 rounded-3 mb-4 border-start border-4 border-info">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="fa-solid fa-truck-fast me-2 text-info"></i>
-                        <span class="small fw-bold">Envíos a todo Tucumán y el país.</span>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <i class="fa-solid fa-store me-2 text-info"></i>
-                        <span class="small fw-bold">Retiro gratis en San Miguel de Tucumán.</span>
-                    </div>
-                </div>
-
-                @* --- STOCK PARA PRODUCTOS SIMPLES --- *@
-                @if (!Model.HasVariations)
-                {
-                    <div class="mb-3">
-                        @if (Model.Stock <= 0)
+            <!-- Selector de Variaciones (Solo se muestra si HasVariations es true) -->
+            @if (Model.HasVariations && Model.Variations != null && Model.Variations.Any())
+            {
+                <div class="mb-4 p-3 border rounded bg-light">
+                    <label for="variationSelect" class="form-label fw-bold">Elegí tu opción:</label>
+                    <select id="variationSelect" class="form-select form-select-lg border-secondary">
+                        <option value="">Seleccioná un talle o color...</option>
+                        @foreach (var variation in Model.Variations)
                         {
-                            <span class="badge rounded-pill bg-secondary px-3 py-2">
-                                <i class="fa-solid fa-circle-xmark me-1"></i> Sin stock disponible
-                            </span>
+                            <option value="Color: @variation.Color - Talle: @variation.Size">
+                                @variation.Color | @variation.Size
+                            </option>
                         }
-                        else if (Model.Stock <= 3)
-                        {
-                            <span class="badge rounded-pill bg-warning text-dark px-3 py-2 shadow-sm">
-                                <i class="fa-solid fa-fire-flame-curved me-1"></i> ¡ÚLTIMAS @Model.Stock UNIDADES!
-                            </span>
-                        }
-                        else
-                        {
-                            <span class="badge rounded-pill bg-success px-3 py-2">
-                                <i class="fa-solid fa-circle-check me-1"></i> Stock disponible (@Model.Stock un.)
-                            </span>
-                        }
-                    </div>
-                }
-
-                @* --- BADGE DE STOCK DINÁMICO (Para variaciones) --- *@
-                <div id="stock-display-container" class="mb-3" style="display: none;">
-                    <div id="stock-badge" class="badge rounded-pill px-3 py-2 shadow-sm">
-                        <i id="stock-icon" class="fa-solid me-1"></i>
-                        <span id="stock-text"></span>
+                    </select>
+                    <!-- Mensaje de error oculto por defecto -->
+                    <div id="variationError" class="text-danger mt-2 d-none fw-semibold">
+                        <i class="fa-solid fa-circle-exclamation"></i> Por favor, seleccioná una opción antes de consultar.
                     </div>
                 </div>
+            }
 
-                @* --- FORMULARIO DE COMPRA --- *@
-                <form action="/Home/AddItemToCart" method="post" id="cartForm">
-                    <input hidden name="productId" asp-for="@Model.ProductId" />
-
-                    @if (Model.HasVariations && Model.Variations.Any())
-                    {
-                        <div class="product-selection-area mb-4 p-3 bg-light rounded-3 shadow-sm border">
-                            <h6 class="fw-bold text-uppercase mb-2" style="font-size: 0.75rem; color: #666;">1. Elegí Color:</h6>
-                            <div class="d-flex gap-2 mb-3" id="color-options">
-                                @foreach (var color in Model.Variations.Select(v => v.Color.Trim().ToUpper()).Distinct())
-                                {
-                                    <button type="button" class="btn btn-outline-dark rounded-pill px-3 btn-color-selector" data-color="@color">
-                                        @color
-                                    </button>
-                                }
-                            </div>
-
-                            <h6 class="fw-bold text-uppercase mb-2" style="font-size: 0.75rem; color: #666;">2. Elegí Talle:</h6>
-                            <div class="d-flex gap-2" id="size-options">
-                                <p class="text-muted small italic m-0">Seleccioná un color primero...</p>
-                            </div>
-
-                            <div id="error-message" class="text-danger small fw-bold mt-2" style="display: none;">
-                                <i class="fa-solid fa-circle-exclamation me-1"></i> Por favor, elegí color y talle para ver disponibilidad.
-                            </div>
-
-                            <input type="hidden" id="selectedVariationId" name="variationId" value="" />
-                        </div>
-                    }
-
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="quantity-input shadow-sm rounded-3 overflow-hidden d-flex border bg-white">
-                            <input class="form-control text-center border-0 fw-bold"
-                                   id="inputQuantity"
-                                   name="quantity" type="number" value="1" min="1"
-                                   max="@(Model.HasVariations ? "" : Model.Stock.ToString())"
-                                   style="width: 70px; height: 50px;" />
-                        </div>
-
-                        <button id="btnAddToCart" class="btn btn-zeta-orange flex-grow-1 py-3 fw-bold text-uppercase shadow-sm" type="submit" @(Model.Stock <= 0 && !Model.HasVariations ? "disabled" : "")>
-                            <i class="fa-solid fa-cart-shopping me-2"></i>
-                            @(Model.Stock <= 0 && !Model.HasVariations ? "Sin Stock" : "Añadir al carrito")
-                        </button>
-                    </div>
-                </form>
-
-                <div class="mt-4">
-                    <a class="btn btn-link text-muted text-decoration-none px-0" href="/Home/Catalogo">
-                        <i class="fa-solid fa-arrow-left me-1"></i> Volver al catálogo
-                    </a>
-                </div>
-
-                @* --- MENSAJE DE ÉXITO --- *@
-                @if (ViewBag.message != null)
-                {
-                    <div class="alert alert-success mt-4 border-0 shadow-sm d-flex align-items-center" role="alert" style="border-left: 5px solid #28a745 !important;">
-                        <i class="fa-solid fa-circle-check fa-lg me-3 text-success"></i>
-                        <div>@ViewBag.message</div>
-                    </div>
-                }
-
-                @* --- NUEVO: MENSAJE DE ERROR DE STOCK --- *@
-                @if (ViewBag.errorMessage != null)
-                {
-                    <div class="alert alert-danger mt-4 border-0 shadow-sm d-flex align-items-center" role="alert" style="border-left: 5px solid #dc3545 !important; background-color: #f8d7da;">
-                        <i class="fa-solid fa-triangle-exclamation fa-lg me-3 text-danger"></i>
-                        <div class="fw-bold text-danger">@ViewBag.errorMessage</div>
-                    </div>
-                }
-            </div> 
-            </div>
+            <!-- Botón de WhatsApp -->
+            <button id="btnWhatsApp" class="btn btn-success btn-lg w-100 rounded-pill fw-bold shadow-sm py-3 mt-auto">
+                <i class="fa-brands fa-whatsapp fa-xl me-2"></i> Consultar por WhatsApp
+            </button>
         </div>
     </div>
-</section>
+</div>
 
- @section Scripts {
-    @if (Model.HasVariations && Model.Variations != null && Model.Variations.Any())
-    {
-        <script>
-            const variations = @Html.Raw(Json.Serialize(Model.Variations.Select(v => new { 
-                id = v.Id, 
-                color = v.Color.Trim().ToUpper(), 
-                size = v.Size.Trim().ToUpper(), 
-                stock = v.Stock 
-            }).ToList()));
+@section Scripts {
+    <script>
+        document.getElementById('btnWhatsApp').addEventListener('click', function () {
+            // Variables enviadas desde Razor al script
+            const productName = '@Html.Raw(Model.Name)';
+            const hasVariations = '@Model.HasVariations'.toLowerCase() === 'true';
+            let variationText = '';
 
-            document.querySelectorAll('.btn-color-selector').forEach(button => {
-                button.addEventListener('click', function() {
-                    document.querySelectorAll('.btn-color-selector').forEach(b => b.classList.remove('active', 'btn-dark'));
-                    this.classList.add('active', 'btn-dark');
-                    document.getElementById('selectedVariationId').value = "";
-                    document.getElementById('stock-display-container').style.display = 'none';
-                    renderSizes(this.getAttribute('data-color'));
-                });
-            });
+            // Validación de variaciones
+            if (hasVariations) {
+                const select = document.getElementById('variationSelect');
 
-            function renderSizes(color) {
-                const sizeContainer = document.getElementById('size-options');
-                sizeContainer.innerHTML = '';
-                const filtered = variations.filter(v => v.color === color);
+                // Si el producto tiene variaciones pero no eligió ninguna, frenamos la ejecución
+                if (select.value === '') {
+                    document.getElementById('variationError').classList.remove('d-none');
+                    return;
+                }
 
-                filtered.forEach(v => {
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.className = 'btn btn-outline-secondary rounded-pill px-3 btn-size-selector';
-                    btn.innerText = v.size;
-
-                    if (v.stock <= 0) {
-                        btn.disabled = true;
-                        btn.classList.add('opacity-50', 'text-decoration-line-through');
-                    }
-
-                    btn.onclick = () => {
-                        document.querySelectorAll('.btn-size-selector').forEach(b => b.classList.remove('active', 'btn-dark'));
-                        btn.classList.add('active', 'btn-dark');
-                        document.getElementById('selectedVariationId').value = v.id;
-                        document.getElementById('error-message').style.display = 'none';
-                        updateStockUI(v.stock);
-                    };
-                    sizeContainer.appendChild(btn);
-                });
+                // Si eligió una, ocultamos el error y guardamos el texto
+                document.getElementById('variationError').classList.add('d-none');
+                variationText = ` (${select.value})`;
             }
 
-            function updateStockUI(stock) {
-                const container = document.getElementById('stock-display-container');
-                const badge = document.getElementById('stock-badge');
-                const text = document.getElementById('stock-text');
-                const icon = document.getElementById('stock-icon');
-                const btnAdd = document.getElementById('btnAddToCart');
-                const inputQty = document.getElementById('inputQuantity');
+            // Armado del mensaje dinámico
+            const message = `Hola, me interesa el producto: *${productName}*${variationText}. ¿Me podrían dar más información?`;
 
-                container.style.display = 'block';
-                badge.className = "badge rounded-pill px-3 py-2 shadow-sm ";
-                icon.className = "fa-solid me-1 ";
-                
-                inputQty.max = stock;
-                if (parseInt(inputQty.value) > stock) inputQty.value = stock;
+            // Construcción de la URL de WhatsApp
+            const whatsappUrl = `https://wa.me/@whatsappNumber?text=${encodeURIComponent(message)}`;
 
-                if (stock <= 0) {
-                    badge.classList.add('bg-secondary');
-                    text.innerText = "Sin stock disponible";
-                    icon.classList.add('fa-circle-xmark');
-                    btnAdd.disabled = true;
-                    btnAdd.innerText = "Agotado";
-                } else if (stock <= 3) {
-                    badge.classList.add('bg-warning', 'text-dark');
-                    text.innerText = `¡Últimas ${stock} unidades!`;
-                    icon.classList.add('fa-fire-flame-curved');
-                    btnAdd.disabled = false;
-                    btnAdd.innerHTML = '<i class="fa-solid fa-cart-shopping me-2"></i> Añadir al carrito';
-                } else {
-                    badge.classList.add('bg-success');
-                    text.innerText = `Stock disponible (${stock} un.)`;
-                    icon.classList.add('fa-circle-check');
-                    btnAdd.disabled = false;
-                    btnAdd.innerHTML = '<i class="fa-solid fa-cart-shopping me-2"></i> Añadir al carrito';
-                }
-            }
-
-            document.getElementById('cartForm').onsubmit = function(e) {
-                const hasVar = "@Model.HasVariations".toLowerCase() === "true";
-                const selected = document.getElementById('selectedVariationId').value;
-                if (hasVar && !selected) {
-                    e.preventDefault();
-                    document.getElementById('error-message').style.display = 'block';
-                }
-            };
-        </script>
-    }
+            // Redirección en una nueva pestaña
+            window.open(whatsappUrl, '_blank');
+        });
+    </script>
 }

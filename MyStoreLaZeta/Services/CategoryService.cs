@@ -1,9 +1,9 @@
-﻿using MyStoreLaZeta.Entities;
-using MyStoreLaZeta.Models;
-using MyStoreLaZeta.Repositories;
+﻿using CatalogoPro.Entities;
+using CatalogoPro.Models;
+using CatalogoPro.Repositories;
 using System.Linq.Expressions; 
 
-namespace MyStoreLaZeta.Services
+namespace CatalogoPro.Services
 {
     public class CategoryService(GenericRepository<Category> _categoryRepository)
     {

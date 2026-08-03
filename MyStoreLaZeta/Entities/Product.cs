@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MyStoreLaZeta.Entities
+namespace CatalogoPro.Entities
 {
     public class Product
     {

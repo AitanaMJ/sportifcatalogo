@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
-using MyStoreLaZeta.Models;
-using MyStoreLaZeta.Services;
+using CatalogoPro.Models;
+using CatalogoPro.Services;
 using System.IO; 
 
-namespace MyStoreLaZeta.Controllers
+namespace CatalogoPro.Controllers
 {
     [Authorize(Roles = "Admin")]
     

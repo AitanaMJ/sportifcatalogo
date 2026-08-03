@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using MyStoreLaZeta.Entities;
-using MyStoreLaZeta.Context;
-using MyStoreLaZeta.Repositories;
-using MyStoreLaZeta.Services;
-
+using CatalogoPro.Entities;
+using CatalogoPro.Context;
+using CatalogoPro.Repositories;
+using CatalogoPro.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,17 +19,14 @@ builder.Services.AddScoped(typeof(GenericRepository<>));
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<MyStoreLaZeta.Services.EmailService>();
+builder.Services.AddScoped<EmailService>();
 
-
-builder.Services.AddSession(options => { options.IdleTimeout = TimeSpan.FromMinutes(30); });
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(
     options =>
     {
         options.LoginPath = "/Account/Login";
         options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
     });
-
 
 var app = builder.Build();
 
@@ -40,7 +36,6 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
 }
 
-app.UseSession();
 app.UseRouting();
 
 app.UseAuthorization();
@@ -56,16 +51,21 @@ app.MapControllerRoute(
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 
     // Verificamos si ya existe algún usuario con Type = "Admin"
     if (!context.Users.Any(u => u.Type == "Admin"))
     {
+        // Leemos las credenciales desde appsettings.json
+        var adminEmail = config["AdminConfig:Email"];
+        var adminPassword = config["AdminConfig:Password"];
+
         var adminUser = new User
         {
             FullName = "Administrador Principal",
-            Email = "adminlazeta1@gmail.com",
-            // Encriptamos la contraseña con BCrypt, igual que en tu registro normal
-            Password = BCrypt.Net.BCrypt.HashPassword("simon123"),
+            Email = adminEmail,
+            // Encriptamos la contraseña obtenida del archivo de configuración
+            Password = BCrypt.Net.BCrypt.HashPassword(adminPassword),
             Type = "Admin"
         };
 
@@ -74,8 +74,5 @@ using (var scope = app.Services.CreateScope())
     }
 }
 // --- FIN DATA SEEDING ---
-
-app.Run();
-
 
 app.Run();

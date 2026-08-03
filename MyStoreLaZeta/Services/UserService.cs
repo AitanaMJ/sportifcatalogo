@@ -1,9 +1,9 @@
 ﻿using System.Linq.Expressions;
-using MyStoreLaZeta.Entities;
-using MyStoreLaZeta.Models;
-using MyStoreLaZeta.Repositories;
+using CatalogoPro.Entities;
+using CatalogoPro.Models;
+using CatalogoPro.Repositories;
 
-namespace MyStoreLaZeta.Services
+namespace CatalogoPro.Services
 {
     public class UserService(GenericRepository<User> _userRepository)
     {

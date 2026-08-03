@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace MyStoreLaZeta.Utilities
+namespace CatalogoPro.Utilities
 {
     public static class SessionExtensions
     {

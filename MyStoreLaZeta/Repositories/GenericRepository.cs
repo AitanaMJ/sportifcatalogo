@@ -1,29 +1,28 @@
-﻿using MyStoreLaZeta.Context;
+﻿using CatalogoPro.Context;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 using System.Linq.Expressions;
 
-namespace MyStoreLaZeta.Repositories
+namespace CatalogoPro.Repositories
 {
     public class GenericRepository<TEntity>(AppDbContext _dbContext) where TEntity : class
     {
         public async Task<IEnumerable<TEntity>> GetAllAsync()
         {
-           return await  _dbContext.Set<TEntity>().ToListAsync();
+            return await _dbContext.Set<TEntity>().ToListAsync();
         }
 
         public async Task<IEnumerable<TEntity>> GetAllAsync(
             Expression<Func<TEntity, bool>>[]? conditions = null,
-            Expression<Func<TEntity,object>>[]? includes = null
+            Expression<Func<TEntity, object>>[]? includes = null
             )
         {
             IQueryable<TEntity> query = _dbContext.Set<TEntity>();
 
             if (conditions is not null)
                 foreach (var condition in conditions) query = query.Where(condition);
-            if (includes is not null)
 
-            foreach (var include in includes) query = query.Include(include); 
+            if (includes is not null)
+                foreach (var include in includes) query = query.Include(include);
 
             return await query.ToListAsync();
         }
@@ -52,19 +51,15 @@ namespace MyStoreLaZeta.Repositories
         }
 
         public async Task<TEntity?> GetByFilter(
-           Expression<Func<TEntity, bool>>[]? conditions 
-          
+           Expression<Func<TEntity, bool>>[]? conditions
         )
         {
             IQueryable<TEntity> query = _dbContext.Set<TEntity>();
 
             if (conditions is not null)
                 foreach (var condition in conditions) query = query.Where(condition);
+
             return await query.FirstOrDefaultAsync();
         }
-
-
-
-
     }
 }
